@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Hungarian)
+
+[notifications]
+saved = "Mentve."
+deleted = "Törölve."
+updated = "Frissítve."
+installed = "Telepítve."
+uninstalled = "Eltávolítva."
+deployed = "Telepítve."
+started = "Elindítva."
+stopped = "Leállítva."
+restarted = "Újraindítva."
+copied = "Vágólapra másolva."
+connection_restored = "A kapcsolat helyreállt."
+sync_completed = "A szinkronizálás befejeződött."
+import_completed = "Az importálás befejeződött."
+export_completed = "Az exportálás befejeződött."
+changes_discarded = "A módosítások elvetve."
+secret_generated = "Új titok generálva."
+backup_created = "Biztonsági mentés létrehozva."

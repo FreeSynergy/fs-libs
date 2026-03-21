@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Swedish)
+
+[confirmations]
+delete = "Ta bort? Det går inte att ångra."
+restart = "Starta om?"
+deploy = "Driftsätta?"
+logout = "Logga ut?"
+unsaved_changes = "Du har osparade ändringar. Lämna ändå?"
+overwrite = "Finns redan. Skriv över?"
+reset = "Återställ alla inställningar till standard?"
+remove_plugin = "Ta bort plugin? All data försvinner."
+wipe_data = "Radera all data? Det går inte att ångra."
+stop = "Stoppa?"
+cancel_op = "Avbryt åtgärden?"
+apply = "Tillämpa ändringar?"
+import = "Importera och skriv över befintlig data?"
+sync = "Synkronisera nu?"
+generate_secret = "Generera ny hemlighet? Den gamla hemligheten försvinner."

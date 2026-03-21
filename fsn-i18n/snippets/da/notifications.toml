@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Danish)
+
+[notifications]
+saved = "Gemt."
+deleted = "Slettet."
+updated = "Opdateret."
+installed = "Installeret."
+uninstalled = "Afinstalleret."
+deployed = "Udrullet."
+started = "Startet."
+stopped = "Stoppet."
+restarted = "Genstartet."
+copied = "Kopieret til udklipsholder."
+connection_restored = "Forbindelsen er gendannet."
+sync_completed = "Synkronisering fuldført."
+import_completed = "Import fuldført."
+export_completed = "Eksport fuldført."
+changes_discarded = "Ændringer forkastet."
+secret_generated = "Ny hemmelighed genereret."
+backup_created = "Sikkerhedskopi oprettet."

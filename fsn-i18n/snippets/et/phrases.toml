@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Estonian)
+
+[phrases]
+confirm_delete      = "Kas soovite kindlasti kustutada?"
+select_item         = "Valige element"
+no_results          = "Tulemusi ei leitud"
+loading_data        = "Andmete laadimine…"
+operation_successful = "Toiming õnnestus"
+operation_failed    = "Toiming ebaõnnestus"
+are_you_sure        = "Kas olete kindel?"
+welcome_to          = "Tere tulemast"
+unsaved_changes     = "Teil on salvestamata muudatusi"
+try_again           = "Palun proovige uuesti"
+contact_support     = "Palun võtke ühendust toega"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

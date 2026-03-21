@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notifications (Finnish)
+
+[notifications]
+saved               = "Tallennettu."
+deleted             = "Poistettu."
+updated             = "Päivitetty."
+installed           = "Asennettu."
+uninstalled         = "Asennus poistettu."
+deployed            = "Otettu käyttöön."
+started             = "Käynnistetty."
+stopped             = "Pysäytetty."
+restarted           = "Käynnistetty uudelleen."
+copied              = "Kopioitu leikepöydälle."
+connection_restored = "Yhteys palautettu."
+sync_completed      = "Synkronointi valmis."
+import_completed    = "Tuonti valmis."
+export_completed    = "Vienti valmis."
+changes_discarded   = "Muutokset hylätty."
+secret_generated    = "Uusi salaisuus luotu."
+backup_created      = "Varmuuskopio luotu."

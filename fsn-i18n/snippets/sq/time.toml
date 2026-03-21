@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Albanian)
+
+[time]
+just_now = "tani"
+seconds_ago = "para {n} sekondash"
+minutes_ago = "para {n} minutash"
+hours_ago = "para {n} orësh"
+days_ago = "para {n} ditësh"
+weeks_ago = "para {n} javësh"
+months_ago = "para {n} muajsh"
+years_ago = "para {n} vjetësh"
+today = "sot"
+yesterday = "dje"
+tomorrow = "nesër"
+never = "kurrë"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

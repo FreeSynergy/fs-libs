@@ -1,0 +1,26 @@
+# help.toml — Help system labels and tips (Czech)
+
+[help]
+getting_started = "Začínáme"
+navigation = "Navigace"
+keyboard_shortcuts = "Klávesové zkratky"
+search_tip = "Použijte vyhledávací lištu pro rychlé nalezení položek"
+keyboard_tip = "Použijte Tab pro přechod mezi poli, Enter pro potvrzení"
+close = "Zavřít nápovědu"
+
+# --- TODO: translate ---
+# press_key = "Press {key}"
+# press_to_action = "Press {key} to {action}"
+# navigate = "Navigate with arrow keys"
+# navigate_tabs = "Switch tabs with Ctrl+← / Ctrl+→"
+# submit = "Submit with Ctrl+S"
+# cancel_action = "Cancel with Esc"
+# open_help = "Press F1 for help"
+# search_hint = "Type to search..."
+# no_results = "No results for \\"{query}\\""
+# more_info = "More information"
+# see_docs = "See documentation"
+# example = "Example: {example}"
+# tip = "Tip: {tip}"
+# note = "Note: {note}"
+# warning = "Warning: {warning}"

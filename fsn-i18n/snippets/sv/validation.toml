@@ -1,0 +1,23 @@
+# validation.toml — Validation messages for form fields (Swedish)
+
+[validation]
+required = "Det här fältet är obligatoriskt"
+too_short = "För kort"
+too_long = "För lång"
+invalid_email = "Ogiltig e-postadress"
+invalid_url = "Ogiltig URL"
+invalid_format = "Ogiltigt format"
+out_of_range = "Värdet är utanför intervallet"
+pattern_mismatch = "Matchar inte det obligatoriska mönstret"
+already_exists = "Finns redan"
+not_found = "Hittades inte"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

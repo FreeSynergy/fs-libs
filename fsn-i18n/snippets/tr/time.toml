@@ -1,0 +1,27 @@
+# time.toml — Zaman ifadeleri (Türkçe)
+
+[time]
+just_now      = "şimdi"
+seconds_ago   = "{n} saniye önce"
+minutes_ago   = "{n} dakika önce"
+hours_ago     = "{n} saat önce"
+days_ago      = "{n} gün önce"
+weeks_ago     = "{n} hafta önce"
+months_ago    = "{n} ay önce"
+years_ago     = "{n} yıl önce"
+today         = "bugün"
+yesterday     = "dün"
+tomorrow      = "yarın"
+never         = "hiçbir zaman"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

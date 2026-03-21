@@ -1,0 +1,131 @@
+[workspace]
+members = [
+    # Core
+    "fsn-types", "fsn-error", "fsn-config",
+    "fsn-core", "fsn-crypto", "fsn-health",
+    "fsn-db", "fsn-bus", "fsn-sync",
+    "fsn-template", "fsn-inventory",
+    "fsn-bridge", "fsn-sysinfo",
+    # UI
+    "fsn-theme", "fsn-help", "fsn-i18n",
+    "fsn-render", "fsn-components", "fsn-ui",
+    # Ext
+    "fsn-store", "fsn-pkg",
+    "fsn-plugin-sdk", "fsn-plugin-runtime",
+    "fsn-container",
+    # Net
+    "fsn-auth", "fsn-federation", "fsn-bridge-sdk",
+    "fsn-channel", "fsn-llm", "fsn-bot",
+]
+resolver = "2"
+
+[workspace.package]
+version     = "0.1.0"
+edition     = "2021"
+license     = "MIT"
+authors     = ["FreeSynergy.Net"]
+repository  = "https://github.com/FreeSynergy/fs-libs"
+
+# ── Shared dependency versions ─────────────────────────────────────────────────
+[workspace.dependencies]
+# Internal
+fsn-types          = { path = "fsn-types" }
+fsn-error          = { path = "fsn-error" }
+fsn-config         = { path = "fsn-config" }
+fsn-core           = { path = "fsn-core" }
+fsn-crypto         = { path = "fsn-crypto" }
+fsn-health         = { path = "fsn-health" }
+fsn-db             = { path = "fsn-db" }
+fsn-bus            = { path = "fsn-bus" }
+fsn-sync           = { path = "fsn-sync" }
+fsn-template       = { path = "fsn-template" }
+fsn-inventory      = { path = "fsn-inventory" }
+fsn-bridge         = { path = "fsn-bridge" }
+fsn-sysinfo        = { path = "fsn-sysinfo" }
+fsn-theme          = { path = "fsn-theme" }
+fsn-help           = { path = "fsn-help" }
+fsn-i18n           = { path = "fsn-i18n" }
+fsn-render         = { path = "fsn-render" }
+fsn-components     = { path = "fsn-components" }
+fsn-ui             = { path = "fsn-ui" }
+fsn-store          = { path = "fsn-store" }
+fsn-pkg            = { path = "fsn-pkg" }
+fsn-plugin-sdk     = { path = "fsn-plugin-sdk" }
+fsn-plugin-runtime = { path = "fsn-plugin-runtime" }
+fsn-container      = { path = "fsn-container" }
+fsn-auth           = { path = "fsn-auth" }
+fsn-federation     = { path = "fsn-federation" }
+fsn-bridge-sdk     = { path = "fsn-bridge-sdk" }
+fsn-channel        = { path = "fsn-channel" }
+fsn-llm            = { path = "fsn-llm" }
+fsn-bot            = { path = "fsn-bot" }
+
+# Serde
+serde       = { version = "1", features = ["derive"] }
+serde_json  = { version = "1" }
+toml        = { version = "1", features = ["preserve_order"] }
+
+# Error handling
+anyhow    = { version = "1" }
+thiserror = { version = "2" }
+
+# Async
+tokio        = { version = "1", features = ["full"] }
+async-trait  = { version = "0.1" }
+futures-util = { version = "0.3" }
+
+# HTTP
+reqwest = { version = "0.13", features = ["json", "rustls", "form", "query"], default-features = false }
+
+# WebSocket
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+
+# Database
+sea-orm = { version = "=2.0.0-rc.37", default-features = false, features = ["macros"] }
+
+# UI (Dioxus)
+dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals", "hooks", "launch"] }
+
+# i18n
+fluent-bundle = { version = "0.15" }
+unic-langid   = { version = "0.9", features = ["macros"] }
+
+# CRDT
+automerge = { version = "0.7" }
+
+# Template
+tera     = { version = "1" }
+indexmap = { version = "2" }
+
+# Container API
+bollard = { version = "0.18" }
+
+# WASM runtime
+wasmtime      = { version = "28", features = ["cranelift"] }
+wasmtime-wasi = { version = "28" }
+
+# ActivityPub
+activitypub_federation = { version = "0.6", default-features = false }
+
+# JWT + OAuth2
+jsonwebtoken = { version = "9" }
+oauth2       = { version = "4" }
+
+# Messaging SDKs
+matrix-sdk = { version = "0.10", default-features = false, features = ["rustls-tls", "sqlite"] }
+teloxide   = { version = "0.13", default-features = false, features = ["macros"] }
+
+# Crypto
+ed25519-dalek = { version = "2", features = ["serde", "rand_core"] }
+
+# Retry
+backon = { version = "1", features = ["tokio-sleep"] }
+
+# Logging
+tracing            = { version = "0.1" }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Utilities
+uuid   = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+url    = { version = "2" }

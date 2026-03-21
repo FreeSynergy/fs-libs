@@ -1,0 +1,27 @@
+# time.toml — 상대적 시간 표현 (Korean)
+
+[time]
+just_now     = "방금 전"
+seconds_ago  = "{n}초 전"
+minutes_ago  = "{n}분 전"
+hours_ago    = "{n}시간 전"
+days_ago     = "{n}일 전"
+weeks_ago    = "{n}주 전"
+months_ago   = "{n}개월 전"
+years_ago    = "{n}년 전"
+today        = "오늘"
+yesterday    = "어제"
+tomorrow     = "내일"
+never        = "없음"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

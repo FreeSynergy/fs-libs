@@ -1,0 +1,27 @@
+# time.toml — relative time labels (Russian)
+
+[time]
+just_now     = "только что"
+seconds_ago  = "{n} секунд назад"
+minutes_ago  = "{n} минут назад"
+hours_ago    = "{n} часов назад"
+days_ago     = "{n} дней назад"
+weeks_ago    = "{n} недель назад"
+months_ago   = "{n} месяцев назад"
+years_ago    = "{n} лет назад"
+today        = "сегодня"
+yesterday    = "вчера"
+tomorrow     = "завтра"
+never        = "никогда"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

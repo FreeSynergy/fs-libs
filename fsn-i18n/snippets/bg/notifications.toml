@@ -1,0 +1,20 @@
+# notifications.toml — Успешни действия и статус (Български)
+
+[notifications]
+saved               = "Запазено."
+deleted             = "Изтрито."
+updated             = "Актуализирано."
+installed           = "Инсталирано."
+uninstalled         = "Деинсталирано."
+deployed            = "Деплойнато."
+started             = "Стартирано."
+stopped             = "Спряно."
+restarted           = "Рестартирано."
+copied              = "Копирано в клипборда."
+connection_restored = "Връзката е възстановена."
+sync_completed      = "Синхронизирането завърши."
+import_completed    = "Импортирането завърши."
+export_completed    = "Експортирането завърши."
+changes_discarded   = "Промените са отхвърлени."
+secret_generated    = "Нова тайна е генерирана."
+backup_created      = "Резервното копие е създадено."

@@ -1,0 +1,27 @@
+# time.toml — Biểu thức thời gian (Vietnamese)
+
+[time]
+just_now     = "vừa xong"
+seconds_ago  = "{n} giây trước"
+minutes_ago  = "{n} phút trước"
+hours_ago    = "{n} giờ trước"
+days_ago     = "{n} ngày trước"
+weeks_ago    = "{n} tuần trước"
+months_ago   = "{n} tháng trước"
+years_ago    = "{n} năm trước"
+today        = "hôm nay"
+yesterday    = "hôm qua"
+tomorrow     = "ngày mai"
+never        = "không bao giờ"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

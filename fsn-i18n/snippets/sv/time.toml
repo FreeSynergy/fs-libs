@@ -1,0 +1,27 @@
+# time.toml — Relative and absolute time expressions (Swedish)
+
+[time]
+just_now = "Precis nu"
+seconds_ago = "för {n} sekunder sedan"
+minutes_ago = "för {n} minuter sedan"
+hours_ago = "för {n} timmar sedan"
+days_ago = "för {n} dagar sedan"
+weeks_ago = "för {n} veckor sedan"
+months_ago = "för {n} månader sedan"
+years_ago = "för {n} år sedan"
+today = "Idag"
+yesterday = "Igår"
+tomorrow = "Imorgon"
+never = "Aldrig"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

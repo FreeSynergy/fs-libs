@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Croatian)
+
+[time]
+just_now = "upravo sada"
+seconds_ago = "prije {n} sekundi"
+minutes_ago = "prije {n} minuta"
+hours_ago = "prije {n} sati"
+days_ago = "prije {n} dana"
+weeks_ago = "prije {n} tjedana"
+months_ago = "prije {n} mjeseci"
+years_ago = "prije {n} godina"
+today = "danas"
+yesterday = "jučer"
+tomorrow = "sutra"
+never = "nikad"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

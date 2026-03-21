@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Italian)
+
+[confirmations]
+delete = "Eliminare? Questa azione non può essere annullata."
+restart = "Riavviare?"
+deploy = "Deploy?"
+logout = "Uscire?"
+unsaved_changes = "Hai modifiche non salvate. Uscire comunque?"
+overwrite = "Esiste già. Sovrascrivere?"
+reset = "Ripristinare tutte le impostazioni predefinite?"
+remove_plugin = "Rimuovere il plugin? Tutti i dati andranno persi."
+wipe_data = "Cancellare tutti i dati? Questa azione non può essere annullata."
+stop = "Fermare?"
+cancel_op = "Annullare l'operazione?"
+apply = "Applicare le modifiche?"
+import = "Importare e sovrascrivere i dati esistenti?"
+sync = "Sincronizzare ora?"
+generate_secret = "Generare un nuovo segreto? Il vecchio segreto andrà perso."

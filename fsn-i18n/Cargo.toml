@@ -1,0 +1,15 @@
+[package]
+name        = "fsn-i18n"
+description = "Fluent-based i18n system for FreeSynergy"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[dependencies]
+fsn-error     = { workspace = true }
+fluent-bundle = { workspace = true }
+unic-langid   = { workspace = true }
+toml          = { workspace = true }
+serde         = { workspace = true }

@@ -1,0 +1,26 @@
+package fsy:plugin@0.1.0;
+
+/// The interface a plugin must implement.
+interface plugin {
+    /// Plugin metadata — called once at load time.
+    manifest: func() -> manifest;
+
+    /// Execute a named command with a JSON context, return a JSON response.
+    execute: func(command: string, context: string) -> result<string, string>;
+}
+
+/// Plugin manifest declared by the WASM module.
+record manifest {
+    /// Unique plugin identifier (e.g. "zentinel").
+    id: string,
+    /// Plugin version (e.g. "0.1.0").
+    version: string,
+    /// Supported commands (e.g. ["deploy", "clean"]).
+    commands: list<string>,
+    /// Description of the plugin.
+    description: string,
+}
+
+world plugin-world {
+    export plugin;
+}

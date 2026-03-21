@@ -1,0 +1,23 @@
+# validation.toml — Validation messages for form fields (Dutch)
+
+[validation]
+required = "Dit veld is verplicht"
+too_short = "Te kort"
+too_long = "Te lang"
+invalid_email = "Ongeldig e-mailadres"
+invalid_url = "Ongeldige URL"
+invalid_format = "Ongeldig formaat"
+out_of_range = "Waarde buiten bereik"
+pattern_mismatch = "Voldoet niet aan het vereiste patroon"
+already_exists = "Bestaat al"
+not_found = "Niet gevonden"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

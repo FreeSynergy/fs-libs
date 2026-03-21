@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Norwegian Bokmål)
+
+[notifications]
+saved = "Lagret."
+deleted = "Slettet."
+updated = "Oppdatert."
+installed = "Installert."
+uninstalled = "Avinstallert."
+deployed = "Utrullet."
+started = "Startet."
+stopped = "Stoppet."
+restarted = "Startet på nytt."
+copied = "Kopiert til utklippstavlen."
+connection_restored = "Tilkoblingen er gjenopprettet."
+sync_completed = "Synkronisering fullført."
+import_completed = "Import fullført."
+export_completed = "Eksport fullført."
+changes_discarded = "Endringer forkastet."
+secret_generated = "Ny hemmelighet generert."
+backup_created = "Sikkerhetskopi opprettet."

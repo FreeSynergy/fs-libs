@@ -1,0 +1,26 @@
+# help.toml — Help system labels and tips (Tamil)
+
+[help]
+getting_started = "தொடங்குவது எப்படி"
+navigation = "வழிசெலுத்தல்"
+keyboard_shortcuts = "விசைப்பலகை குறுக்குவழிகள்"
+search_tip = "பொருட்களை விரைவாக கண்டுபிடிக்க தேடல் பட்டியை பயன்படுத்தவும்"
+keyboard_tip = "புலங்களுக்கு இடையில் நகர Tab பயன்படுத்தவும், உறுதிப்படுத்த Enter பயன்படுத்தவும்"
+close = "உதவியை மூடு"
+
+# --- TODO: translate ---
+# press_key = "Press {key}"
+# press_to_action = "Press {key} to {action}"
+# navigate = "Navigate with arrow keys"
+# navigate_tabs = "Switch tabs with Ctrl+← / Ctrl+→"
+# submit = "Submit with Ctrl+S"
+# cancel_action = "Cancel with Esc"
+# open_help = "Press F1 for help"
+# search_hint = "Type to search..."
+# no_results = "No results for \\"{query}\\""
+# more_info = "More information"
+# see_docs = "See documentation"
+# example = "Example: {example}"
+# tip = "Tip: {tip}"
+# note = "Note: {note}"
+# warning = "Warning: {warning}"

@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Lithuanian)
+
+[validation]
+required          = "Privalomas laukas"
+too_short         = "Per trumpas (minimalus: {min} simboliai)"
+too_long          = "Per ilgas (maksimalus: {max} simboliai)"
+invalid_email     = "Neteisingas el. pašto adresas"
+invalid_url       = "Neteisinga URL"
+invalid_format    = "Neteisingas formatas"
+out_of_range      = "Reikšmė už diapazono ribų"
+pattern_mismatch  = "Neatitinka reikalaujamo šablono"
+already_exists    = "Jau egzistuoja"
+not_found         = "Nerasta"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

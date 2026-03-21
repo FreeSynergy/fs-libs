@@ -1,0 +1,18 @@
+# confirmations.toml — Konfirmasi tindakan (Bahasa Indonesia)
+
+[confirmations]
+delete          = "Hapus? Tindakan ini tidak dapat dibatalkan."
+restart         = "Mulai ulang?"
+deploy          = "Deploy?"
+logout          = "Keluar?"
+unsaved_changes = "Anda memiliki perubahan yang belum disimpan. Tetap keluar?"
+overwrite       = "Sudah ada. Timpa?"
+reset           = "Setel ulang semua pengaturan ke default?"
+remove_plugin   = "Hapus Plugin? Semua data akan hilang."
+wipe_data       = "Hapus semua data? Tindakan ini tidak dapat dibatalkan."
+stop            = "Hentikan?"
+cancel_op       = "Batalkan operasi?"
+apply           = "Terapkan perubahan?"
+import          = "Impor dan timpa data yang ada?"
+sync            = "Sinkronkan sekarang?"
+generate_secret = "Buat rahasia baru? Rahasia lama akan hilang."

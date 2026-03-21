@@ -1,0 +1,12 @@
+[package]
+name        = "fsn-plugin-sdk"
+description = "WASM plugin SDK for FreeSynergy — plugin authors implement this"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }

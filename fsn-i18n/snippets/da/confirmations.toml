@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Danish)
+
+[confirmations]
+delete = "Slette? Dette kan ikke fortrydes."
+restart = "Genstarte?"
+deploy = "Udrulle?"
+logout = "Log ud?"
+unsaved_changes = "Du har ikke-gemte ændringer. Forlad alligevel?"
+overwrite = "Findes allerede. Overskriv?"
+reset = "Nulstil alle indstillinger til standard?"
+remove_plugin = "Fjern plugin? Alle data går tabt."
+wipe_data = "Slet alle data? Dette kan ikke fortrydes."
+stop = "Stoppe?"
+cancel_op = "Annuller handlingen?"
+apply = "Anvend ændringer?"
+import = "Importér og overskriv eksisterende data?"
+sync = "Synkronisér nu?"
+generate_secret = "Generer ny hemmelighed? Den gamle hemmelighed går tabt."

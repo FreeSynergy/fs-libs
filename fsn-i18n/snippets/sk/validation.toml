@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Slovak)
+
+[validation]
+required = "Povinné pole"
+too_short = "Príliš krátke (minimum: {min} znakov)"
+too_long = "Príliš dlhé (maximum: {max} znakov)"
+invalid_email = "Neplatná e-mailová adresa"
+invalid_url = "Neplatná URL"
+invalid_format = "Neplatný formát"
+out_of_range = "Hodnota mimo rozsahu"
+pattern_mismatch = "Nezodpovedá požadovanému vzoru"
+already_exists = "Už existuje"
+not_found = "Nenájdené"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Swahili)
+
+[confirmations]
+delete = "Futa? Hii haiwezi kutendwa kinyume."
+restart = "Anzisha upya?"
+deploy = "Sambaza?"
+logout = "Toka?"
+unsaved_changes = "Una mabadiliko ambayo hayajahifadhiwa. Ondoka hata hivyo?"
+overwrite = "Tayari ipo. Andika juu?"
+reset = "Rejesha mipangilio yote kwa chaguo-msingi?"
+remove_plugin = "Ondoa programu-jalizi? Data yote itapotea."
+wipe_data = "Futa data yote? Hii haiwezi kutendwa kinyume."
+stop = "Simama?"
+cancel_op = "Ghairi operesheni?"
+apply = "Tekeleza mabadiliko?"
+import = "Leta na uandike juu ya data iliyopo?"
+sync = "Sawazisha sasa?"
+generate_secret = "Tengeneza siri mpya? Siri ya zamani itapotea."

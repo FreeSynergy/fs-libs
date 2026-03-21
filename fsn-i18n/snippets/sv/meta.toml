@@ -1,0 +1,4 @@
+# meta.toml — Language metadata
+
+schema_version = "1.0.0"
+completeness   = 82

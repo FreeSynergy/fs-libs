@@ -1,0 +1,27 @@
+# time.toml — Time and date expressions (Finnish)
+
+[time]
+just_now     = "juuri nyt"
+seconds_ago  = "{n} sekuntia sitten"
+minutes_ago  = "{n} minuuttia sitten"
+hours_ago    = "{n} tuntia sitten"
+days_ago     = "{n} päivää sitten"
+weeks_ago    = "{n} viikkoa sitten"
+months_ago   = "{n} kuukautta sitten"
+years_ago    = "{n} vuotta sitten"
+today        = "tänään"
+yesterday    = "eilen"
+tomorrow     = "huomenna"
+never        = "ei koskaan"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

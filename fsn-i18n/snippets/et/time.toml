@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Estonian)
+
+[time]
+just_now     = "just nüüd"
+seconds_ago  = "{n} sekundit tagasi"
+minutes_ago  = "{n} minutit tagasi"
+hours_ago    = "{n} tundi tagasi"
+days_ago     = "{n} päeva tagasi"
+weeks_ago    = "{n} nädalat tagasi"
+months_ago   = "{n} kuud tagasi"
+years_ago    = "{n} aastat tagasi"
+today        = "täna"
+yesterday    = "eile"
+tomorrow     = "homme"
+never        = "mitte kunagi"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

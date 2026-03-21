@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Punjabi)
+
+[validation]
+required = "ਲੋੜੀਂਦਾ ਖੇਤਰ"
+too_short = "ਬਹੁਤ ਛੋਟਾ (ਘੱਟੋ-ਘੱਟ: {min} ਅੱਖਰ)"
+too_long = "ਬਹੁਤ ਲੰਬਾ (ਵੱਧ ਤੋਂ ਵੱਧ: {max} ਅੱਖਰ)"
+invalid_email = "ਅਵੈਧ ਈਮੇਲ ਪਤਾ"
+invalid_url = "ਅਵੈਧ URL"
+invalid_format = "ਅਵੈਧ ਫਾਰਮੈਟ"
+out_of_range = "ਮੁੱਲ ਸੀਮਾ ਤੋਂ ਬਾਹਰ ਹੈ"
+pattern_mismatch = "ਲੋੜੀਂਦੇ ਪੈਟਰਨ ਨਾਲ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ"
+already_exists = "ਪਹਿਲਾਂ ਤੋਂ ਮੌਜੂਦ ਹੈ"
+not_found = "ਨਹੀਂ ਮਿਲਿਆ"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

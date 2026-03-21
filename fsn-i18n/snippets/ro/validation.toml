@@ -1,0 +1,23 @@
+# validation.toml — Input validation messages (Romanian)
+
+[validation]
+required = "Câmp obligatoriu"
+too_short = "Prea scurt (minim: {min} caractere)"
+too_long = "Prea lung (maxim: {max} caractere)"
+invalid_email = "Adresă de email invalidă"
+invalid_url = "URL invalid"
+invalid_format = "Format invalid"
+out_of_range = "Valoare în afara intervalului"
+pattern_mismatch = "Nu corespunde modelului cerut"
+already_exists = "Există deja"
+not_found = "Nu a fost găsit"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

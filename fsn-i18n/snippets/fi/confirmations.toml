@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Finnish)
+
+[confirmations]
+delete          = "Poistetaanko? Toimintoa ei voi peruuttaa."
+restart         = "Käynnistetäänkö uudelleen?"
+deploy          = "Otetaanko käyttöön?"
+logout          = "Kirjaudutaanko ulos?"
+unsaved_changes = "Sinulla on tallentamattomia muutoksia. Poistutaanko silti?"
+overwrite       = "On jo olemassa. Ylikirjoitetaanko?"
+reset           = "Palautetaanko kaikki asetukset oletusarvoihin?"
+remove_plugin   = "Poistetaanko plugin-laajennus? Kaikki tiedot menetetään."
+wipe_data       = "Poistetaanko kaikki tiedot? Toimintoa ei voi peruuttaa."
+stop            = "Pysäytetäänkö?"
+cancel_op       = "Peruutetaanko toiminto?"
+apply           = "Otetaanko muutokset käyttöön?"
+import          = "Tuodaanko ja ylikirjoitetaanko olemassa olevat tiedot?"
+sync            = "Synkronoidaanko nyt?"
+generate_secret = "Luodaanko uusi salaisuus? Vanha salaisuus menetetään."

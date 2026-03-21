@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Greek)
+
+[notifications]
+saved = "Αποθηκεύτηκε."
+deleted = "Διαγράφηκε."
+updated = "Ενημερώθηκε."
+installed = "Εγκαταστάθηκε."
+uninstalled = "Απεγκαταστάθηκε."
+deployed = "Αναπτύχθηκε."
+started = "Εκκινήθηκε."
+stopped = "Σταμάτησε."
+restarted = "Επανεκκινήθηκε."
+copied = "Αντιγράφηκε στο πρόχειρο."
+connection_restored = "Η σύνδεση αποκαταστάθηκε."
+sync_completed = "Ο συγχρονισμός ολοκληρώθηκε."
+import_completed = "Η εισαγωγή ολοκληρώθηκε."
+export_completed = "Η εξαγωγή ολοκληρώθηκε."
+changes_discarded = "Οι αλλαγές απορρίφθηκαν."
+secret_generated = "Δημιουργήθηκε νέο μυστικό."
+backup_created = "Δημιουργήθηκε αντίγραφο ασφαλείας."

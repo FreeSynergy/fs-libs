@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Czech)
+
+[confirmations]
+delete = "Smazat? Tuto akci nelze vrátit."
+restart = "Restartovat?"
+deploy = "Nasadit?"
+logout = "Odhlásit se?"
+unsaved_changes = "Máte neuložené změny. Přesto odejít?"
+overwrite = "Již existuje. Přepsat?"
+reset = "Resetovat všechna nastavení na výchozí hodnoty?"
+remove_plugin = "Odebrat plugin? Všechna data budou ztracena."
+wipe_data = "Vymazat všechna data? Tuto akci nelze vrátit."
+stop = "Zastavit?"
+cancel_op = "Zrušit operaci?"
+apply = "Použít změny?"
+import = "Importovat a přepsat existující data?"
+sync = "Synchronizovat nyní?"
+generate_secret = "Vygenerovat nové tajemství? Staré tajemství bude ztraceno."

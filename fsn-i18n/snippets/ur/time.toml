@@ -1,0 +1,27 @@
+# time.toml — relative time expressions (Urdu / اردو)
+
+[time]
+just_now     = "ابھی ابھی"
+seconds_ago  = "{n} سیکنڈ پہلے"
+minutes_ago  = "{n} منٹ پہلے"
+hours_ago    = "{n} گھنٹے پہلے"
+days_ago     = "{n} دن پہلے"
+weeks_ago    = "{n} ہفتے پہلے"
+months_ago   = "{n} مہینے پہلے"
+years_ago    = "{n} سال پہلے"
+today        = "آج"
+yesterday    = "کل"
+tomorrow     = "کل"
+never        = "کبھی نہیں"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Tamil)
+
+[notifications]
+saved = "சேமிக்கப்பட்டது."
+deleted = "நீக்கப்பட்டது."
+updated = "புதுப்பிக்கப்பட்டது."
+installed = "நிறுவப்பட்டது."
+uninstalled = "நிறுவல் நீக்கப்பட்டது."
+deployed = "பயன்படுத்தப்பட்டது."
+started = "தொடங்கியது."
+stopped = "நிறுத்தப்பட்டது."
+restarted = "மறுதொடக்கம் செய்யப்பட்டது."
+copied = "கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது."
+connection_restored = "இணைப்பு மீட்டமைக்கப்பட்டது."
+sync_completed = "ஒத்திசைவு முடிந்தது."
+import_completed = "இறக்குமதி முடிந்தது."
+export_completed = "ஏற்றுமதி முடிந்தது."
+changes_discarded = "மாற்றங்கள் கைவிடப்பட்டன."
+secret_generated = "புதிய ரகசியம் உருவாக்கப்பட்டது."
+backup_created = "Backup உருவாக்கப்பட்டது."

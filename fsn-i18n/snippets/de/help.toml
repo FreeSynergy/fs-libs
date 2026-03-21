@@ -1,0 +1,18 @@
+# help.toml — Hilfetext und Tastaturbefehle (Deutsch)
+
+[help]
+press_key        = "{key} drücken"
+press_to_action  = "{key} drücken, um {action}"
+navigate         = "Mit Pfeiltasten navigieren"
+navigate_tabs    = "Tabs wechseln mit Strg+← / Strg+→"
+submit           = "Speichern mit Strg+S"
+cancel_action    = "Abbrechen mit Esc"
+open_help        = "F1 für Hilfe drücken"
+search_hint      = "Zum Suchen tippen..."
+no_results       = "Keine Ergebnisse für \"{query}\""
+more_info        = "Weitere Informationen"
+see_docs         = "Dokumentation ansehen"
+example          = "Beispiel: {example}"
+tip              = "Tipp: {tip}"
+note             = "Hinweis: {note}"
+warning          = "Warnung: {warning}"

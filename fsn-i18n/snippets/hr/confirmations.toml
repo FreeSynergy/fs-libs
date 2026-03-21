@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Croatian)
+
+[confirmations]
+delete = "Izbrisati? Ova se radnja ne može poništiti."
+restart = "Ponovo pokrenuti?"
+deploy = "Rasporediti?"
+logout = "Odjaviti se?"
+unsaved_changes = "Imate nespremljene promjene. Ipak napustiti?"
+overwrite = "Već postoji. Prepisati?"
+reset = "Resetirati sve postavke na zadane vrijednosti?"
+remove_plugin = "Ukloniti plugin? Svi podaci bit će izgubljeni."
+wipe_data = "Obrisati sve podatke? Ova se radnja ne može poništiti."
+stop = "Zaustaviti?"
+cancel_op = "Otkazati operaciju?"
+apply = "Primijeniti promjene?"
+import = "Uvesti i prepisati postojeće podatke?"
+sync = "Sinkronizirati sada?"
+generate_secret = "Generirati novu tajnu? Stara tajna bit će izgubljena."

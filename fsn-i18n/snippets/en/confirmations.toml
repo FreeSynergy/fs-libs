@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialogs (English)
+
+[confirmations]
+delete            = "Delete? This cannot be undone."
+restart           = "Restart?"
+deploy            = "Deploy?"
+logout            = "Log out?"
+unsaved_changes   = "You have unsaved changes. Leave anyway?"
+overwrite         = "Already exists. Overwrite?"
+reset             = "Reset all settings to defaults?"
+remove_plugin     = "Remove plugin? All data will be lost."
+wipe_data         = "Wipe all data? This cannot be undone."
+stop              = "Stop?"
+cancel_op         = "Cancel operation?"
+apply             = "Apply changes?"
+import            = "Import and overwrite existing data?"
+sync              = "Sync now?"
+generate_secret   = "Generate new secret? Old secret will be lost."

@@ -1,0 +1,23 @@
+# validation.toml — Form validation messages (Greek)
+
+[validation]
+required = "Υποχρεωτικό πεδίο"
+too_short = "Πολύ σύντομο (ελάχιστο: {min} χαρακτήρες)"
+too_long = "Πολύ μακρύ (μέγιστο: {max} χαρακτήρες)"
+invalid_email = "Μη έγκυρη διεύθυνση email"
+invalid_url = "Μη έγκυρο URL"
+invalid_format = "Μη έγκυρη μορφή"
+out_of_range = "Η τιμή εκτός εύρους"
+pattern_mismatch = "Δεν ταιριάζει με το απαιτούμενο μοτίβο"
+already_exists = "Υπάρχει ήδη"
+not_found = "Δεν βρέθηκε"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

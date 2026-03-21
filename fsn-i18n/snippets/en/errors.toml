@@ -1,0 +1,94 @@
+# errors.toml — Error messages (English)
+
+[errors]
+# General
+not_found               = "Not found"
+permission_denied       = "Permission denied"
+network_error           = "Network error"
+parse_error             = "Parse error"
+timeout                 = "Timeout"
+internal_error          = "Internal error"
+invalid_input           = "Invalid input"
+already_exists          = "Already exists"
+not_supported           = "Not supported"
+connection_failed       = "Connection failed"
+authentication_failed   = "Authentication failed"
+config_error            = "Configuration error"
+io_error                = "I/O error"
+plugin_error            = "Plugin error"
+deploy_failed           = "Deployment failed"
+install_failed          = "Installation failed"
+update_failed           = "Update failed"
+sync_failed             = "Sync failed"
+backup_failed           = "Backup failed"
+unexpected              = "An unexpected error occurred"
+try_again               = "Please try again"
+not_implemented         = "Not yet implemented"
+deprecated              = "Deprecated — use the replacement instead"
+operation_cancelled     = "Operation cancelled"
+
+# Filesystem
+file_not_found          = "File not found"
+file_read_failed        = "Could not read file"
+file_write_failed       = "Could not write file"
+file_permission_denied  = "No permission to access file"
+file_already_exists     = "File already exists"
+file_too_large          = "File is too large"
+dir_not_found           = "Directory not found"
+dir_not_empty           = "Directory is not empty"
+
+# Network
+connection_timeout      = "Connection timed out"
+connection_refused      = "Connection refused"
+dns_failed              = "DNS resolution failed"
+tls_failed              = "TLS handshake failed"
+http_error              = "HTTP error"
+api_error               = "API error"
+rate_limited            = "Too many requests — please wait"
+
+# Auth
+auth_token_expired      = "Token expired — please log in again"
+auth_token_invalid      = "Invalid token"
+auth_user_not_found     = "User not found"
+auth_user_locked        = "User account is locked"
+
+# Config
+config_invalid          = "Invalid configuration"
+config_missing_field    = "Required field missing in configuration"
+config_invalid_value    = "Invalid configuration value"
+config_parse_failed     = "Could not parse configuration"
+config_version_mismatch = "Configuration version mismatch"
+
+# Database
+db_connection_failed    = "Database connection failed"
+db_query_failed         = "Database query failed"
+db_migration_failed     = "Database migration failed"
+db_not_found            = "Record not found"
+db_duplicate            = "Duplicate entry"
+db_constraint           = "Constraint violation"
+
+# Container / Deployment
+container_not_found     = "Container not found"
+container_start_failed  = "Could not start container"
+container_health_failed = "Health check failed"
+image_pull_failed       = "Could not pull image"
+
+# Sync / CRDT
+sync_conflict           = "Sync conflict — concurrent changes on both sides"
+sync_peer_unreachable   = "Peer unreachable"
+
+# Plugin / Store
+plugin_not_found        = "Plugin not found"
+plugin_incompatible     = "Plugin version incompatible"
+plugin_wasm_failed      = "WASM plugin execution error"
+store_unreachable       = "Store unreachable — using local cache"
+
+# Validation
+validation_required         = "Required field"
+validation_too_short        = "Too short"
+validation_too_long         = "Too long"
+validation_invalid_email    = "Invalid email address"
+validation_invalid_url      = "Invalid URL"
+validation_invalid_format   = "Invalid format"
+validation_out_of_range     = "Value out of range"
+validation_pattern_mismatch = "Does not match required pattern"

@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Basa Jawa)
+
+[notifications]
+saved = "Wis disimpen."
+deleted = "Wis dibusak."
+updated = "Wis diupdate."
+installed = "Wis diinstall."
+uninstalled = "Wis diuninstall."
+deployed = "Wis dideploy."
+started = "Wis diwiti."
+stopped = "Wis dimandegake."
+restarted = "Wis direstart."
+copied = "Disalin menyang clipboard."
+connection_restored = "Koneksi wis pulih."
+sync_completed = "Sinkronisasi rampung."
+import_completed = "Import rampung."
+export_completed = "Export rampung."
+changes_discarded = "Owahan dibatalake."
+secret_generated = "Rahasia anyar wis digenerate."
+backup_created = "Backup wis digawe."

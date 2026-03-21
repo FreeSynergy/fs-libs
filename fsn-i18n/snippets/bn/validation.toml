@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Bengali)
+
+[validation]
+required = "প্রয়োজনীয় ফিল্ড"
+too_short = "অনেক ছোট (সর্বনিম্ন: {min} অক্ষর)"
+too_long = "অনেক বড় (সর্বোচ্চ: {max} অক্ষর)"
+invalid_email = "অবৈধ ইমেইল ঠিকানা"
+invalid_url = "অবৈধ URL"
+invalid_format = "অবৈধ ফরম্যাট"
+out_of_range = "মান সীমার বাইরে"
+pattern_mismatch = "প্রয়োজনীয় প্যাটার্নের সাথে মেলেনি"
+already_exists = "ইতিমধ্যে বিদ্যমান"
+not_found = "পাওয়া যায়নি"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

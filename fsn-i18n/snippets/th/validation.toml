@@ -1,0 +1,23 @@
+# validation.toml — ข้อความตรวจสอบความถูกต้อง (ภาษาไทย)
+
+[validation]
+required         = "ฟิลด์ที่จำเป็น"
+too_short        = "สั้นเกินไป (ขั้นต่ำ: {min} อักขระ)"
+too_long         = "ยาวเกินไป (สูงสุด: {max} อักขระ)"
+invalid_email    = "ที่อยู่อีเมลไม่ถูกต้อง"
+invalid_url      = "URL ไม่ถูกต้อง"
+invalid_format   = "รูปแบบไม่ถูกต้อง"
+out_of_range     = "ค่าอยู่นอกช่วงที่กำหนด"
+pattern_mismatch = "ไม่ตรงกับรูปแบบที่กำหนด"
+already_exists   = "มีอยู่แล้ว"
+not_found        = "ไม่พบข้อมูล"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

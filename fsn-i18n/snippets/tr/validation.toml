@@ -1,0 +1,23 @@
+# validation.toml — Doğrulama mesajları (Türkçe)
+
+[validation]
+required          = "Zorunlu alan"
+too_short         = "Çok kısa (minimum: {min} karakter)"
+too_long          = "Çok uzun (maksimum: {max} karakter)"
+invalid_email     = "Geçersiz e-posta adresi"
+invalid_url       = "Geçersiz URL"
+invalid_format    = "Geçersiz biçim"
+out_of_range      = "Değer aralık dışında"
+pattern_mismatch  = "Gerekli desenle eşleşmiyor"
+already_exists    = "Zaten mevcut"
+not_found         = "Bulunamadı"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

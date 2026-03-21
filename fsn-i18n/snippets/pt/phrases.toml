@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases and sentences (Portuguese)
+
+[phrases]
+confirm_delete = "Tem a certeza de que pretende eliminar isto?"
+select_item = "Selecione um item"
+no_results = "Nenhum resultado encontrado"
+loading_data = "A carregar dados…"
+operation_successful = "Operação bem-sucedida"
+operation_failed = "Operação falhada"
+are_you_sure = "Tem a certeza?"
+welcome_to = "Bem-vindo a"
+unsaved_changes = "Tem alterações não guardadas"
+try_again = "Por favor, tente novamente"
+contact_support = "Por favor, contacte o suporte"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

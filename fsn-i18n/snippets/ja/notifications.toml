@@ -1,0 +1,20 @@
+# notifications.toml — 通知・成功メッセージ (Japanese)
+
+[notifications]
+saved               = "保存しました。"
+deleted             = "削除しました。"
+updated             = "更新しました。"
+installed           = "インストールしました。"
+uninstalled         = "アンインストールしました。"
+deployed            = "デプロイしました。"
+started             = "開始しました。"
+stopped             = "停止しました。"
+restarted           = "再起動しました。"
+copied              = "クリップボードにコピーしました。"
+connection_restored = "接続が復元されました。"
+sync_completed      = "同期が完了しました。"
+import_completed    = "インポートが完了しました。"
+export_completed    = "エクスポートが完了しました。"
+changes_discarded   = "変更を破棄しました。"
+secret_generated    = "新しいシークレットが生成されました。"
+backup_created      = "バックアップが作成されました。"

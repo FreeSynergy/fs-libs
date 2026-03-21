@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Bengali)
+
+[phrases]
+confirm_delete = "আপনি কি সত্যিই এটি মুছতে চান?"
+select_item = "একটি আইটেম বেছে নিন"
+no_results = "কোনো ফলাফল পাওয়া যায়নি"
+loading_data = "ডেটা লোড হচ্ছে…"
+operation_successful = "অপারেশন সফল"
+operation_failed = "অপারেশন ব্যর্থ"
+are_you_sure = "আপনি কি নিশ্চিত?"
+welcome_to = "স্বাগতম"
+unsaved_changes = "আপনার সংরক্ষণ না হওয়া পরিবর্তন আছে"
+try_again = "অনুগ্রহ করে আবার চেষ্টা করুন"
+contact_support = "অনুগ্রহ করে সহায়তার সাথে যোগাযোগ করুন"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Slovenian)
+
+[confirmations]
+delete          = "Izbriši? Tega ni mogoče razveljaviti."
+restart         = "Znova zaženi?"
+deploy          = "Uvedi?"
+logout          = "Odjaviti se?"
+unsaved_changes = "Imate neshranjene spremembe. Zapustiti vseeno?"
+overwrite       = "Že obstaja. Prepiši?"
+reset           = "Ponastavi vse nastavitve na privzete vrednosti?"
+remove_plugin   = "Odstrani vtičnik? Vsi podatki bodo izgubljeni."
+wipe_data       = "Izbriši vse podatke? Tega ni mogoče razveljaviti."
+stop            = "Ustavi?"
+cancel_op       = "Prekliči operacijo?"
+apply           = "Uporabi spremembe?"
+import          = "Uvozi in prepiši obstoječe podatke?"
+sync            = "Sinhroniziraj zdaj?"
+generate_secret = "Ustvari novo skrivnost? Stara skrivnost bo izgubljena."

@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Yoruba)
+
+[phrases]
+confirm_delete = "Ṣé o dájú pé o fẹ́ pa èyí rẹ́?"
+select_item = "Yan nǹkan kan"
+no_results = "A kò rí àbájáde kankan"
+loading_data = "Ń gbé data wọlé…"
+operation_successful = "Ìṣẹ̀ṣẹ̀ yọrí sí àṣeyọrí"
+operation_failed = "Ìṣẹ̀ṣẹ̀ kùnà"
+are_you_sure = "Ṣé o dájú?"
+welcome_to = "Káàbọ̀ sí"
+unsaved_changes = "O ní àwọn ìyípadà tí a kò tí ì tọ́jú"
+try_again = "Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí"
+contact_support = "Jọ̀wọ́ kàn sí àwọn ìrànlọ́wọ́"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

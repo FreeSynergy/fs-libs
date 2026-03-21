@@ -1,0 +1,23 @@
+# validation.toml — 驗證訊息 (Cantonese)
+
+[validation]
+required         = "必填欄位"
+too_short        = "太短（最少 {min} 個字元）"
+too_long         = "太長（最多 {max} 個字元）"
+invalid_email    = "電郵地址無效"
+invalid_url      = "URL 無效"
+invalid_format   = "格式無效"
+out_of_range     = "數值超出範圍"
+pattern_mismatch = "唔符合所需格式"
+already_exists   = "已經存在"
+not_found        = "搵唔到"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

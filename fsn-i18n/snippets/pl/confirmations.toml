@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Polish)
+
+[confirmations]
+delete = "Usunąć? Tej operacji nie można cofnąć."
+restart = "Uruchomić ponownie?"
+deploy = "Wdrożyć?"
+logout = "Wylogować się?"
+unsaved_changes = "Masz niezapisane zmiany. Wyjść mimo to?"
+overwrite = "Już istnieje. Nadpisać?"
+reset = "Zresetować wszystkie ustawienia do wartości domyślnych?"
+remove_plugin = "Usunąć wtyczkę? Wszystkie dane zostaną utracone."
+wipe_data = "Wyczyścić wszystkie dane? Tej operacji nie można cofnąć."
+stop = "Zatrzymać?"
+cancel_op = "Anulować operację?"
+apply = "Zastosować zmiany?"
+import = "Importować i nadpisać istniejące dane?"
+sync = "Synchronizować teraz?"
+generate_secret = "Wygenerować nowy sekret? Stary sekret zostanie utracony."

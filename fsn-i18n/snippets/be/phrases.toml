@@ -1,0 +1,29 @@
+# phrases.toml — common UI phrases (Belarusian)
+
+[phrases]
+confirm_delete      = "Вы ўпэўнены, што хочаце выдаліць гэта?"
+select_item         = "Выберыце элемент"
+no_results          = "Вынікі не знойдзены"
+loading_data        = "Загрузка дадзеных…"
+operation_successful = "Аперацыя паспяхова выканана"
+operation_failed    = "Аперацыя не ўдалася"
+are_you_sure        = "Вы ўпэўнены?"
+welcome_to          = "Сардэчна запрашаем у"
+unsaved_changes     = "У вас ёсць незахаваныя змены"
+try_again           = "Калі ласка, паспрабуйце яшчэ раз"
+contact_support     = "Калі ласка, звяжыцеся са службай падтрымкі"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

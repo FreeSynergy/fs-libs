@@ -1,0 +1,20 @@
+# notifications.toml — System notification messages (Hausa)
+
+[notifications]
+saved = "An ajiye."
+deleted = "An share."
+updated = "An sabunta."
+installed = "An girka."
+uninstalled = "An cire."
+deployed = "An tura."
+started = "An fara."
+stopped = "An tsaya."
+restarted = "An sake farawa."
+copied = "An kwafi zuwa allon kwafi."
+connection_restored = "An maido da haɗin gwiwa."
+sync_completed = "Daidaitawa ta kammala."
+import_completed = "Shigar bayanai ya kammala."
+export_completed = "Fitar bayanai ya kammala."
+changes_discarded = "An watsar da canje-canje."
+secret_generated = "An ƙirƙiri sabon asiri."
+backup_created = "An ƙirƙiri madadin kwafi."

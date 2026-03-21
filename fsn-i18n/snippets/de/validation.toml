@@ -1,0 +1,18 @@
+# validation.toml — Validierungsmeldungen (Deutsch)
+
+[validation]
+required           = "{field} ist erforderlich."
+too_short          = "{field} muss mindestens {min} Zeichen lang sein."
+too_long           = "{field} darf maximal {max} Zeichen lang sein."
+invalid_format     = "{field} hat ein ungültiges Format."
+already_exists     = "{field} existiert bereits."
+not_available      = "{field} ist nicht verfügbar."
+must_be_unique     = "{field} muss eindeutig sein."
+invalid_email      = "Bitte gib eine gültige E-Mail-Adresse ein."
+invalid_url        = "Bitte gib eine gültige URL ein."
+invalid_domain     = "Bitte gib einen gültigen Domainnamen ein."
+invalid_port       = "Port muss eine Zahl zwischen 1 und 65535 sein."
+invalid_version    = "Bitte gib eine gültige Version ein (z.B. 1.0.0)."
+no_special_chars   = "{field} darf keine Sonderzeichen enthalten."
+only_alphanumeric  = "{field} darf nur Buchstaben und Zahlen enthalten."
+passwords_mismatch = "Passwörter stimmen nicht überein."

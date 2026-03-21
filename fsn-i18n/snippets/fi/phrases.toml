@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Finnish)
+
+[phrases]
+confirm_delete      = "Haluatko varmasti poistaa tämän?"
+select_item         = "Valitse kohde"
+no_results          = "Ei hakutuloksia"
+loading_data        = "Ladataan tietoja…"
+operation_successful = "Toiminto onnistui"
+operation_failed    = "Toiminto epäonnistui"
+are_you_sure        = "Oletko varma?"
+welcome_to          = "Tervetuloa:"
+unsaved_changes     = "Sinulla on tallentamattomia muutoksia"
+try_again           = "Yritä uudelleen"
+contact_support     = "Ota yhteyttä tukeen"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

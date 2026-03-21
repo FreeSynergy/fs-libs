@@ -1,0 +1,23 @@
+# validation.toml — Field validation messages (Italian)
+
+[validation]
+required = "Campo obbligatorio"
+too_short = "Troppo corto (minimo: {min} caratteri)"
+too_long = "Troppo lungo (massimo: {max} caratteri)"
+invalid_email = "Indirizzo e-mail non valido"
+invalid_url = "URL non valido"
+invalid_format = "Formato non valido"
+out_of_range = "Valore fuori intervallo"
+pattern_mismatch = "Non corrisponde al modello richiesto"
+already_exists = "Esiste già"
+not_found = "Non trovato"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

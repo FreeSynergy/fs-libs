@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Hausa)
+
+[validation]
+required = "Filin da ake buƙata"
+too_short = "Ya yi gajarta sosai (ƙaranci: haruffa {min})"
+too_long = "Ya yi tsawo sosai (iyaka: haruffa {max})"
+invalid_email = "Adireshin imel ba daidai ba ne"
+invalid_url = "URL ba daidai ba ne"
+invalid_format = "Tsarin ba daidai ba ne"
+out_of_range = "Ƙima tana wajen iyaka"
+pattern_mismatch = "Ba ta dace da tsarin da ake buƙata ba"
+already_exists = "Yana nan tuni"
+not_found = "Ba a samu ba"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

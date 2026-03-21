@@ -1,0 +1,29 @@
+# phrases.toml — common UI phrases and prompts (Persian / فارسی)
+
+[phrases]
+confirm_delete       = "آیا مطمئنید که می‌خواهید حذف کنید؟"
+select_item          = "یک مورد را انتخاب کنید"
+no_results           = "نتیجه‌ای یافت نشد"
+loading_data         = "در حال بارگذاری اطلاعات…"
+operation_successful = "عملیات موفق بود"
+operation_failed     = "عملیات ناموفق بود"
+are_you_sure         = "آیا مطمئنید؟"
+welcome_to           = "خوش آمدید به"
+unsaved_changes      = "تغییرات ذخیره‌نشده دارید"
+try_again            = "لطفاً دوباره تلاش کنید"
+contact_support      = "لطفاً با پشتیبانی تماس بگیرید"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Punjabi)
+
+[time]
+just_now = "ਹੁਣੇ"
+seconds_ago = "{n} ਸਕਿੰਟ ਪਹਿਲਾਂ"
+minutes_ago = "{n} ਮਿੰਟ ਪਹਿਲਾਂ"
+hours_ago = "{n} ਘੰਟੇ ਪਹਿਲਾਂ"
+days_ago = "{n} ਦਿਨ ਪਹਿਲਾਂ"
+weeks_ago = "{n} ਹਫ਼ਤੇ ਪਹਿਲਾਂ"
+months_ago = "{n} ਮਹੀਨੇ ਪਹਿਲਾਂ"
+years_ago = "{n} ਸਾਲ ਪਹਿਲਾਂ"
+today = "ਅੱਜ"
+yesterday = "ਕੱਲ੍ਹ"
+tomorrow = "ਕੱਲ੍ਹ"
+never = "ਕਦੇ ਨਹੀਂ"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

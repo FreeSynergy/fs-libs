@@ -1,0 +1,30 @@
+// world.wit — Top-level WIT world for FreeSynergy plugins.
+//
+// A plugin implements the `fsn-plugin` world, which means it must export
+// the `fsn:plugin/executor` interface and may import host-provided interfaces.
+//
+// Usage (in a plugin crate):
+//   wit-bindgen generate --world fsn:plugin/fsn-plugin
+//
+// The host runtime (fsn-plugin-runtime) uses this world to load and invoke plugins.
+
+package fsn:plugin@0.1.0;
+
+/// The complete world a FreeSynergy plugin lives in.
+world fsn-plugin {
+    // ── Host APIs (imports — provided by fsn-plugin-runtime) ────────────────
+
+    /// Host logging: plugins write log entries that the host records.
+    import fsn:plugin/host-log@0.1.0;
+
+    /// Host filesystem: sandboxed read/write access declared in the manifest.
+    import fsn:plugin/host-fs@0.1.0;
+
+    /// Host shell: run pre-approved shell commands declared in the manifest.
+    import fsn:plugin/host-shell@0.1.0;
+
+    // ── Plugin exports (must be implemented by the plugin) ───────────────────
+
+    /// Plugin metadata and command dispatch.
+    export fsn:plugin/executor@0.1.0;
+}

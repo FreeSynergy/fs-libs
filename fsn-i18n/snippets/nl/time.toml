@@ -1,0 +1,27 @@
+# time.toml — Relative and absolute time expressions (Dutch)
+
+[time]
+just_now = "Zojuist"
+seconds_ago = "{n} seconden geleden"
+minutes_ago = "{n} minuten geleden"
+hours_ago = "{n} uur geleden"
+days_ago = "{n} dagen geleden"
+weeks_ago = "{n} weken geleden"
+months_ago = "{n} maanden geleden"
+years_ago = "{n} jaar geleden"
+today = "Vandaag"
+yesterday = "Gisteren"
+tomorrow = "Morgen"
+never = "Nooit"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

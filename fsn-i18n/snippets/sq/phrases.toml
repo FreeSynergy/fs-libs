@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases and sentences (Albanian)
+
+[phrases]
+confirm_delete = "Jeni i sigurt që dëshironi ta fshini këtë?"
+select_item = "Zgjidhni një artikull"
+no_results = "Nuk u gjetën rezultate"
+loading_data = "Duke ngarkuar të dhënat…"
+operation_successful = "Operacioni u krye me sukses"
+operation_failed = "Operacioni dështoi"
+are_you_sure = "Jeni i sigurt?"
+welcome_to = "Mirë se vini në"
+unsaved_changes = "Keni ndryshime të paruajtura"
+try_again = "Ju lutemi provoni sërish"
+contact_support = "Ju lutemi kontaktoni mbështetjen"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

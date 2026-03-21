@@ -1,0 +1,23 @@
+# validation.toml — validation messages (Belarusian)
+
+[validation]
+required          = "Абавязковае поле"
+too_short         = "Занадта кароткае (мінімум: {min} сімвалаў)"
+too_long          = "Занадта доўгае (максімум: {max} сімвалаў)"
+invalid_email     = "Няслушны адрас электроннай пошты"
+invalid_url       = "Няслушны URL"
+invalid_format    = "Няслушны фармат"
+out_of_range      = "Значэнне па-за дыяпазонам"
+pattern_mismatch  = "Не адпавядае патрабаванаму шаблону"
+already_exists    = "Ужо існуе"
+not_found         = "Не знойдзена"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

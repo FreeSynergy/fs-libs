@@ -1,0 +1,20 @@
+# notifications.toml — Thông báo hệ thống (Vietnamese)
+
+[notifications]
+saved               = "Đã lưu."
+deleted             = "Đã xóa."
+updated             = "Đã cập nhật."
+installed           = "Đã cài đặt."
+uninstalled         = "Đã gỡ cài đặt."
+deployed            = "Đã triển khai."
+started             = "Đã bắt đầu."
+stopped             = "Đã dừng."
+restarted           = "Đã khởi động lại."
+copied              = "Đã sao chép vào bộ nhớ tạm."
+connection_restored = "Kết nối đã được khôi phục."
+sync_completed      = "Đồng bộ hoàn tất."
+import_completed    = "Nhập hoàn tất."
+export_completed    = "Xuất hoàn tất."
+changes_discarded   = "Thay đổi đã bị hủy bỏ."
+secret_generated    = "Đã tạo bí mật mới."
+backup_created      = "Đã tạo bản sao lưu."

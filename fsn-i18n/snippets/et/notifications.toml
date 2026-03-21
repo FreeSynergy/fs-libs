@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notifications (Estonian)
+
+[notifications]
+saved               = "Salvestatud."
+deleted             = "Kustutatud."
+updated             = "Uuendatud."
+installed           = "Installitud."
+uninstalled         = "Desinstallitud."
+deployed            = "Juurutatud."
+started             = "Käivitatud."
+stopped             = "Peatatud."
+restarted           = "Taaskäivitatud."
+copied              = "Kopeeritud lõikelauale."
+connection_restored = "Ühendus taastatud."
+sync_completed      = "Sünkroonimine lõpetatud."
+import_completed    = "Import lõpetatud."
+export_completed    = "Eksport lõpetatud."
+changes_discarded   = "Muudatused tühistatud."
+secret_generated    = "Uus saladus genereeritud."
+backup_created      = "Varukoopia loodud."

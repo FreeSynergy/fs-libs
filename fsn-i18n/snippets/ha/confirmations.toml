@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Hausa)
+
+[confirmations]
+delete = "Share? Ba za a iya mayar da wannan ba."
+restart = "Sake farawa?"
+deploy = "Tura?"
+logout = "Fita?"
+unsaved_changes = "Kana da canje-canje da ba a ajiye ba. Fita duk da haka?"
+overwrite = "Yana nan tuni. Rubuta a kai?"
+reset = "Mayar da duk saitunan zuwa asali?"
+remove_plugin = "Cire ƙarin shiri? Duk bayanai za su ɓace."
+wipe_data = "Share duk bayanai? Ba za a iya mayar da wannan ba."
+stop = "Tsaya?"
+cancel_op = "Soke aikin?"
+apply = "Aiwatar da canje-canje?"
+import = "Shigo da bayanai kuma rubuta akan da ke akwai?"
+sync = "Daidaita yanzu?"
+generate_secret = "Ƙirƙiri asirin sabon? Tsohon asirin za a rasa."

@@ -1,0 +1,20 @@
+# notifications.toml — success and status notification messages (Pashto / پښتو)
+
+[notifications]
+saved               = "خوندي شو."
+deleted             = "ړنګ شو."
+updated             = "تازه شو."
+installed           = "نصب شو."
+uninstalled         = "نصب لرې شو."
+deployed            = "ځای پرځای شو."
+started             = "پیل شو."
+stopped             = "ودرید."
+restarted           = "بیا پیل شو."
+copied              = "کلیپ بورډ ته کاپي شو."
+connection_restored = "اتصال بیا رغیدلی."
+sync_completed      = "همغږي بشپړه شوه."
+import_completed    = "وارد کول بشپړ شو."
+export_completed    = "صادرول بشپړ شو."
+changes_discarded   = "بدلونونه لغوه شول."
+secret_generated    = "نوی راز جوړ شو."
+backup_created      = "بیک اپ جوړ شو."

@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Albanian)
+
+[confirmations]
+delete = "Fshij? Kjo nuk mund të zhbëhet."
+restart = "Rifillo?"
+deploy = "Vendos?"
+logout = "Dilni?"
+unsaved_changes = "Keni ndryshime të paruajtura. Largoheni gjithsesi?"
+overwrite = "Tashmë ekziston. Mbishkruaj?"
+reset = "Rivendos të gjitha cilësimet në vlerat e paracaktuara?"
+remove_plugin = "Hiq shtojcën? Të gjitha të dhënat do të humbasin."
+wipe_data = "Fshi të gjitha të dhënat? Kjo nuk mund të zhbëhet."
+stop = "Ndalo?"
+cancel_op = "Anulo operacionin?"
+apply = "Apliko ndryshimet?"
+import = "Importo dhe mbishkruaj të dhënat ekzistuese?"
+sync = "Sinkronizo tani?"
+generate_secret = "Gjenero sekret të ri? Sekreti i vjetër do të humbasë."

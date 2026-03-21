@@ -1,0 +1,23 @@
+# validation.toml — Input validation messages (Telugu)
+
+[validation]
+required = "అవసరమైన ఫీల్డ్"
+too_short = "చాలా చిన్నది (కనీసం: {min} అక్షరాలు)"
+too_long = "చాలా పొడవు (గరిష్టం: {max} అక్షరాలు)"
+invalid_email = "చెల్లని ఇమెయిల్ చిరునామా"
+invalid_url = "చెల్లని URL"
+invalid_format = "చెల్లని ఫార్మాట్"
+out_of_range = "విలువ పరిధి వెలుపల"
+pattern_mismatch = "అవసరమైన నమూనాతో సరిపోలలేదు"
+already_exists = "ఇప్పటికే ఉంది"
+not_found = "కనుగొనబడలేదు"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

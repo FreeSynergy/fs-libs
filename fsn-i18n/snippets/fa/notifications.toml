@@ -1,0 +1,20 @@
+# notifications.toml — success and status notification messages (Persian / فارسی)
+
+[notifications]
+saved               = "ذخیره شد."
+deleted             = "حذف شد."
+updated             = "به‌روز شد."
+installed           = "نصب شد."
+uninstalled         = "حذف نصب شد."
+deployed            = "مستقر شد."
+started             = "شروع شد."
+stopped             = "متوقف شد."
+restarted           = "راه‌اندازی مجدد شد."
+copied              = "در کلیپ‌بورد کپی شد."
+connection_restored = "اتصال برقرار شد."
+sync_completed      = "همگام‌سازی تکمیل شد."
+import_completed    = "وارد کردن تکمیل شد."
+export_completed    = "خروجی گرفتن تکمیل شد."
+changes_discarded   = "تغییرات نادیده گرفته شد."
+secret_generated    = "راز جدید تولید شد."
+backup_created      = "پشتیبان ایجاد شد."

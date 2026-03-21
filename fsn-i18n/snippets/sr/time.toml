@@ -1,0 +1,27 @@
+# time.toml — relative time expressions (Serbian)
+
+[time]
+just_now     = "управо сада"
+seconds_ago  = "пре {n} секунди"
+minutes_ago  = "пре {n} минута"
+hours_ago    = "пре {n} сати"
+days_ago     = "пре {n} дана"
+weeks_ago    = "пре {n} недеља"
+months_ago   = "пре {n} месеци"
+years_ago    = "пре {n} година"
+today        = "данас"
+yesterday    = "јуче"
+tomorrow     = "сутра"
+never        = "никада"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

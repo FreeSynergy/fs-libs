@@ -1,0 +1,23 @@
+# validation.toml — form validation messages (Pashto / پښتو)
+
+[validation]
+required          = "اړینه ساحه"
+too_short         = "خورا لنډ (لږ تر لږه: {min} توري)"
+too_long          = "خورا اوږد (ډیر تر ډیره: {max} توري)"
+invalid_email     = "ناسم بریښنالیک پته"
+invalid_url       = "ناسم URL"
+invalid_format    = "ناسم بڼه"
+out_of_range      = "ارزښت د حد نه بهر دی"
+pattern_mismatch  = "د اړین نمونې سره سمون نه خوري"
+already_exists    = "دمخه شتون لري"
+not_found         = "ونه موندل شو"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

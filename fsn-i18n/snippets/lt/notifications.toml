@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notifications (Lithuanian)
+
+[notifications]
+saved               = "Išsaugota."
+deleted             = "Ištrinta."
+updated             = "Atnaujinta."
+installed           = "Įdiegta."
+uninstalled         = "Pašalinta."
+deployed            = "Įdiegta sistemoje."
+started             = "Paleista."
+stopped             = "Sustabdyta."
+restarted           = "Paleista iš naujo."
+copied              = "Nukopijuota į iškarpinę."
+connection_restored = "Ryšys atstatytas."
+sync_completed      = "Sinchronizacija baigta."
+import_completed    = "Importavimas baigtas."
+export_completed    = "Eksportavimas baigtas."
+changes_discarded   = "Pakeitimai atmesti."
+secret_generated    = "Naujas slaptasis raktas sugeneruotas."
+backup_created      = "Atsarginė kopija sukurta."

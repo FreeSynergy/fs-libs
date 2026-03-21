@@ -1,0 +1,20 @@
+[package]
+name        = "fsn-db"
+description = "SeaORM-based database abstraction for FreeSynergy (sqlite, postgres)"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[features]
+default  = ["sqlite"]
+sqlite   = ["sea-orm/sqlx-sqlite",  "sea-orm/runtime-tokio-rustls"]
+postgres = ["sea-orm/sqlx-postgres", "sea-orm/runtime-tokio-rustls"]
+
+[dependencies]
+fsn-error  = { workspace = true }
+serde_json = { workspace = true }
+tokio      = { workspace = true }
+tracing    = { workspace = true }
+sea-orm    = { workspace = true }

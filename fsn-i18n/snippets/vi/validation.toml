@@ -1,0 +1,23 @@
+# validation.toml — Thông báo xác thực (Vietnamese)
+
+[validation]
+required         = "Trường bắt buộc"
+too_short        = "Quá ngắn (tối thiểu {min} ký tự)"
+too_long         = "Quá dài (tối đa {max} ký tự)"
+invalid_email    = "Địa chỉ email không hợp lệ"
+invalid_url      = "URL không hợp lệ"
+invalid_format   = "Định dạng không hợp lệ"
+out_of_range     = "Giá trị ngoài phạm vi"
+pattern_mismatch = "Không khớp với mẫu yêu cầu"
+already_exists   = "Đã tồn tại"
+not_found        = "Không tìm thấy"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Dutch)
+
+[confirmations]
+delete = "Verwijderen? Dit kan niet ongedaan worden gemaakt."
+restart = "Herstarten?"
+deploy = "Implementeren?"
+logout = "Afmelden?"
+unsaved_changes = "U heeft niet-opgeslagen wijzigingen. Toch verlaten?"
+overwrite = "Bestaat al. Overschrijven?"
+reset = "Alle instellingen terugzetten naar standaard?"
+remove_plugin = "Plug-in verwijderen? Alle gegevens gaan verloren."
+wipe_data = "Alle gegevens wissen? Dit kan niet ongedaan worden gemaakt."
+stop = "Stoppen?"
+cancel_op = "Bewerking annuleren?"
+apply = "Wijzigingen toepassen?"
+import = "Importeren en bestaande gegevens overschrijven?"
+sync = "Nu synchroniseren?"
+generate_secret = "Nieuw geheim genereren? Oud geheim gaat verloren."

@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions and date labels (Basa Jawa)
+
+[time]
+just_now = "mentas wae"
+seconds_ago = "{n} detik kepungkur"
+minutes_ago = "{n} menit kepungkur"
+hours_ago = "{n} jam kepungkur"
+days_ago = "{n} dina kepungkur"
+weeks_ago = "{n} minggu kepungkur"
+months_ago = "{n} sasi kepungkur"
+years_ago = "{n} taun kepungkur"
+today = "dina iki"
+yesterday = "wingi"
+tomorrow = "sesuk"
+never = "ora tau"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

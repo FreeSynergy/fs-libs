@@ -1,0 +1,26 @@
+# help.toml — help system labels (Belarusian)
+
+[help]
+getting_started    = "Пачатак работы"
+navigation         = "Навігацыя"
+keyboard_shortcuts = "Скарачэнні клавіятуры"
+search_tip         = "Выкарыстоўвайце радок пошуку для хуткага пошуку элементаў"
+keyboard_tip       = "Выкарыстоўвайце Tab для пераходу паміж палямі, Enter для пацверджання"
+close              = "Закрыць даведку"
+
+# --- TODO: translate ---
+# press_key = "Press {key}"
+# press_to_action = "Press {key} to {action}"
+# navigate = "Navigate with arrow keys"
+# navigate_tabs = "Switch tabs with Ctrl+← / Ctrl+→"
+# submit = "Submit with Ctrl+S"
+# cancel_action = "Cancel with Esc"
+# open_help = "Press F1 for help"
+# search_hint = "Type to search..."
+# no_results = "No results for \\"{query}\\""
+# more_info = "More information"
+# see_docs = "See documentation"
+# example = "Example: {example}"
+# tip = "Tip: {tip}"
+# note = "Note: {note}"
+# warning = "Warning: {warning}"

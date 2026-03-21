@@ -1,0 +1,20 @@
+# notifications.toml — Success and info notification messages (Czech)
+
+[notifications]
+saved = "Uloženo."
+deleted = "Smazáno."
+updated = "Aktualizováno."
+installed = "Instalováno."
+uninstalled = "Odinstalováno."
+deployed = "Nasazeno."
+started = "Spuštěno."
+stopped = "Zastaveno."
+restarted = "Restartováno."
+copied = "Zkopírováno do schránky."
+connection_restored = "Připojení obnoveno."
+sync_completed = "Synchronizace dokončena."
+import_completed = "Import dokončen."
+export_completed = "Export dokončen."
+changes_discarded = "Změny zahozeny."
+secret_generated = "Nové tajemství vygenerováno."
+backup_created = "Záloha vytvořena."

@@ -1,0 +1,20 @@
+# notifications.toml — success and status notification messages (Urdu / اردو)
+
+[notifications]
+saved               = "محفوظ ہوگیا۔"
+deleted             = "حذف ہوگیا۔"
+updated             = "اپ ڈیٹ ہوگیا۔"
+installed           = "انسٹال ہوگیا۔"
+uninstalled         = "انسٹال ہٹا دیا گیا۔"
+deployed            = "تعینات ہوگیا۔"
+started             = "شروع ہوگیا۔"
+stopped             = "رک گیا۔"
+restarted           = "دوبارہ شروع ہوگیا۔"
+copied              = "کلپ بورڈ پر نقل ہوگیا۔"
+connection_restored = "کنکشن بحال ہوگیا۔"
+sync_completed      = "ہم آہنگی مکمل ہوگئی۔"
+import_completed    = "درآمد مکمل ہوگئی۔"
+export_completed    = "برآمد مکمل ہوگئی۔"
+changes_discarded   = "تبدیلیاں مسترد کردی گئیں۔"
+secret_generated    = "نیا راز بنا دیا گیا۔"
+backup_created      = "بیک اپ بنا دیا گیا۔"

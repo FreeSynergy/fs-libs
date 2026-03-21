@@ -1,0 +1,26 @@
+# help.toml — 幫助文字 (Cantonese)
+
+[help]
+getting_started    = "入門指南"
+navigation         = "導航"
+keyboard_shortcuts = "鍵盤快捷鍵"
+search_tip         = "使用搜尋欄快速搵到項目"
+keyboard_tip       = "用 Tab 鍵移動欄位，Enter 鍵確認"
+close              = "關閉幫助"
+
+# --- TODO: translate ---
+# press_key = "Press {key}"
+# press_to_action = "Press {key} to {action}"
+# navigate = "Navigate with arrow keys"
+# navigate_tabs = "Switch tabs with Ctrl+← / Ctrl+→"
+# submit = "Submit with Ctrl+S"
+# cancel_action = "Cancel with Esc"
+# open_help = "Press F1 for help"
+# search_hint = "Type to search..."
+# no_results = "No results for \\"{query}\\""
+# more_info = "More information"
+# see_docs = "See documentation"
+# example = "Example: {example}"
+# tip = "Tip: {tip}"
+# note = "Note: {note}"
+# warning = "Warning: {warning}"

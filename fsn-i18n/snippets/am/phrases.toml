@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Amharic)
+
+[phrases]
+confirm_delete = "እርግጠኛ ነዎት ይህን መሰረዝ ይፈልጋሉ?"
+select_item = "ንጥል ይምረጡ"
+no_results = "ምንም ውጤት አልተገኘም"
+loading_data = "ውሂብ እየተጫነ ነው…"
+operation_successful = "ስራው ተሳክቷል"
+operation_failed = "ስራው አልተሳካም"
+are_you_sure = "እርግጠኛ ነዎት?"
+welcome_to = "እንኳን ደህና መጡ ወደ"
+unsaved_changes = "ያልተቀመጡ ለውጦች አሉዎት"
+try_again = "እባክዎ እንደገና ይሞክሩ"
+contact_support = "እባክዎ ድጋፍን ያግኙ"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

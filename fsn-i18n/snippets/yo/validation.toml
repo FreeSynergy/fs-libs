@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Yoruba)
+
+[validation]
+required = "Aaye tí a nílò"
+too_short = "Kúrú jù (ó kéré jù: àwọn ìwé {min})"
+too_long = "Gùn jù (tó pọ̀ jù: àwọn ìwé {max})"
+invalid_email = "Àdírẹ́sì ìmẹ́ẹ̀lì kò tọ́"
+invalid_url = "URL kò tọ́"
+invalid_format = "Ìkọ́ kò tọ́"
+out_of_range = "Iye jáde nínú ìwọ̀n"
+pattern_mismatch = "Kò bá àpẹẹrẹ tí a nílò mu"
+already_exists = "Wà tẹ́lẹ̀"
+not_found = "A kò rí i"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

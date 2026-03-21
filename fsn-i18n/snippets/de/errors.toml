@@ -1,0 +1,94 @@
+# errors.toml — Fehlermeldungen (Deutsch)
+
+[errors]
+# Allgemein
+not_found               = "Nicht gefunden"
+permission_denied       = "Zugriff verweigert"
+network_error           = "Netzwerkfehler"
+parse_error             = "Analysefehler"
+timeout                 = "Zeitüberschreitung"
+internal_error          = "Interner Fehler"
+invalid_input           = "Ungültige Eingabe"
+already_exists          = "Existiert bereits"
+not_supported           = "Nicht unterstützt"
+connection_failed       = "Verbindung fehlgeschlagen"
+authentication_failed   = "Authentifizierung fehlgeschlagen"
+config_error            = "Konfigurationsfehler"
+io_error                = "E/A-Fehler"
+plugin_error            = "Plugin-Fehler"
+deploy_failed           = "Deployment fehlgeschlagen"
+install_failed          = "Installation fehlgeschlagen"
+update_failed           = "Aktualisierung fehlgeschlagen"
+sync_failed             = "Synchronisierung fehlgeschlagen"
+backup_failed           = "Backup fehlgeschlagen"
+unexpected              = "Ein unerwarteter Fehler ist aufgetreten"
+try_again               = "Bitte versuche es erneut"
+not_implemented         = "Noch nicht implementiert"
+deprecated              = "Veraltet — bitte Nachfolger verwenden"
+operation_cancelled     = "Vorgang abgebrochen"
+
+# Dateisystem
+file_not_found          = "Datei nicht gefunden"
+file_read_failed        = "Datei konnte nicht gelesen werden"
+file_write_failed       = "Datei konnte nicht geschrieben werden"
+file_permission_denied  = "Keine Berechtigung für diese Datei"
+file_already_exists     = "Datei existiert bereits"
+file_too_large          = "Datei zu groß"
+dir_not_found           = "Verzeichnis nicht gefunden"
+dir_not_empty           = "Verzeichnis ist nicht leer"
+
+# Netzwerk
+connection_timeout      = "Verbindungszeitüberschreitung"
+connection_refused      = "Verbindung abgelehnt"
+dns_failed              = "DNS-Auflösung fehlgeschlagen"
+tls_failed              = "TLS-Handshake fehlgeschlagen"
+http_error              = "HTTP-Fehler"
+api_error               = "API-Fehler"
+rate_limited            = "Zu viele Anfragen — bitte warten"
+
+# Authentifizierung
+auth_token_expired      = "Token abgelaufen — bitte erneut anmelden"
+auth_token_invalid      = "Ungültiges Token"
+auth_user_not_found     = "Benutzer nicht gefunden"
+auth_user_locked        = "Benutzerkonto gesperrt"
+
+# Konfiguration
+config_invalid          = "Ungültige Konfiguration"
+config_missing_field    = "Pflichtfeld fehlt in der Konfiguration"
+config_invalid_value    = "Ungültiger Konfigurationswert"
+config_parse_failed     = "Konfiguration konnte nicht gelesen werden"
+config_version_mismatch = "Konfigurationsversion nicht kompatibel"
+
+# Datenbank
+db_connection_failed    = "Datenbankverbindung fehlgeschlagen"
+db_query_failed         = "Datenbankabfrage fehlgeschlagen"
+db_migration_failed     = "Datenbankmigration fehlgeschlagen"
+db_not_found            = "Datensatz nicht gefunden"
+db_duplicate            = "Doppelter Eintrag"
+db_constraint           = "Integritätsbedingung verletzt"
+
+# Container / Deployment
+container_not_found     = "Container nicht gefunden"
+container_start_failed  = "Container konnte nicht gestartet werden"
+container_health_failed = "Healthcheck fehlgeschlagen"
+image_pull_failed       = "Image konnte nicht heruntergeladen werden"
+
+# Sync / CRDT
+sync_conflict           = "Synchronisationskonflikt — gleichzeitige Änderungen auf beiden Seiten"
+sync_peer_unreachable   = "Peer nicht erreichbar"
+
+# Plugin / Store
+plugin_not_found        = "Plugin nicht gefunden"
+plugin_incompatible     = "Plugin-Version nicht kompatibel"
+plugin_wasm_failed      = "WASM-Plugin Ausführungsfehler"
+store_unreachable       = "Store nicht erreichbar — verwende lokalen Cache"
+
+# Validierung
+validation_required         = "Pflichtfeld"
+validation_too_short        = "Zu kurz"
+validation_too_long         = "Zu lang"
+validation_invalid_email    = "Ungültige E-Mail-Adresse"
+validation_invalid_url      = "Ungültige URL"
+validation_invalid_format   = "Ungültiges Format"
+validation_out_of_range     = "Wert außerhalb des gültigen Bereichs"
+validation_pattern_mismatch = "Entspricht nicht dem erforderlichen Muster"

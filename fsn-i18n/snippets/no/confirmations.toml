@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Norwegian Bokmål)
+
+[confirmations]
+delete = "Slette? Dette kan ikke angres."
+restart = "Starte på nytt?"
+deploy = "Rulle ut?"
+logout = "Logg ut?"
+unsaved_changes = "Du har ulagrede endringer. Forlat likevel?"
+overwrite = "Finnes allerede. Overskriv?"
+reset = "Tilbakestill alle innstillinger til standard?"
+remove_plugin = "Fjern plugin? Alle data vil gå tapt."
+wipe_data = "Slett alle data? Dette kan ikke angres."
+stop = "Stoppe?"
+cancel_op = "Avbryt operasjonen?"
+apply = "Bruk endringer?"
+import = "Importer og overskriv eksisterende data?"
+sync = "Synkroniser nå?"
+generate_secret = "Generer ny hemmelighet? Den gamle hemmeligheten vil gå tapt."

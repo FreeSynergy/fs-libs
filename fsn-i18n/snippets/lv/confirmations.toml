@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Latvian)
+
+[confirmations]
+delete          = "Dzēst? To nevar atsaukt."
+restart         = "Restartēt?"
+deploy          = "Izvietot?"
+logout          = "Atteikties?"
+unsaved_changes = "Jums ir nesaglabātas izmaiņas. Iziet?"
+overwrite       = "Jau eksistē. Pārrakstīt?"
+reset           = "Atiestatīt visus iestatījumus uz noklusējumu?"
+remove_plugin   = "Noņemt spraudni? Visi dati tiks zaudēti."
+wipe_data       = "Dzēst visus datus? To nevar atsaukt."
+stop            = "Apturēt?"
+cancel_op       = "Atcelt darbību?"
+apply           = "Lietot izmaiņas?"
+import          = "Importēt un pārrakstīt esošos datus?"
+sync            = "Sinhronizēt tūlīt?"
+generate_secret = "Ģenerēt jaunu noslēpumu? Vecais tiks zaudēts."

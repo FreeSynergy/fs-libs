@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (French)
+
+[confirmations]
+delete = "Supprimer ? Cette action est irréversible."
+restart = "Redémarrer ?"
+deploy = "Deploy ?"
+logout = "Se déconnecter ?"
+unsaved_changes = "Vous avez des modifications non enregistrées. Quitter quand même ?"
+overwrite = "Existe déjà. Écraser ?"
+reset = "Réinitialiser tous les paramètres par défaut ?"
+remove_plugin = "Supprimer le plugin ? Toutes les données seront perdues."
+wipe_data = "Effacer toutes les données ? Cette action est irréversible."
+stop = "Arrêter ?"
+cancel_op = "Annuler l'opération ?"
+apply = "Appliquer les modifications ?"
+import = "Importer et écraser les données existantes ?"
+sync = "Synchroniser maintenant ?"
+generate_secret = "Générer un nouveau secret ? L'ancien secret sera perdu."

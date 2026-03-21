@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Yoruba)
+
+[confirmations]
+delete = "Pa rẹ́? A kò lè yi èyí padà."
+restart = "Bẹ̀rẹ̀ lẹ́ẹ̀kan sí?"
+deploy = "Fìdí múlẹ̀?"
+logout = "Jáde?"
+unsaved_changes = "O ní àwọn ìyípadà tí a kò tí ì tọ́jú. Jáde bó ti wù kó rí?"
+overwrite = "Wà tẹ́lẹ̀. Kọ lé orí rẹ̀?"
+reset = "Dá gbogbo ìtọ́kasí padà sí ìpìlẹ̀?"
+remove_plugin = "Yọ àfikún kúrò? Gbogbo data yóò sọnù."
+wipe_data = "Pa gbogbo data rẹ́? A kò lè yi èyí padà."
+stop = "Dáwọ́ dúró?"
+cancel_op = "Fagilé ìṣẹ̀ṣẹ̀?"
+apply = "Lo àwọn ìyípadà?"
+import = "Gbé wọlé kí o sì kọ lé orí data tí ó wà?"
+sync = "Dọ́gba báyìí?"
+generate_secret = "Ṣẹ̀dá ìkọ̀kọ̀ tuntun? Ìkọ̀kọ̀ àtijọ́ yóò sọnù."

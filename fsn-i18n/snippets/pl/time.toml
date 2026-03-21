@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Polish)
+
+[time]
+just_now = "przed chwilą"
+seconds_ago = "{n} sekund temu"
+minutes_ago = "{n} minut temu"
+hours_ago = "{n} godzin temu"
+days_ago = "{n} dni temu"
+weeks_ago = "{n} tygodni temu"
+months_ago = "{n} miesięcy temu"
+years_ago = "{n} lat temu"
+today = "dzisiaj"
+yesterday = "wczoraj"
+tomorrow = "jutro"
+never = "nigdy"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

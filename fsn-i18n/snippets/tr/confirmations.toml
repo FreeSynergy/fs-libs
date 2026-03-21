@@ -1,0 +1,18 @@
+# confirmations.toml — Onay diyalogları (Türkçe)
+
+[confirmations]
+delete            = "Silinsin mi? Bu işlem geri alınamaz."
+restart           = "Yeniden başlatılsın mı?"
+deploy            = "Dağıtılsın mı?"
+logout            = "Çıkış yapılsın mı?"
+unsaved_changes   = "Kaydedilmemiş değişiklikleriniz var. Yine de çıkmak istiyor musunuz?"
+overwrite         = "Zaten mevcut. Üzerine yazılsın mı?"
+reset             = "Tüm ayarlar varsayılana sıfırlansın mı?"
+remove_plugin     = "Plugin kaldırılsın mı? Tüm veriler silinecek."
+wipe_data         = "Tüm veriler silinsin mi? Bu işlem geri alınamaz."
+stop              = "Durdurulsun mu?"
+cancel_op         = "İşlem iptal edilsin mi?"
+apply             = "Değişiklikler uygulansin mı?"
+import            = "İçe aktarılsın mı? Mevcut veriler üzerine yazılacak."
+sync              = "Şimdi eşitlensin mi?"
+generate_secret   = "Yeni secret oluşturulsun mu? Eski secret kaybolacak."

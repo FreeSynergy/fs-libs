@@ -1,0 +1,23 @@
+# validation.toml — validation messages (Bulgarian)
+
+[validation]
+required          = "Задължително поле"
+too_short         = "Твърде кратко (минимум: {min} символа)"
+too_long          = "Твърде дълго (максимум: {max} символа)"
+invalid_email     = "Невалиден имейл адрес"
+invalid_url       = "Невалиден URL"
+invalid_format    = "Невалиден формат"
+out_of_range      = "Стойността е извън обхвата"
+pattern_mismatch  = "Не съответства на изисквания шаблон"
+already_exists    = "Вече съществува"
+not_found         = "Не е намерено"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Dutch)
+
+[notifications]
+saved = "Opgeslagen."
+deleted = "Verwijderd."
+updated = "Bijgewerkt."
+installed = "Geïnstalleerd."
+uninstalled = "Verwijderd."
+deployed = "Geïmplementeerd."
+started = "Gestart."
+stopped = "Gestopt."
+restarted = "Herstart."
+copied = "Gekopieerd naar klembord."
+connection_restored = "Verbinding hersteld."
+sync_completed = "Synchronisatie voltooid."
+import_completed = "Import voltooid."
+export_completed = "Export voltooid."
+changes_discarded = "Wijzigingen verworpen."
+secret_generated = "Nieuw geheim gegenereerd."
+backup_created = "Back-up aangemaakt."

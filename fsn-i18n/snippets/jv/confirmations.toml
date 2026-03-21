@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Basa Jawa)
+
+[confirmations]
+delete = "Mbuak? Ora bisa dibalekake."
+restart = "Restart?"
+deploy = "Deploy?"
+logout = "Metu?"
+unsaved_changes = "Isih ana owahan sing durung disimpen. Ninggal tetap?"
+overwrite = "Wis ana. Timpa?"
+reset = "Reset kabeh setelan menyang default?"
+remove_plugin = "Copot plugin? Kabeh data bakal ilang."
+wipe_data = "Wipe kabeh data? Ora bisa dibalekake."
+stop = "Mandeg?"
+cancel_op = "Batal operasi?"
+apply = "Terapake owahan?"
+import = "Import lan timpa data sing wis ana?"
+sync = "Sinkronisasi saiki?"
+generate_secret = "Generate rahasia anyar? Rahasia lawas bakal ilang."

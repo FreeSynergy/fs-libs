@@ -1,0 +1,18 @@
+# confirmations.toml — 確認對話框 (Cantonese)
+
+[confirmations]
+delete          = "刪除？呢個操作唔可以撤銷。"
+restart         = "重新啟動？"
+deploy          = "部署？"
+logout          = "登出？"
+unsaved_changes = "你有未儲存嘅改動。確定要離開？"
+overwrite       = "已經存在。要覆蓋嗎？"
+reset           = "將所有設定重設為預設值？"
+remove_plugin   = "移除 Plugin？所有數據都會遺失。"
+wipe_data       = "清除所有數據？呢個操作唔可以撤銷。"
+stop            = "停止？"
+cancel_op       = "取消操作？"
+apply           = "套用改動？"
+import          = "匯入並覆蓋現有數據？"
+sync            = "立即同步？"
+generate_secret = "生成新機密？舊機密將會遺失。"

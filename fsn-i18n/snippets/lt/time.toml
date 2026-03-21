@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Lithuanian)
+
+[time]
+just_now     = "ką tik"
+seconds_ago  = "prieš {n} sekundes"
+minutes_ago  = "prieš {n} minutes"
+hours_ago    = "prieš {n} valandas"
+days_ago     = "prieš {n} dienas"
+weeks_ago    = "prieš {n} savaites"
+months_ago   = "prieš {n} mėnesius"
+years_ago    = "prieš {n} metus"
+today        = "šiandien"
+yesterday    = "vakar"
+tomorrow     = "rytoj"
+never        = "niekada"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

@@ -1,0 +1,20 @@
+# notifications.toml — notification and toast messages (Belarusian)
+
+[notifications]
+saved               = "Захавана."
+deleted             = "Выдалена."
+updated             = "Абноўлена."
+installed           = "Усталявана."
+uninstalled         = "Выдалена."
+deployed            = "Разгорнута."
+started             = "Запушчана."
+stopped             = "Спынена."
+restarted           = "Перазапушчана."
+copied              = "Скапіявана ў буфер абмену."
+connection_restored = "Злучэнне аднаўлена."
+sync_completed      = "Сінхранізацыя завершана."
+import_completed    = "Імпарт завершаны."
+export_completed    = "Экспарт завершаны."
+changes_discarded   = "Змены адкінуты."
+secret_generated    = "Новы сакрэт згенераваны."
+backup_created      = "Рэзервовая копія створана."

@@ -1,0 +1,20 @@
+# notifications.toml — 通知訊息 (Cantonese)
+
+[notifications]
+saved               = "已儲存。"
+deleted             = "已刪除。"
+updated             = "已更新。"
+installed           = "已安裝。"
+uninstalled         = "已解除安裝。"
+deployed            = "已部署。"
+started             = "已開始。"
+stopped             = "已停止。"
+restarted           = "已重新啟動。"
+copied              = "已複製到剪貼板。"
+connection_restored = "連接已恢復。"
+sync_completed      = "同步完成。"
+import_completed    = "匯入完成。"
+export_completed    = "匯出完成。"
+changes_discarded   = "改動已捨棄。"
+secret_generated    = "已生成新機密。"
+backup_created      = "備份已建立。"

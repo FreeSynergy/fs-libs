@@ -1,0 +1,20 @@
+# notifications.toml — Başarı ve durum bildirimleri (Türkçe)
+
+[notifications]
+saved               = "Kaydedildi."
+deleted             = "Silindi."
+updated             = "Güncellendi."
+installed           = "Kuruldu."
+uninstalled         = "Kaldırıldı."
+deployed            = "Dağıtıldı."
+started             = "Başlatıldı."
+stopped             = "Durduruldu."
+restarted           = "Yeniden başlatıldı."
+copied              = "Panoya kopyalandı."
+connection_restored = "Bağlantı yeniden kuruldu."
+sync_completed      = "Eşitleme tamamlandı."
+import_completed    = "İçe aktarma tamamlandı."
+export_completed    = "Dışa aktarma tamamlandı."
+changes_discarded   = "Değişiklikler iptal edildi."
+secret_generated    = "Yeni secret oluşturuldu."
+backup_created      = "Yedek oluşturuldu."

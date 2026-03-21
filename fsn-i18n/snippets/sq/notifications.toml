@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Albanian)
+
+[notifications]
+saved = "U ruajt."
+deleted = "U fshi."
+updated = "U përditësua."
+installed = "U instalua."
+uninstalled = "U çinstalua."
+deployed = "U vendos."
+started = "U fillua."
+stopped = "U ndal."
+restarted = "U rifillua."
+copied = "U kopjua në clipboard."
+connection_restored = "Lidhja u rivendos."
+sync_completed = "Sinkronizimi u kompletua."
+import_completed = "Importimi u kompletua."
+export_completed = "Eksportimi u kompletua."
+changes_discarded = "Ndryshimet u anuluan."
+secret_generated = "Sekreti i ri u gjenerua."
+backup_created = "Kopja rezervë u krijua."

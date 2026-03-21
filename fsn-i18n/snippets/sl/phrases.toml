@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Slovenian)
+
+[phrases]
+confirm_delete       = "Ali res želite izbrisati to?"
+select_item          = "Izberite element"
+no_results           = "Ni rezultatov"
+loading_data         = "Nalaganje podatkov…"
+operation_successful = "Operacija uspešna"
+operation_failed     = "Operacija ni uspela"
+are_you_sure         = "Ste prepričani?"
+welcome_to           = "Dobrodošli v"
+unsaved_changes      = "Imate neshranjene spremembe"
+try_again            = "Poskusite znova"
+contact_support      = "Kontaktirajte podporo"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

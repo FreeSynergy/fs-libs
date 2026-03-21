@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Bengali)
+
+[time]
+just_now = "এইমাত্র"
+seconds_ago = "{n} সেকেন্ড আগে"
+minutes_ago = "{n} মিনিট আগে"
+hours_ago = "{n} ঘণ্টা আগে"
+days_ago = "{n} দিন আগে"
+weeks_ago = "{n} সপ্তাহ আগে"
+months_ago = "{n} মাস আগে"
+years_ago = "{n} বছর আগে"
+today = "আজ"
+yesterday = "গতকাল"
+tomorrow = "আগামীকাল"
+never = "কখনো না"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

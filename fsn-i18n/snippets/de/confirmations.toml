@@ -1,0 +1,18 @@
+# confirmations.toml — Bestätigungsdialoge (Deutsch)
+
+[confirmations]
+delete            = "Löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+restart           = "Neu starten?"
+deploy            = "Deployen?"
+logout            = "Abmelden?"
+unsaved_changes   = "Ungespeicherte Änderungen vorhanden. Trotzdem verlassen?"
+overwrite         = "Existiert bereits. Überschreiben?"
+reset             = "Alle Einstellungen auf Standard zurücksetzen?"
+remove_plugin     = "Plugin entfernen? Alle Daten gehen verloren."
+wipe_data         = "Alle Daten löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+stop              = "Stoppen?"
+cancel_op         = "Vorgang abbrechen?"
+apply             = "Änderungen übernehmen?"
+import            = "Importieren und vorhandene Daten überschreiben?"
+sync              = "Jetzt synchronisieren?"
+generate_secret   = "Neues Secret generieren? Das alte Secret geht verloren."

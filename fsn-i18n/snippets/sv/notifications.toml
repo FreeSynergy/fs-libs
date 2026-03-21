@@ -1,0 +1,20 @@
+# notifications.toml — Lyckade åtgärder och statusmeddelanden (Svenska)
+
+[notifications]
+saved               = "Sparat."
+deleted             = "Borttaget."
+updated             = "Uppdaterat."
+installed           = "Installerat."
+uninstalled         = "Avinstallerat."
+deployed            = "Driftsatt."
+started             = "Startat."
+stopped             = "Stoppat."
+restarted           = "Omstartat."
+copied              = "Kopierat till urklipp."
+connection_restored = "Anslutning återupprättad."
+sync_completed      = "Synkronisering slutförd."
+import_completed    = "Import slutförd."
+export_completed    = "Export slutförd."
+changes_discarded   = "Ändringar förkastade."
+secret_generated    = "Ny hemlighet skapad."
+backup_created      = "Säkerhetskopia skapad."

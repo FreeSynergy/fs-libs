@@ -1,0 +1,20 @@
+# notifications.toml — Notifikasi keberhasilan operasi (Bahasa Indonesia)
+
+[notifications]
+saved               = "Tersimpan."
+deleted             = "Terhapus."
+updated             = "Diperbarui."
+installed           = "Terpasang."
+uninstalled         = "Instalasi dihapus."
+deployed            = "Ter-deploy."
+started             = "Dimulai."
+stopped             = "Dihentikan."
+restarted           = "Dimulai ulang."
+copied              = "Disalin ke clipboard."
+connection_restored = "Koneksi dipulihkan."
+sync_completed      = "Sinkronisasi selesai."
+import_completed    = "Impor selesai."
+export_completed    = "Ekspor selesai."
+changes_discarded   = "Perubahan dibatalkan."
+secret_generated    = "Rahasia baru dibuat."
+backup_created      = "Backup dibuat."

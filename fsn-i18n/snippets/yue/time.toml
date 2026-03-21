@@ -1,0 +1,27 @@
+# time.toml — 時間表達 (Cantonese)
+
+[time]
+just_now     = "啱啱"
+seconds_ago  = "{n} 秒前"
+minutes_ago  = "{n} 分鐘前"
+hours_ago    = "{n} 小時前"
+days_ago     = "{n} 日前"
+weeks_ago    = "{n} 星期前"
+months_ago   = "{n} 個月前"
+years_ago    = "{n} 年前"
+today        = "今日"
+yesterday    = "琴日"
+tomorrow     = "聽日"
+never        = "從未"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

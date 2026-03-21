@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Spanish)
+
+[confirmations]
+delete = "¿Eliminar? Esta acción no se puede deshacer."
+restart = "¿Reiniciar?"
+deploy = "¿Deploy?"
+logout = "¿Cerrar sesión?"
+unsaved_changes = "Tiene cambios sin guardar. ¿Salir de todas formas?"
+overwrite = "Ya existe. ¿Sobrescribir?"
+reset = "¿Restablecer todos los ajustes a los valores predeterminados?"
+remove_plugin = "¿Eliminar plugin? Se perderán todos los datos."
+wipe_data = "¿Borrar todos los datos? Esta acción no se puede deshacer."
+stop = "¿Detener?"
+cancel_op = "¿Cancelar operación?"
+apply = "¿Aplicar cambios?"
+import = "¿Importar y sobrescribir los datos existentes?"
+sync = "¿Sincronizar ahora?"
+generate_secret = "¿Generar nuevo secreto? Se perderá el secreto anterior."

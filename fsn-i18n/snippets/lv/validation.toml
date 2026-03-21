@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Latvian)
+
+[validation]
+required          = "Obligāts lauks"
+too_short         = "Pārāk īss (minimums: {min} rakstzīmes)"
+too_long          = "Pārāk garš (maksimums: {max} rakstzīmes)"
+invalid_email     = "Nederīga e-pasta adrese"
+invalid_url       = "Nederīgs URL"
+invalid_format    = "Nederīgs formāts"
+out_of_range      = "Vērtība ārpus diapazona"
+pattern_mismatch  = "Neatbilst nepieciešamajam paraugam"
+already_exists    = "Jau eksistē"
+not_found         = "Nav atrasts"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

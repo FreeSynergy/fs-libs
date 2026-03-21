@@ -1,0 +1,21 @@
+# phrases.toml — Häufige UI-Phrasen (Deutsch)
+
+[phrases]
+confirm_delete       = "{item} löschen? Dies kann nicht rückgängig gemacht werden."
+confirm_action       = "Bist du sicher, dass du {action} möchtest?"
+save_success         = "{item} erfolgreich gespeichert."
+delete_success       = "{item} erfolgreich gelöscht."
+install_success      = "{item} erfolgreich installiert."
+update_success       = "{item} erfolgreich aktualisiert."
+load_failed          = "{item} konnte nicht geladen werden."
+save_failed          = "{item} konnte nicht gespeichert werden."
+no_items             = "Keine {items} gefunden."
+loading_items        = "{items} werden geladen..."
+select_item          = "{item} auswählen"
+enter_name           = "Namen für {item} eingeben"
+unsaved_changes      = "Du hast nicht gespeicherte Änderungen."
+changes_saved        = "Alle Änderungen gespeichert."
+operation_failed     = "Operation fehlgeschlagen: {reason}"
+are_you_sure         = "Bist du sicher?"
+cannot_be_undone     = "Diese Aktion kann nicht rückgängig gemacht werden."
+leave_without_saving = "Ohne Speichern verlassen?"

@@ -1,0 +1,23 @@
+# validation.toml — Validation messages for form fields (Norwegian Bokmål)
+
+[validation]
+required = "Dette feltet er påkrevd"
+too_short = "For kort"
+too_long = "For lang"
+invalid_email = "Ugyldig e-postadresse"
+invalid_url = "Ugyldig URL"
+invalid_format = "Ugyldig format"
+out_of_range = "Verdi utenfor område"
+pattern_mismatch = "Samsvarer ikke med påkrevd mønster"
+already_exists = "Finnes allerede"
+not_found = "Ikke funnet"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

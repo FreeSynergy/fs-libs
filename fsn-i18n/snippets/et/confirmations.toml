@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Estonian)
+
+[confirmations]
+delete          = "Kustutada? Seda ei saa tagasi võtta."
+restart         = "Taaskäivitada?"
+deploy          = "Juurutada?"
+logout          = "Logida välja?"
+unsaved_changes = "Teil on salvestamata muudatusi. Lahkuda?"
+overwrite       = "Juba olemas. Kirjutada üle?"
+reset           = "Lähtestada kõik seaded vaikeseadetele?"
+remove_plugin   = "Eemaldada plugin? Kõik andmed lähevad kaotsi."
+wipe_data       = "Pühkida kõik andmed? Seda ei saa tagasi võtta."
+stop            = "Peatada?"
+cancel_op       = "Tühistada toiming?"
+apply           = "Rakendada muudatused?"
+import          = "Importida ja kirjutada üle olemasolevad andmed?"
+sync            = "Sünkroonida kohe?"
+generate_secret = "Genereerida uus saladus? Vana läheb kaotsi."

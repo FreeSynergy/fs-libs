@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Swahili)
+
+[time]
+just_now = "sasa hivi"
+seconds_ago = "sekunde {n} zilizopita"
+minutes_ago = "dakika {n} zilizopita"
+hours_ago = "saa {n} zilizopita"
+days_ago = "siku {n} zilizopita"
+weeks_ago = "wiki {n} zilizopita"
+months_ago = "miezi {n} iliyopita"
+years_ago = "miaka {n} iliyopita"
+today = "leo"
+yesterday = "jana"
+tomorrow = "kesho"
+never = "kamwe"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

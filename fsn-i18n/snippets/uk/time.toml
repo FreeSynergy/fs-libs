@@ -1,0 +1,27 @@
+# time.toml — relative time labels (Ukrainian)
+
+[time]
+just_now     = "щойно"
+seconds_ago  = "{n} секунд тому"
+minutes_ago  = "{n} хвилин тому"
+hours_ago    = "{n} годин тому"
+days_ago     = "{n} днів тому"
+weeks_ago    = "{n} тижнів тому"
+months_ago   = "{n} місяців тому"
+years_ago    = "{n} років тому"
+today        = "сьогодні"
+yesterday    = "вчора"
+tomorrow     = "завтра"
+never        = "ніколи"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

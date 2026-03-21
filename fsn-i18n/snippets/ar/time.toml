@@ -1,0 +1,27 @@
+# time.toml — relative time expressions (Arabic / العربية)
+
+[time]
+just_now     = "الآن"
+seconds_ago  = "منذ {n} ثوانٍ"
+minutes_ago  = "منذ {n} دقائق"
+hours_ago    = "منذ {n} ساعات"
+days_ago     = "منذ {n} أيام"
+weeks_ago    = "منذ {n} أسابيع"
+months_ago   = "منذ {n} أشهر"
+years_ago    = "منذ {n} سنوات"
+today        = "اليوم"
+yesterday    = "أمس"
+tomorrow     = "غداً"
+never        = "أبداً"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

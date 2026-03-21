@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Czech)
+
+[time]
+just_now = "právě teď"
+seconds_ago = "před {n} sekundami"
+minutes_ago = "před {n} minutami"
+hours_ago = "před {n} hodinami"
+days_ago = "před {n} dny"
+weeks_ago = "před {n} týdny"
+months_ago = "před {n} měsíci"
+years_ago = "před {n} lety"
+today = "dnes"
+yesterday = "včera"
+tomorrow = "zítra"
+never = "nikdy"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

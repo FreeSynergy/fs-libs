@@ -1,0 +1,27 @@
+# time.toml — Relative and absolute time expressions (Norwegian Bokmål)
+
+[time]
+just_now = "Akkurat nå"
+seconds_ago = "for {n} sekunder siden"
+minutes_ago = "for {n} minutter siden"
+hours_ago = "for {n} timer siden"
+days_ago = "for {n} dager siden"
+weeks_ago = "for {n} uker siden"
+months_ago = "for {n} måneder siden"
+years_ago = "for {n} år siden"
+today = "I dag"
+yesterday = "I går"
+tomorrow = "I morgen"
+never = "Aldri"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

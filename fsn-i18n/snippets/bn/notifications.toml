@@ -1,0 +1,20 @@
+# notifications.toml — সফল ক্রিয়া এবং স্ট্যাটাস (বাংলা)
+
+[notifications]
+saved               = "সংরক্ষিত হয়েছে।"
+deleted             = "মুছে ফেলা হয়েছে।"
+updated             = "আপডেট করা হয়েছে।"
+installed           = "ইনস্টল করা হয়েছে।"
+uninstalled         = "আনইনস্টল করা হয়েছে।"
+deployed            = "ডিপ্লয় করা হয়েছে।"
+started             = "শুরু হয়েছে।"
+stopped             = "বন্ধ হয়েছে।"
+restarted           = "পুনরায় শুরু হয়েছে।"
+copied              = "ক্লিপবোর্ডে কপি করা হয়েছে।"
+connection_restored = "সংযোগ পুনরুদ্ধার হয়েছে।"
+sync_completed      = "সিঙ্ক সম্পন্ন হয়েছে।"
+import_completed    = "আমদানি সম্পন্ন হয়েছে।"
+export_completed    = "রপ্তানি সম্পন্ন হয়েছে।"
+changes_discarded   = "পরিবর্তনগুলি বাতিল হয়েছে।"
+secret_generated    = "নতুন সিক্রেট তৈরি হয়েছে।"
+backup_created      = "ব্যাকআপ তৈরি হয়েছে।"

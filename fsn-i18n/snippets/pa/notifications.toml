@@ -1,0 +1,20 @@
+# notifications.toml — Status notification messages (Punjabi)
+
+[notifications]
+saved = "ਸੁਰੱਖਿਅਤ ਕੀਤਾ."
+deleted = "ਮਿਟਾਇਆ."
+updated = "ਅੱਪਡੇਟ ਕੀਤਾ."
+installed = "ਸਥਾਪਿਤ ਕੀਤਾ."
+uninstalled = "ਅਨਇੰਸਟਾਲ ਕੀਤਾ."
+deployed = "ਤੈਨਾਤ ਕੀਤਾ."
+started = "ਸ਼ੁਰੂ ਕੀਤਾ."
+stopped = "ਰੋਕਿਆ."
+restarted = "ਮੁੜ ਸ਼ੁਰੂ ਕੀਤਾ."
+copied = "ਕਲਿੱਪਬੋਰਡ ਤੇ ਕਾਪੀ ਕੀਤਾ."
+connection_restored = "ਕਨੈਕਸ਼ਨ ਬਹਾਲ ਕੀਤਾ."
+sync_completed = "ਸਿੰਕ ਪੂਰਾ ਹੋਇਆ."
+import_completed = "ਆਯਾਤ ਪੂਰਾ ਹੋਇਆ."
+export_completed = "ਨਿਰਯਾਤ ਪੂਰਾ ਹੋਇਆ."
+changes_discarded = "ਬਦਲਾਅ ਰੱਦ ਕੀਤੇ."
+secret_generated = "ਨਵਾਂ ਗੁਪਤ ਤਿਆਰ ਕੀਤਾ."
+backup_created = "Backup ਬਣਾਇਆ."

@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (French)
+
+[time]
+just_now = "à l'instant"
+seconds_ago = "il y a {n} secondes"
+minutes_ago = "il y a {n} minutes"
+hours_ago = "il y a {n} heures"
+days_ago = "il y a {n} jours"
+weeks_ago = "il y a {n} semaines"
+months_ago = "il y a {n} mois"
+years_ago = "il y a {n} ans"
+today = "aujourd'hui"
+yesterday = "hier"
+tomorrow = "demain"
+never = "jamais"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

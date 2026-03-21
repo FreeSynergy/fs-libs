@@ -1,0 +1,27 @@
+# time.toml — relative time expressions (Belarusian)
+
+[time]
+just_now     = "толькі што"
+seconds_ago  = "{n} секунд таму"
+minutes_ago  = "{n} хвілін таму"
+hours_ago    = "{n} гадзін таму"
+days_ago     = "{n} дзён таму"
+weeks_ago    = "{n} тыдняў таму"
+months_ago   = "{n} месяцаў таму"
+years_ago    = "{n} гадоў таму"
+today        = "сёння"
+yesterday    = "учора"
+tomorrow     = "заўтра"
+never        = "ніколі"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

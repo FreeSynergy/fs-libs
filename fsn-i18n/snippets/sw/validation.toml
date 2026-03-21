@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Swahili)
+
+[validation]
+required = "Sehemu inayohitajika"
+too_short = "Fupi sana (kiwango cha chini: herufi {min})"
+too_long = "Ndefu sana (kiwango cha juu: herufi {max})"
+invalid_email = "Anwani ya barua pepe si sahihi"
+invalid_url = "URL si sahihi"
+invalid_format = "Muundo si sahihi"
+out_of_range = "Thamani iko nje ya mipaka"
+pattern_mismatch = "Hailingani na muundo unaohitajika"
+already_exists = "Tayari ipo"
+not_found = "Haikupatikana"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

@@ -1,0 +1,20 @@
+# notifications.toml — การแจ้งเตือนการดำเนินการสำเร็จ (ภาษาไทย)
+
+[notifications]
+saved               = "บันทึกแล้ว"
+deleted             = "ลบแล้ว"
+updated             = "อัปเดตแล้ว"
+installed           = "ติดตั้งแล้ว"
+uninstalled         = "ถอนการติดตั้งแล้ว"
+deployed            = "ติดตั้งใช้งานแล้ว"
+started             = "เริ่มแล้ว"
+stopped             = "หยุดแล้ว"
+restarted           = "เริ่มใหม่แล้ว"
+copied              = "คัดลอกไปยังคลิปบอร์ดแล้ว"
+connection_restored = "เชื่อมต่อใหม่แล้ว"
+sync_completed      = "ซิงก์เสร็จสิ้น"
+import_completed    = "นำเข้าเสร็จสิ้น"
+export_completed    = "ส่งออกเสร็จสิ้น"
+changes_discarded   = "ยกเลิกการเปลี่ยนแปลงแล้ว"
+secret_generated    = "สร้างความลับใหม่แล้ว"
+backup_created      = "สร้าง Backup แล้ว"

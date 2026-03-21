@@ -1,0 +1,20 @@
+# notifications.toml — 알림 및 성공 메시지 (Korean)
+
+[notifications]
+saved               = "저장되었습니다."
+deleted             = "삭제되었습니다."
+updated             = "업데이트되었습니다."
+installed           = "설치되었습니다."
+uninstalled         = "제거되었습니다."
+deployed            = "배포되었습니다."
+started             = "시작되었습니다."
+stopped             = "중지되었습니다."
+restarted           = "재시작되었습니다."
+copied              = "클립보드에 복사되었습니다."
+connection_restored = "연결이 복원되었습니다."
+sync_completed      = "동기화가 완료되었습니다."
+import_completed    = "가져오기가 완료되었습니다."
+export_completed    = "내보내기가 완료되었습니다."
+changes_discarded   = "변경사항이 취소되었습니다."
+secret_generated    = "새 시크릿이 생성되었습니다."
+backup_created      = "백업이 생성되었습니다."

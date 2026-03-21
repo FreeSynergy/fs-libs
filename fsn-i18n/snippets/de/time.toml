@@ -1,0 +1,21 @@
+# time.toml — Zeit- und Datumsbeschriftungen (Deutsch)
+
+[time]
+now          = "Gerade eben"
+never        = "Nie"
+today        = "Heute"
+yesterday    = "Gestern"
+tomorrow     = "Morgen"
+seconds_ago  = "vor {n}s"
+minutes_ago  = "vor {n}m"
+hours_ago    = "vor {n}h"
+days_ago     = "vor {n}d"
+in_seconds   = "in {n}s"
+in_minutes   = "in {n}m"
+in_hours     = "in {n}h"
+in_days      = "in {n}d"
+last_seen    = "Zuletzt gesehen {when}"
+created_at   = "Erstellt {when}"
+updated_at   = "Aktualisiert {when}"
+expires_at   = "Läuft ab {when}"
+uptime       = "Laufzeit: {duration}"

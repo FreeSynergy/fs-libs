@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notifications (Slovenian)
+
+[notifications]
+saved               = "Shranjeno."
+deleted             = "Izbrisano."
+updated             = "Posodobljeno."
+installed           = "Nameščeno."
+uninstalled         = "Odstranjeno."
+deployed            = "Uvedeno."
+started             = "Zagnano."
+stopped             = "Ustavljeno."
+restarted           = "Znova zagnano."
+copied              = "Kopirano v odložišče."
+connection_restored = "Povezava vzpostavljena."
+sync_completed      = "Sinhronizacija končana."
+import_completed    = "Uvoz končan."
+export_completed    = "Izvoz končan."
+changes_discarded   = "Spremembe zavržene."
+secret_generated    = "Nova skrivnost ustvarjena."
+backup_created      = "Varnostna kopija ustvarjena."

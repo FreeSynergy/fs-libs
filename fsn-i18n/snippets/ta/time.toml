@@ -1,0 +1,27 @@
+# time.toml — Relative and absolute time expressions (Tamil)
+
+[time]
+just_now = "இப்போதுதான்"
+seconds_ago = "{n} விநாடிகளுக்கு முன்"
+minutes_ago = "{n} நிமிடங்களுக்கு முன்"
+hours_ago = "{n} மணி நேரங்களுக்கு முன்"
+days_ago = "{n} நாட்களுக்கு முன்"
+weeks_ago = "{n} வாரங்களுக்கு முன்"
+months_ago = "{n} மாதங்களுக்கு முன்"
+years_ago = "{n} ஆண்டுகளுக்கு முன்"
+today = "இன்று"
+yesterday = "நேற்று"
+tomorrow = "நாளை"
+never = "ஒருபோதும் இல்லை"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

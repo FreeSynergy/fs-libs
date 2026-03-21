@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Hindi)
+
+[validation]
+required = "आवश्यक फ़ील्ड"
+too_short = "बहुत छोटा (न्यूनतम: {min} अक्षर)"
+too_long = "बहुत लंबा (अधिकतम: {max} अक्षर)"
+invalid_email = "अमान्य ईमेल पता"
+invalid_url = "अमान्य URL"
+invalid_format = "अमान्य प्रारूप"
+out_of_range = "मान सीमा से बाहर"
+pattern_mismatch = "आवश्यक पैटर्न से मेल नहीं खाता"
+already_exists = "पहले से मौजूद है"
+not_found = "नहीं मिला"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

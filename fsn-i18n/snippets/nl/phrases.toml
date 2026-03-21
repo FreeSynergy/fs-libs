@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases and messages (Dutch)
+
+[phrases]
+confirm_delete = "Verwijderen bevestigen"
+select_item = "Selecteer een item"
+no_results = "Geen resultaten gevonden"
+loading_data = "Gegevens laden…"
+operation_successful = "Bewerking geslaagd"
+operation_failed = "Bewerking mislukt"
+are_you_sure = "Weet u het zeker?"
+welcome_to = "Welkom bij"
+unsaved_changes = "U heeft niet-opgeslagen wijzigingen"
+try_again = "Probeer het opnieuw"
+contact_support = "Neem contact op met de ondersteuning"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

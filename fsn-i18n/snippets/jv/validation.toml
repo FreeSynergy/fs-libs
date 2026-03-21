@@ -1,0 +1,23 @@
+# validation.toml — Form validation messages (Basa Jawa)
+
+[validation]
+required = "Field wajib"
+too_short = "Kependhekan (minimal: {min} karakter)"
+too_long = "Kepanjangen (maksimal: {max} karakter)"
+invalid_email = "Alamat email ora valid"
+invalid_url = "URL ora valid"
+invalid_format = "Format ora valid"
+out_of_range = "Nilai ing njaba rentang"
+pattern_mismatch = "Ora cocog karo pola sing dibutuhake"
+already_exists = "Wis ana"
+not_found = "Ora ketemu"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

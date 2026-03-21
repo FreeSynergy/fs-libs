@@ -1,0 +1,20 @@
+# notifications.toml — Status notification messages (Marathi)
+
+[notifications]
+saved = "जतन केले."
+deleted = "हटवले."
+updated = "अपडेट केले."
+installed = "स्थापित केले."
+uninstalled = "अनइंस्टॉल केले."
+deployed = "तैनात केले."
+started = "सुरू केले."
+stopped = "थांबवले."
+restarted = "पुन्हा सुरू केले."
+copied = "क्लिपबोर्डवर कॉपी केले."
+connection_restored = "कनेक्शन पुनर्संचयित केले."
+sync_completed = "सिंक पूर्ण झाले."
+import_completed = "आयात पूर्ण झाले."
+export_completed = "निर्यात पूर्ण झाले."
+changes_discarded = "बदल टाकून दिले."
+secret_generated = "नवीन गुप्त तयार केले."
+backup_created = "Backup तयार केले."

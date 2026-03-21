@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Slovak)
+
+[time]
+just_now = "práve teraz"
+seconds_ago = "pred {n} sekundami"
+minutes_ago = "pred {n} minútami"
+hours_ago = "pred {n} hodinami"
+days_ago = "pred {n} dňami"
+weeks_ago = "pred {n} týždňami"
+months_ago = "pred {n} mesiacmi"
+years_ago = "pred {n} rokmi"
+today = "dnes"
+yesterday = "včera"
+tomorrow = "zajtra"
+never = "nikdy"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

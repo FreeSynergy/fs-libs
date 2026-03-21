@@ -1,0 +1,20 @@
+# notifications.toml — System notification messages (Yoruba)
+
+[notifications]
+saved = "Ti tọ́jú."
+deleted = "Ti pa."
+updated = "Ti ṣe ìmúdójúìwọ̀n."
+installed = "Ti fi sórí ẹrọ."
+uninstalled = "Ti yọ kúrò."
+deployed = "Ti fìdí múlẹ̀."
+started = "Ti bẹ̀rẹ̀."
+stopped = "Ti dáwọ́ dúró."
+restarted = "Ti bẹ̀rẹ̀ lẹ́ẹ̀kan sí."
+copied = "Ti daakọ sí pátákó àdàkọ."
+connection_restored = "Àsopọ̀ ti padà."
+sync_completed = "Ìdọ́gba ti parí."
+import_completed = "Gbíge wọlé ti parí."
+export_completed = "Gbíge jáde ti parí."
+changes_discarded = "Àwọn ìyípadà ti kọnu."
+secret_generated = "Ìkọ̀kọ̀ tuntun ti ṣẹ̀dá."
+backup_created = "Ẹ̀dà ìfipamọ́ ti ṣẹ̀dá."

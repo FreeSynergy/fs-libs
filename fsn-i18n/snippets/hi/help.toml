@@ -1,0 +1,26 @@
+# help.toml — Help system strings (Hindi)
+
+[help]
+getting_started = "शुरुआत करें"
+navigation = "नेविगेशन"
+keyboard_shortcuts = "कीबोर्ड शॉर्टकट"
+search_tip = "आइटम जल्दी खोजने के लिए सर्च बार का उपयोग करें"
+keyboard_tip = "फ़ील्ड के बीच जाने के लिए Tab, पुष्टि के लिए Enter दबाएं"
+close = "सहायता बंद करें"
+
+# --- TODO: translate ---
+# press_key = "Press {key}"
+# press_to_action = "Press {key} to {action}"
+# navigate = "Navigate with arrow keys"
+# navigate_tabs = "Switch tabs with Ctrl+← / Ctrl+→"
+# submit = "Submit with Ctrl+S"
+# cancel_action = "Cancel with Esc"
+# open_help = "Press F1 for help"
+# search_hint = "Type to search..."
+# no_results = "No results for \\"{query}\\""
+# more_info = "More information"
+# see_docs = "See documentation"
+# example = "Example: {example}"
+# tip = "Tip: {tip}"
+# note = "Note: {note}"
+# warning = "Warning: {warning}"

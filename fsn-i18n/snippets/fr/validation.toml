@@ -1,0 +1,23 @@
+# validation.toml — Field validation messages (French)
+
+[validation]
+required = "Champ requis"
+too_short = "Trop court (minimum : {min} caractères)"
+too_long = "Trop long (maximum : {max} caractères)"
+invalid_email = "Adresse e-mail invalide"
+invalid_url = "URL invalide"
+invalid_format = "Format invalide"
+out_of_range = "Valeur hors plage"
+pattern_mismatch = "Ne correspond pas au modèle requis"
+already_exists = "Existe déjà"
+not_found = "Introuvable"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

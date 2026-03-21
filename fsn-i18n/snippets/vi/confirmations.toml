@@ -1,0 +1,18 @@
+# confirmations.toml — Hộp thoại xác nhận (Vietnamese)
+
+[confirmations]
+delete          = "Xóa? Thao tác này không thể hoàn tác."
+restart         = "Khởi động lại?"
+deploy          = "Triển khai?"
+logout          = "Đăng xuất?"
+unsaved_changes = "Bạn có thay đổi chưa được lưu. Vẫn rời đi?"
+overwrite       = "Đã tồn tại. Ghi đè?"
+reset           = "Đặt lại tất cả cài đặt về mặc định?"
+remove_plugin   = "Gỡ Plugin? Mọi dữ liệu sẽ bị mất."
+wipe_data       = "Xóa toàn bộ dữ liệu? Thao tác này không thể hoàn tác."
+stop            = "Dừng?"
+cancel_op       = "Hủy thao tác?"
+apply           = "Áp dụng thay đổi?"
+import          = "Nhập và ghi đè dữ liệu hiện có?"
+sync            = "Đồng bộ ngay?"
+generate_secret = "Tạo bí mật mới? Bí mật cũ sẽ bị mất."

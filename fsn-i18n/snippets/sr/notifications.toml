@@ -1,0 +1,20 @@
+# notifications.toml — notification and toast messages (Serbian)
+
+[notifications]
+saved               = "Сачувано."
+deleted             = "Обрисано."
+updated             = "Ажурирано."
+installed           = "Инсталирано."
+uninstalled         = "Деинсталирано."
+deployed            = "Постављено на сервер."
+started             = "Покренуто."
+stopped             = "Заустављено."
+restarted           = "Поново покренуто."
+copied              = "Копирано у привремену меморију."
+connection_restored = "Веза успостављена."
+sync_completed      = "Синхронизација завршена."
+import_completed    = "Увоз завршен."
+export_completed    = "Извоз завршен."
+changes_discarded   = "Измене одбачене."
+secret_generated    = "Нова тајна генерисана."
+backup_created      = "Резервна копија направљена."

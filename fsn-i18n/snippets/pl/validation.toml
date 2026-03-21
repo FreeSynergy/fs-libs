@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Polish)
+
+[validation]
+required = "Pole wymagane"
+too_short = "Za krótkie (minimum: {min} znaków)"
+too_long = "Za długie (maksimum: {max} znaków)"
+invalid_email = "Nieprawidłowy adres e-mail"
+invalid_url = "Nieprawidłowy URL"
+invalid_format = "Nieprawidłowy format"
+out_of_range = "Wartość poza zakresem"
+pattern_mismatch = "Nie pasuje do wymaganego wzorca"
+already_exists = "Już istnieje"
+not_found = "Nie znaleziono"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

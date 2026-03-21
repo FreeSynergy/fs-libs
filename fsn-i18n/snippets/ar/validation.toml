@@ -1,0 +1,23 @@
+# validation.toml — form validation messages (Arabic / العربية)
+
+[validation]
+required          = "حقل مطلوب"
+too_short         = "قصير جداً (الحد الأدنى: {min} أحرف)"
+too_long          = "طويل جداً (الحد الأقصى: {max} أحرف)"
+invalid_email     = "عنوان بريد إلكتروني غير صالح"
+invalid_url       = "رابط غير صالح"
+invalid_format    = "تنسيق غير صالح"
+out_of_range      = "القيمة خارج النطاق"
+pattern_mismatch  = "لا يطابق النمط المطلوب"
+already_exists    = "موجود بالفعل"
+not_found         = "غير موجود"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

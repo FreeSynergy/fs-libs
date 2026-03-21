@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Portuguese)
+
+[time]
+just_now = "agora mesmo"
+seconds_ago = "há {n} segundos"
+minutes_ago = "há {n} minutos"
+hours_ago = "há {n} horas"
+days_ago = "há {n} dias"
+weeks_ago = "há {n} semanas"
+months_ago = "há {n} meses"
+years_ago = "há {n} anos"
+today = "hoje"
+yesterday = "ontem"
+tomorrow = "amanhã"
+never = "nunca"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

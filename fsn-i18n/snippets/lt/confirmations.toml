@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Lithuanian)
+
+[confirmations]
+delete          = "Ištrinti? Šio veiksmo negalima atšaukti."
+restart         = "Paleisti iš naujo?"
+deploy          = "Įdiegti sistemą?"
+logout          = "Atsijungti?"
+unsaved_changes = "Turite neišsaugotų pakeitimų. Vis tiek išeiti?"
+overwrite       = "Jau egzistuoja. Perrašyti?"
+reset           = "Atstatyti visus nustatymus į numatytuosius?"
+remove_plugin   = "Pašalinti įskiepį? Visi duomenys bus prarasti."
+wipe_data       = "Išvalyti visus duomenis? Šio veiksmo negalima atšaukti."
+stop            = "Sustabdyti?"
+cancel_op       = "Atšaukti operaciją?"
+apply           = "Taikyti pakeitimus?"
+import          = "Importuoti ir perrašyti esamus duomenis?"
+sync            = "Sinchronizuoti dabar?"
+generate_secret = "Generuoti naują slaptąjį raktą? Senasis bus prarastas."

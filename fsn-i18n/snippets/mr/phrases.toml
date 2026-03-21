@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Marathi)
+
+[phrases]
+confirm_delete = "तुम्हाला हे नक्की हटवायचे आहे का?"
+select_item = "एक आयटम निवडा"
+no_results = "कोणतेही निकाल सापडले नाहीत"
+loading_data = "डेटा लोड होत आहे…"
+operation_successful = "ऑपरेशन यशस्वी"
+operation_failed = "ऑपरेशन अयशस्वी"
+are_you_sure = "तुम्हाला खात्री आहे का?"
+welcome_to = "स्वागत आहे"
+unsaved_changes = "तुमच्याकडे न जतन केलेले बदल आहेत"
+try_again = "कृपया पुन्हा प्रयत्न करा"
+contact_support = "कृपया सपोर्टशी संपर्क करा"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

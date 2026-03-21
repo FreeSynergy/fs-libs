@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases (Punjabi)
+
+[phrases]
+confirm_delete = "ਕੀ ਤੁਸੀਂ ਇਸਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?"
+select_item = "ਇੱਕ ਆਈਟਮ ਚੁਣੋ"
+no_results = "ਕੋਈ ਨਤੀਜੇ ਨਹੀਂ ਮਿਲੇ"
+loading_data = "ਡੇਟਾ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…"
+operation_successful = "ਕਾਰਵਾਈ ਸਫਲ"
+operation_failed = "ਕਾਰਵਾਈ ਅਸਫਲ"
+are_you_sure = "ਕੀ ਤੁਸੀਂ ਯਕੀਨੀ ਹੋ?"
+welcome_to = "ਵਿੱਚ ਜੀ ਆਇਆਂ"
+unsaved_changes = "ਤੁਹਾਡੇ ਕੋਲ ਸੁਰੱਖਿਅਤ ਨਾ ਕੀਤੇ ਬਦਲਾਅ ਹਨ"
+try_again = "ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ"
+contact_support = "ਕਿਰਪਾ ਕਰਕੇ ਸਹਾਇਤਾ ਨਾਲ ਸੰਪਰਕ ਕਰੋ"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

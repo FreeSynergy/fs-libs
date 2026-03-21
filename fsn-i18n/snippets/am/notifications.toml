@@ -1,0 +1,20 @@
+# notifications.toml — System notification messages (Amharic)
+
+[notifications]
+saved = "ተቀምጧል።"
+deleted = "ተሰርዟል።"
+updated = "ተዘምኗል።"
+installed = "ተጭኗል።"
+uninstalled = "ተወግዷል።"
+deployed = "ተሰማርቷል።"
+started = "ተጀምሯል።"
+stopped = "ቆሟል።"
+restarted = "እንደገና ተጀምሯል።"
+copied = "ወደ ቅንጥብ ሰሌዳ ተቀድቷል።"
+connection_restored = "ግንኙነት ተመልሷል።"
+sync_completed = "ማመሳሰሉ ተጠናቋል።"
+import_completed = "ማምጣቱ ተጠናቋል።"
+export_completed = "ማስወጣቱ ተጠናቋል።"
+changes_discarded = "ለውጦቹ ተሰርዘዋል።"
+secret_generated = "አዲስ ሚስጥር ተፈጥሯል።"
+backup_created = "ምትኬ ተፈጥሯል።"

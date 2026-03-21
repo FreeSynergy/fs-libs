@@ -1,0 +1,20 @@
+# notifications.toml — notification messages (Ukrainian)
+
+[notifications]
+saved               = "Збережено."
+deleted             = "Видалено."
+updated             = "Оновлено."
+installed           = "Встановлено."
+uninstalled         = "Видалено."
+deployed            = "Розгорнуто."
+started             = "Запущено."
+stopped             = "Зупинено."
+restarted           = "Перезапущено."
+copied              = "Скопійовано в буфер обміну."
+connection_restored = "З'єднання відновлено."
+sync_completed      = "Синхронізацію завершено."
+import_completed    = "Імпорт завершено."
+export_completed    = "Експорт завершено."
+changes_discarded   = "Зміни скасовано."
+secret_generated    = "Новий секрет згенеровано."
+backup_created      = "Резервну копію створено."

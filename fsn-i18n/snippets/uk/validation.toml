@@ -1,0 +1,23 @@
+# validation.toml — validation messages (Ukrainian)
+
+[validation]
+required          = "Обов'язкове поле"
+too_short         = "Занадто коротко (мінімум: {min} символів)"
+too_long          = "Занадто довго (максимум: {max} символів)"
+invalid_email     = "Невірна адреса електронної пошти"
+invalid_url       = "Невірний URL"
+invalid_format    = "Невірний формат"
+out_of_range      = "Значення поза діапазоном"
+pattern_mismatch  = "Не відповідає потрібному шаблону"
+already_exists    = "Вже існує"
+not_found         = "Не знайдено"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

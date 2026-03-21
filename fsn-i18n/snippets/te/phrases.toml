@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases and sentences (Telugu)
+
+[phrases]
+confirm_delete = "మీరు దీన్ని తొలగించాలనుకుంటున్నారా?"
+select_item = "ఒక అంశాన్ని ఎంచుకోండి"
+no_results = "ఫలితాలు ఏమీ కనుగొనబడలేదు"
+loading_data = "డేటా లోడ్ అవుతోంది…"
+operation_successful = "ఆపరేషన్ విజయవంతమైంది"
+operation_failed = "ఆపరేషన్ విఫలమైంది"
+are_you_sure = "మీకు నిర్ధారణ ఉందా?"
+welcome_to = "స్వాగతం"
+unsaved_changes = "సేవ్ చేయని మార్పులు ఉన్నాయి"
+try_again = "దయచేసి మళ్ళీ ప్రయత్నించండి"
+contact_support = "దయచేసి సపోర్ట్‌ను సంప్రదించండి"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

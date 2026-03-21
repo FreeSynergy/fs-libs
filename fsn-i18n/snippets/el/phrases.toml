@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases and messages (Greek)
+
+[phrases]
+confirm_delete = "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό;"
+select_item = "Επιλέξτε ένα στοιχείο"
+no_results = "Δεν βρέθηκαν αποτελέσματα"
+loading_data = "Φόρτωση δεδομένων…"
+operation_successful = "Η λειτουργία ολοκληρώθηκε με επιτυχία"
+operation_failed = "Η λειτουργία απέτυχε"
+are_you_sure = "Είστε σίγουροι;"
+welcome_to = "Καλώς ορίσατε στο"
+unsaved_changes = "Έχετε μη αποθηκευμένες αλλαγές"
+try_again = "Παρακαλώ δοκιμάστε ξανά"
+contact_support = "Παρακαλώ επικοινωνήστε με την υποστήριξη"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

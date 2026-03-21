@@ -1,0 +1,23 @@
+# validation.toml — form validation messages (Urdu / اردو)
+
+[validation]
+required          = "ضروری خانہ"
+too_short         = "بہت چھوٹا (کم از کم: {min} حروف)"
+too_long          = "بہت لمبا (زیادہ سے زیادہ: {max} حروف)"
+invalid_email     = "غلط ای میل پتہ"
+invalid_url       = "غلط URL"
+invalid_format    = "غلط فارمیٹ"
+out_of_range      = "قدر حد سے باہر"
+pattern_mismatch  = "مطلوبہ نمونے سے میل نہیں کھاتا"
+already_exists    = "پہلے سے موجود ہے"
+not_found         = "نہیں ملا"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

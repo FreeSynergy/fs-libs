@@ -1,0 +1,27 @@
+# time.toml — 相対的な時間表現 (Japanese)
+
+[time]
+just_now     = "たった今"
+seconds_ago  = "{n}秒前"
+minutes_ago  = "{n}分前"
+hours_ago    = "{n}時間前"
+days_ago     = "{n}日前"
+weeks_ago    = "{n}週間前"
+months_ago   = "{n}ヶ月前"
+years_ago    = "{n}年前"
+today        = "今日"
+yesterday    = "昨日"
+tomorrow     = "明日"
+never        = "なし"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

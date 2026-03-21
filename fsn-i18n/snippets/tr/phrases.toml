@@ -1,0 +1,29 @@
+# phrases.toml — Genel ifadeler (Türkçe)
+
+[phrases]
+confirm_delete      = "Bunu silmek istediğinizden emin misiniz?"
+select_item         = "Bir öğe seçin"
+no_results          = "Sonuç bulunamadı"
+loading_data        = "Veriler yükleniyor…"
+operation_successful = "İşlem başarılı"
+operation_failed    = "İşlem başarısız"
+are_you_sure        = "Emin misiniz?"
+welcome_to          = "Hoş geldiniz:"
+unsaved_changes     = "Kaydedilmemiş değişiklikleriniz var"
+try_again           = "Lütfen tekrar deneyin"
+contact_support     = "Lütfen destek ile iletişime geçin"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

@@ -1,0 +1,23 @@
+# validation.toml — 입력 유효성 검사 메시지 (Korean)
+
+[validation]
+required         = "필수 필드"
+too_short        = "너무 짧습니다 (최소: {min}자)"
+too_long         = "너무 깁니다 (최대: {max}자)"
+invalid_email    = "이메일 주소가 올바르지 않습니다"
+invalid_url      = "URL이 올바르지 않습니다"
+invalid_format   = "형식이 올바르지 않습니다"
+out_of_range     = "값이 범위를 벗어났습니다"
+pattern_mismatch = "필요한 패턴과 일치하지 않습니다"
+already_exists   = "이미 존재합니다"
+not_found        = "찾을 수 없습니다"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

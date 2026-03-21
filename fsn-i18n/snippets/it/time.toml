@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Italian)
+
+[time]
+just_now = "proprio ora"
+seconds_ago = "{n} secondi fa"
+minutes_ago = "{n} minuti fa"
+hours_ago = "{n} ore fa"
+days_ago = "{n} giorni fa"
+weeks_ago = "{n} settimane fa"
+months_ago = "{n} mesi fa"
+years_ago = "{n} anni fa"
+today = "oggi"
+yesterday = "ieri"
+tomorrow = "domani"
+never = "mai"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

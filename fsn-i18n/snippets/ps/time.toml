@@ -1,0 +1,27 @@
+# time.toml — relative time expressions (Pashto / پښتو)
+
+[time]
+just_now     = "همدا اوس"
+seconds_ago  = "{n} ثانیې وړاندې"
+minutes_ago  = "{n} دقیقې وړاندې"
+hours_ago    = "{n} ساعتونه وړاندې"
+days_ago     = "{n} ورځې وړاندې"
+weeks_ago    = "{n} اونۍ وړاندې"
+months_ago   = "{n} میاشتې وړاندې"
+years_ago    = "{n} کاله وړاندې"
+today        = "نن"
+yesterday    = "پرون"
+tomorrow     = "سبا"
+never        = "هیڅکله"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

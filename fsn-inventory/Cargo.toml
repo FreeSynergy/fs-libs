@@ -1,0 +1,25 @@
+[package]
+name        = "fsn-inventory"
+description = "Local inventory of installed FreeSynergy resources (fsn-inventory.db)"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[dependencies]
+fsn-types  = { workspace = true }
+fsn-error  = { workspace = true }
+
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+chrono      = { workspace = true }
+anyhow      = { workspace = true }
+thiserror   = { workspace = true }
+tracing     = { workspace = true }
+
+sea-orm = { workspace = true, features = [
+    "sqlx-sqlite",
+    "runtime-tokio-rustls",
+    "macros",
+] }

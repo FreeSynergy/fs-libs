@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Romanian)
+
+[confirmations]
+delete = "Ștergeți? Aceasta nu poate fi anulată."
+restart = "Reporniți?"
+deploy = "Implementați?"
+logout = "Deconectați-vă?"
+unsaved_changes = "Aveți modificări nesalvate. Plecați oricum?"
+overwrite = "Există deja. Suprascrieți?"
+reset = "Resetați toate setările la valorile implicite?"
+remove_plugin = "Eliminați plugin-ul? Toate datele vor fi pierdute."
+wipe_data = "Ștergeți toate datele? Aceasta nu poate fi anulată."
+stop = "Opriți?"
+cancel_op = "Anulați operațiunea?"
+apply = "Aplicați modificările?"
+import = "Importați și suprascrieți datele existente?"
+sync = "Sincronizați acum?"
+generate_secret = "Generați un secret nou? Secretul vechi va fi pierdut."

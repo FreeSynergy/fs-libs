@@ -1,0 +1,29 @@
+# phrases.toml — Common UI phrases and general messages (Basa Jawa)
+
+[phrases]
+confirm_delete = "Yakin arep mbuak iki?"
+select_item = "Pilih siji item"
+no_results = "Ora ana hasil"
+loading_data = "Ngemot data…"
+operation_successful = "Operasi sukses"
+operation_failed = "Operasi gagal"
+are_you_sure = "Yakin?"
+welcome_to = "Sugeng rawuh ing"
+unsaved_changes = "Isih ana owahan sing durung disimpen"
+try_again = "Coba maneh"
+contact_support = "Hubungi support"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

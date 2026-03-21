@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Amharic)
+
+[confirmations]
+delete = "ይሰረዝ? ይህ ሊቀለበስ አይችልም።"
+restart = "እንደገና ይጀምር?"
+deploy = "ይሰማራ?"
+logout = "ይውጣ?"
+unsaved_changes = "ያልተቀመጡ ለውጦች አሉዎት። ለቅቀው ይሂዱ?"
+overwrite = "አስቀድሞ አለ። ላዩ ላይ ይፃፍ?"
+reset = "ሁሉም ቅንብሮች ወደ ነባሪ እሴቶቻቸው ይመለሱ?"
+remove_plugin = "ተሰኪ ይወገድ? ሁሉም ውሂብ ይጠፋል።"
+wipe_data = "ሁሉም ውሂብ ይጥፋ? ይህ ሊቀለበስ አይችልም።"
+stop = "ይቁም?"
+cancel_op = "ስራው ይሰረዝ?"
+apply = "ለውጦቹ ይተግበሩ?"
+import = "ውሂብ ይምጣ እና ያለውን ይጻፍበት?"
+sync = "አሁን ያመሳስል?"
+generate_secret = "አዲስ ሚስጥር ይፍጠር? የቀድሞው ሚስጥር ይጠፋል።"

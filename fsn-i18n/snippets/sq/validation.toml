@@ -1,0 +1,23 @@
+# validation.toml — Input validation messages (Albanian)
+
+[validation]
+required = "Fusha e kërkuar"
+too_short = "Shumë e shkurtër (minimumi: {min} karaktere)"
+too_long = "Shumë e gjatë (maksimumi: {max} karaktere)"
+invalid_email = "Adresë emaili e pavlefshme"
+invalid_url = "URL e pavlefshme"
+invalid_format = "Format i pavlefshëm"
+out_of_range = "Vlera jashtë diapazonit"
+pattern_mismatch = "Nuk përputhet me modelin e kërkuar"
+already_exists = "Tashmë ekziston"
+not_found = "Nuk u gjet"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

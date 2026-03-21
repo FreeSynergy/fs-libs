@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Yoruba)
+
+[time]
+just_now = "ní ìsinsìnyí"
+seconds_ago = "ìṣẹ́jú-aaya {n} sẹ́yìn"
+minutes_ago = "ìṣẹ́jú {n} sẹ́yìn"
+hours_ago = "wákàtí {n} sẹ́yìn"
+days_ago = "ọjọ́ {n} sẹ́yìn"
+weeks_ago = "ọ̀sẹ̀ {n} sẹ́yìn"
+months_ago = "oṣù {n} sẹ́yìn"
+years_ago = "ọdún {n} sẹ́yìn"
+today = "òní"
+yesterday = "àná"
+tomorrow = "ọ̀la"
+never = "rárá"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

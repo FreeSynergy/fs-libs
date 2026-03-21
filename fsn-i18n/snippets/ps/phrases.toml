@@ -1,0 +1,29 @@
+# phrases.toml — common UI phrases (Pashto / پښتو)
+
+[phrases]
+confirm_delete       = "ایا تاسو واقعیا دا ړنګول غواړئ؟"
+select_item          = "یو توکی غوره کړئ"
+no_results           = "هیڅ پایله ونه موندل شوه"
+loading_data         = "معلومات پورته کیږي…"
+operation_successful = "عملیات بریالي شول"
+operation_failed     = "عملیات ناکام شول"
+are_you_sure         = "ایا تاسو ډاډه یاست؟"
+welcome_to           = "ښه راغلاست"
+unsaved_changes      = "تاسو ناخوندي شوي بدلونونه لرئ"
+try_again            = "مهرباني وکړئ بیا هڅه وکړئ"
+contact_support      = "مهرباني وکړئ د ملاتړ سره اړیکه ونیسئ"
+
+# --- TODO: translate ---
+# confirm_action = "Are you sure you want to {action}?"
+# save_success = "{item} saved successfully."
+# delete_success = "{item} deleted successfully."
+# install_success = "{item} installed successfully."
+# update_success = "{item} updated successfully."
+# load_failed = "Failed to load {item}."
+# save_failed = "Failed to save {item}."
+# no_items = "No {items} found."
+# loading_items = "Loading {items}..."
+# enter_name = "Enter a name for {item}"
+# changes_saved = "All changes saved."
+# cannot_be_undone = "This action cannot be undone."
+# leave_without_saving = "Leave without saving changes?"

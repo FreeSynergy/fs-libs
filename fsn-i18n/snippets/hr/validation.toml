@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Croatian)
+
+[validation]
+required = "Obavezno polje"
+too_short = "Prekratko (minimum: {min} znakova)"
+too_long = "Predugo (maksimum: {max} znakova)"
+invalid_email = "Nevaljana e-mail adresa"
+invalid_url = "Nevaljani URL"
+invalid_format = "Nevaljani format"
+out_of_range = "Vrijednost izvan raspona"
+pattern_mismatch = "Ne odgovara traženom uzorku"
+already_exists = "Već postoji"
+not_found = "Nije pronađeno"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

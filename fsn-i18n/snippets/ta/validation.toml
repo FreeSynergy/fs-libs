@@ -1,0 +1,23 @@
+# validation.toml — Input validation messages (Tamil)
+
+[validation]
+required = "தேவையான புலம்"
+too_short = "மிகவும் குறுகியது (குறைந்தபட்சம்: {min} எழுத்துகள்)"
+too_long = "மிகவும் நீளமானது (அதிகபட்சம்: {max} எழுத்துகள்)"
+invalid_email = "தவறான மின்னஞ்சல் முகவரி"
+invalid_url = "தவறான URL"
+invalid_format = "தவறான வடிவம்"
+out_of_range = "மதிப்பு வரம்பிற்கு வெளியே"
+pattern_mismatch = "தேவையான முறையுடன் பொருந்தவில்லை"
+already_exists = "ஏற்கனவே உள்ளது"
+not_found = "கண்டுபிடிக்கவில்லை"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

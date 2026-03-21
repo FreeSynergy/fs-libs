@@ -1,0 +1,26 @@
+# help.toml — Help system labels and tips (Polish)
+
+[help]
+getting_started = "Pierwsze kroki"
+navigation = "Nawigacja"
+keyboard_shortcuts = "Skróty klawiaturowe"
+search_tip = "Użyj paska wyszukiwania, aby szybko znaleźć elementy"
+keyboard_tip = "Użyj Tab, aby przechodzić między polami, Enter aby potwierdzić"
+close = "Zamknij pomoc"
+
+# --- TODO: translate ---
+# press_key = "Press {key}"
+# press_to_action = "Press {key} to {action}"
+# navigate = "Navigate with arrow keys"
+# navigate_tabs = "Switch tabs with Ctrl+← / Ctrl+→"
+# submit = "Submit with Ctrl+S"
+# cancel_action = "Cancel with Esc"
+# open_help = "Press F1 for help"
+# search_hint = "Type to search..."
+# no_results = "No results for \\"{query}\\""
+# more_info = "More information"
+# see_docs = "See documentation"
+# example = "Example: {example}"
+# tip = "Tip: {tip}"
+# note = "Note: {note}"
+# warning = "Warning: {warning}"

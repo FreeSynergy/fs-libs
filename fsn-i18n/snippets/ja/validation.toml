@@ -1,0 +1,23 @@
+# validation.toml — 入力バリデーションメッセージ (Japanese)
+
+[validation]
+required         = "必須フィールド"
+too_short        = "短すぎます（最小: {min}文字）"
+too_long         = "長すぎます（最大: {max}文字）"
+invalid_email    = "メールアドレスが無効です"
+invalid_url      = "URLが無効です"
+invalid_format   = "形式が無効です"
+out_of_range     = "値が範囲外です"
+pattern_mismatch = "必要なパターンと一致しません"
+already_exists   = "すでに存在します"
+not_found        = "見つかりません"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

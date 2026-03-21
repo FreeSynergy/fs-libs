@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Marathi)
+
+[time]
+just_now = "आत्ताच"
+seconds_ago = "{n} सेकंदांपूर्वी"
+minutes_ago = "{n} मिनिटांपूर्वी"
+hours_ago = "{n} तासांपूर्वी"
+days_ago = "{n} दिवसांपूर्वी"
+weeks_ago = "{n} आठवड्यांपूर्वी"
+months_ago = "{n} महिन्यांपूर्वी"
+years_ago = "{n} वर्षांपूर्वी"
+today = "आज"
+yesterday = "काल"
+tomorrow = "उद्या"
+never = "कधीच नाही"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

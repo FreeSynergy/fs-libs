@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Hausa)
+
+[time]
+just_now = "yanzu haka"
+seconds_ago = "daƙiƙa {n} da suka wuce"
+minutes_ago = "mintuna {n} da suka wuce"
+hours_ago = "sa'o'i {n} da suka wuce"
+days_ago = "kwanaki {n} da suka wuce"
+weeks_ago = "makonni {n} da suka wuce"
+months_ago = "watanni {n} da suka wuce"
+years_ago = "shekaru {n} da suka wuce"
+today = "yau"
+yesterday = "jiya"
+tomorrow = "gobe"
+never = "ba za a taɓa ba"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

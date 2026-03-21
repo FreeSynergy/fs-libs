@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Hungarian)
+
+[confirmations]
+delete = "Törli? Ez a művelet nem vonható vissza."
+restart = "Újraindítja?"
+deploy = "Telepíti?"
+logout = "Kijelentkezik?"
+unsaved_changes = "Nem mentett módosítások vannak. Kilép mégis?"
+overwrite = "Már létezik. Felülírja?"
+reset = "Visszaállítja az összes beállítást az alapértelmezettekre?"
+remove_plugin = "Eltávolítja a plugint? Minden adat elveszik."
+wipe_data = "Törli az összes adatot? Ez a művelet nem vonható vissza."
+stop = "Leállítja?"
+cancel_op = "Megszakítja a műveletet?"
+apply = "Alkalmazza a módosításokat?"
+import = "Importálja és felülírja a meglévő adatokat?"
+sync = "Szinkronizálás most?"
+generate_secret = "Generál új titkot? A régi titok elvész."

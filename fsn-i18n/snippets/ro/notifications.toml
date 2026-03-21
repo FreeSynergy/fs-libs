@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Romanian)
+
+[notifications]
+saved = "Salvat."
+deleted = "Șters."
+updated = "Actualizat."
+installed = "Instalat."
+uninstalled = "Dezinstalat."
+deployed = "Implementat."
+started = "Pornit."
+stopped = "Oprit."
+restarted = "Repornit."
+copied = "Copiat în clipboard."
+connection_restored = "Conexiunea a fost restabilită."
+sync_completed = "Sincronizarea s-a finalizat."
+import_completed = "Importul s-a finalizat."
+export_completed = "Exportul s-a finalizat."
+changes_discarded = "Modificările au fost abandonate."
+secret_generated = "Secret nou generat."
+backup_created = "Backup creat."

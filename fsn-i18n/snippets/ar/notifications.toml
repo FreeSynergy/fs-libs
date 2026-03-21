@@ -1,0 +1,20 @@
+# notifications.toml — success and status notification messages (Arabic / العربية)
+
+[notifications]
+saved               = "تم الحفظ."
+deleted             = "تم الحذف."
+updated             = "تم التحديث."
+installed           = "تم التثبيت."
+uninstalled         = "تم إلغاء التثبيت."
+deployed            = "تم النشر."
+started             = "تم التشغيل."
+stopped             = "تم الإيقاف."
+restarted           = "تمت إعادة التشغيل."
+copied              = "تم النسخ إلى الحافظة."
+connection_restored = "تمت استعادة الاتصال."
+sync_completed      = "اكتملت المزامنة."
+import_completed    = "اكتمل الاستيراد."
+export_completed    = "اكتمل التصدير."
+changes_discarded   = "تم تجاهل التغييرات."
+secret_generated    = "تم توليد سر جديد."
+backup_created      = "تم إنشاء نسخة احتياطية."

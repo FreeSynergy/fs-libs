@@ -1,0 +1,23 @@
+# validation.toml — Form validation messages (Hungarian)
+
+[validation]
+required = "Kötelező mező"
+too_short = "Túl rövid (minimum: {min} karakter)"
+too_long = "Túl hosszú (maximum: {max} karakter)"
+invalid_email = "Érvénytelen e-mail-cím"
+invalid_url = "Érvénytelen URL"
+invalid_format = "Érvénytelen formátum"
+out_of_range = "Az érték tartományon kívül esik"
+pattern_mismatch = "Nem egyezik a szükséges mintával"
+already_exists = "Már létezik"
+not_found = "Nem található"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

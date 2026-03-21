@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Marathi)
+
+[validation]
+required = "आवश्यक फील्ड"
+too_short = "खूप छोटे (किमान: {min} अक्षरे)"
+too_long = "खूप मोठे (कमाल: {max} अक्षरे)"
+invalid_email = "अवैध ईमेल पत्ता"
+invalid_url = "अवैध URL"
+invalid_format = "अवैध स्वरूप"
+out_of_range = "मूल्य सीमेबाहेर आहे"
+pattern_mismatch = "आवश्यक नमुन्याशी जुळत नाही"
+already_exists = "आधीच अस्तित्वात आहे"
+not_found = "सापडले नाही"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

@@ -1,0 +1,20 @@
+# notifications.toml — User notification messages (Hindi)
+
+[notifications]
+saved = "सहेजा गया।"
+deleted = "हटाया गया।"
+updated = "अपडेट किया गया।"
+installed = "स्थापित किया गया।"
+uninstalled = "अनइंस्टॉल किया गया।"
+deployed = "तैनात किया गया।"
+started = "शुरू किया गया।"
+stopped = "रोका गया।"
+restarted = "पुनः शुरू किया गया।"
+copied = "क्लिपबोर्ड पर कॉपी किया गया।"
+connection_restored = "कनेक्शन बहाल हुआ।"
+sync_completed = "सिंक पूरा हुआ।"
+import_completed = "आयात पूरा हुआ।"
+export_completed = "निर्यात पूरा हुआ।"
+changes_discarded = "परिवर्तन छोड़ दिए गए।"
+secret_generated = "नया Secret उत्पन्न हुआ।"
+backup_created = "Backup बनाया गया।"

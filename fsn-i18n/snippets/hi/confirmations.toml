@@ -1,0 +1,18 @@
+# confirmations.toml — Confirmation dialog messages (Hindi)
+
+[confirmations]
+delete = "हटाएं? यह पूर्ववत नहीं किया जा सकता।"
+restart = "पुनः शुरू करें?"
+deploy = "तैनात करें?"
+logout = "लॉग आउट करें?"
+unsaved_changes = "आपके पास सहेजे नहीं गए परिवर्तन हैं। फिर भी जाएं?"
+overwrite = "पहले से मौजूद है। ओवरराइट करें?"
+reset = "सभी सेटिंग्स को डिफ़ॉल्ट पर रीसेट करें?"
+remove_plugin = "Plugin हटाएं? सभी डेटा खो जाएगा।"
+wipe_data = "सभी डेटा मिटाएं? यह पूर्ववत नहीं किया जा सकता।"
+stop = "रोकें?"
+cancel_op = "ऑपरेशन रद्द करें?"
+apply = "परिवर्तन लागू करें?"
+import = "आयात करें और मौजूदा डेटा ओवरराइट करें?"
+sync = "अभी सिंक करें?"
+generate_secret = "नया Secret उत्पन्न करें? पुराना Secret खो जाएगा।"

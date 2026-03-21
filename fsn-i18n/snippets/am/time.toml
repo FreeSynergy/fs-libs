@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Amharic)
+
+[time]
+just_now = "አሁኑኑ"
+seconds_ago = "ከ{n} ሰከንድ በፊት"
+minutes_ago = "ከ{n} ደቂቃ በፊት"
+hours_ago = "ከ{n} ሰዓት በፊት"
+days_ago = "ከ{n} ቀን በፊት"
+weeks_ago = "ከ{n} ሳምንት በፊት"
+months_ago = "ከ{n} ወር በፊት"
+years_ago = "ከ{n} ዓመት በፊት"
+today = "ዛሬ"
+yesterday = "ትናንት"
+tomorrow = "ነገ"
+never = "ፈጽሞ"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

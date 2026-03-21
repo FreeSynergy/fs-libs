@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Greek)
+
+[time]
+just_now = "μόλις τώρα"
+seconds_ago = "πριν {n} δευτερόλεπτα"
+minutes_ago = "πριν {n} λεπτά"
+hours_ago = "πριν {n} ώρες"
+days_ago = "πριν {n} μέρες"
+weeks_ago = "πριν {n} εβδομάδες"
+months_ago = "πριν {n} μήνες"
+years_ago = "πριν {n} χρόνια"
+today = "σήμερα"
+yesterday = "χθες"
+tomorrow = "αύριο"
+never = "ποτέ"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

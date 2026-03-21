@@ -1,0 +1,23 @@
+# validation.toml — Validation messages (Amharic)
+
+[validation]
+required = "አስፈላጊ መስክ"
+too_short = "በጣም አጭር ነው (ዝቅተኛ፡ {min} ቁምፊዎች)"
+too_long = "በጣም ረጅም ነው (ከፍተኛ፡ {max} ቁምፊዎች)"
+invalid_email = "የኢሜይል አድራሻ ልክ አይደለም"
+invalid_url = "URL ልክ አይደለም"
+invalid_format = "ቅርጸቱ ልክ አይደለም"
+out_of_range = "ዋጋው ከወሰን ውጭ ነው"
+pattern_mismatch = "ከሚፈለገው ቅርጸት ጋር አይዛመድም"
+already_exists = "አስቀድሞ አለ"
+not_found = "አልተገኘም"
+
+# --- TODO: translate ---
+# not_available = "{field} is not available."
+# must_be_unique = "{field} must be unique."
+# invalid_domain = "Please enter a valid domain name."
+# invalid_port = "Port must be a number between 1 and 65535."
+# invalid_version = "Please enter a valid version (e.g. 1.0.0)."
+# no_special_chars = "{field} must not contain special characters."
+# only_alphanumeric = "{field} may only contain letters and numbers."
+# passwords_mismatch = "Passwords do not match."

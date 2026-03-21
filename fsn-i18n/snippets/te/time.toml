@@ -1,0 +1,27 @@
+# time.toml — Relative and absolute time expressions (Telugu)
+
+[time]
+just_now = "ఇప్పుడే"
+seconds_ago = "{n} సెకన్ల క్రితం"
+minutes_ago = "{n} నిమిషాల క్రితం"
+hours_ago = "{n} గంటల క్రితం"
+days_ago = "{n} రోజుల క్రితం"
+weeks_ago = "{n} వారాల క్రితం"
+months_ago = "{n} నెలల క్రితం"
+years_ago = "{n} సంవత్సరాల క్రితం"
+today = "ఈరోజు"
+yesterday = "నిన్న"
+tomorrow = "రేపు"
+never = "ఎప్పుడూ లేదు"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

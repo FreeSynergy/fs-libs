@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notification messages (Spanish)
+
+[notifications]
+saved = "Guardado."
+deleted = "Eliminado."
+updated = "Actualizado."
+installed = "Instalado."
+uninstalled = "Desinstalado."
+deployed = "Deployed."
+started = "Iniciado."
+stopped = "Detenido."
+restarted = "Reiniciado."
+copied = "Copiado al portapapeles."
+connection_restored = "Conexión restablecida."
+sync_completed = "Sincronización completada."
+import_completed = "Importación completada."
+export_completed = "Exportación completada."
+changes_discarded = "Cambios descartados."
+secret_generated = "Nuevo secreto generado."
+backup_created = "Backup creado."

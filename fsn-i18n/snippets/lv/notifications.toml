@@ -1,0 +1,20 @@
+# notifications.toml — Success and status notifications (Latvian)
+
+[notifications]
+saved               = "Saglabāts."
+deleted             = "Dzēsts."
+updated             = "Atjaunināts."
+installed           = "Instalēts."
+uninstalled         = "Atinstalēts."
+deployed            = "Izvietots."
+started             = "Startēts."
+stopped             = "Apturēts."
+restarted           = "Restartēts."
+copied              = "Nokopēts starpliktuvē."
+connection_restored = "Savienojums atjaunots."
+sync_completed      = "Sinhronizācija pabeigta."
+import_completed    = "Imports pabeigts."
+export_completed    = "Eksports pabeigts."
+changes_discarded   = "Izmaiņas atmestas."
+secret_generated    = "Jauns noslēpums ģenerēts."
+backup_created      = "Dublējums izveidots."

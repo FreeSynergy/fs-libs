@@ -1,0 +1,27 @@
+# time.toml — Relative time expressions (Latvian)
+
+[time]
+just_now     = "tikko"
+seconds_ago  = "pirms {n} sekundēm"
+minutes_ago  = "pirms {n} minūtēm"
+hours_ago    = "pirms {n} stundām"
+days_ago     = "pirms {n} dienām"
+weeks_ago    = "pirms {n} nedēļām"
+months_ago   = "pirms {n} mēnešiem"
+years_ago    = "pirms {n} gadiem"
+today        = "šodien"
+yesterday    = "vakar"
+tomorrow     = "rīt"
+never        = "nekad"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"

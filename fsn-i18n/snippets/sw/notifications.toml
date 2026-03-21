@@ -1,0 +1,20 @@
+# notifications.toml — System notification messages (Swahili)
+
+[notifications]
+saved = "Imehifadhiwa."
+deleted = "Imefutwa."
+updated = "Imesasishwa."
+installed = "Imewekwa."
+uninstalled = "Imeondolewa."
+deployed = "Imesambazwa."
+started = "Imeanzishwa."
+stopped = "Imesimamishwa."
+restarted = "Imeanzishwa upya."
+copied = "Imenakiliwa kwenye ubao wa kunakili."
+connection_restored = "Muunganisho umerejeshwa."
+sync_completed = "Usawazishaji umekamilika."
+import_completed = "Uingizaji umekamilika."
+export_completed = "Uhamishaji umekamilika."
+changes_discarded = "Mabadiliko yameachwa."
+secret_generated = "Siri mpya imetengenezwa."
+backup_created = "Nakala rudufu imeundwa."

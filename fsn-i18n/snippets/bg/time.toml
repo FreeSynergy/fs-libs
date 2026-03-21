@@ -1,0 +1,27 @@
+# time.toml — relative time labels (Bulgarian)
+
+[time]
+just_now     = "току-що"
+seconds_ago  = "преди {n} секунди"
+minutes_ago  = "преди {n} минути"
+hours_ago    = "преди {n} часа"
+days_ago     = "преди {n} дни"
+weeks_ago    = "преди {n} седмици"
+months_ago   = "преди {n} месеца"
+years_ago    = "преди {n} години"
+today        = "днес"
+yesterday    = "вчера"
+tomorrow     = "утре"
+never        = "никога"
+
+# --- TODO: translate ---
+# now = "Just now"
+# in_seconds = "in {n}s"
+# in_minutes = "in {n}m"
+# in_hours = "in {n}h"
+# in_days = "in {n}d"
+# last_seen = "Last seen {when}"
+# created_at = "Created {when}"
+# updated_at = "Updated {when}"
+# expires_at = "Expires {when}"
+# uptime = "Uptime: {duration}"
