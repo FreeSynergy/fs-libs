@@ -18,7 +18,7 @@
 
 use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
 use hex;
-use rand::rngs::OsRng;
+use rand_core::OsRng;
 use sha2::{Digest, Sha256};
 
 use fsn_error::FsnError;

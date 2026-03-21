@@ -13,7 +13,7 @@ age     = ["dep:age"]
 mtls    = ["dep:rcgen", "dep:time"]
 keygen  = ["dep:rand", "dep:pbkdf2", "dep:sha2", "dep:hex"]
 tokens  = ["dep:rand", "dep:hex"]
-signing = ["dep:ed25519-dalek", "dep:rand", "dep:hex", "dep:sha2"]
+signing = ["dep:ed25519-dalek", "dep:rand_core", "dep:hex", "dep:sha2"]
 
 [dependencies]
 fsn-error = { workspace = true }
@@ -48,6 +48,11 @@ optional = true
 
 [dependencies.hex]
 version = "0.4"
+optional = true
+
+[dependencies.rand_core]
+version = "0.6"
+features = ["getrandom"]
 optional = true
 
 [dependencies.ed25519-dalek]
