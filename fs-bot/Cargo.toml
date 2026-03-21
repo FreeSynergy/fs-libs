@@ -1,0 +1,25 @@
+[package]
+name        = "fs-bot"
+description = "Bot command framework with registry and standard commands for FreeSynergy"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[features]
+default = []
+llm     = ["dep:fs-llm"]
+
+[dependencies]
+fs-auth    = { workspace = true }
+fs-bus     = { workspace = true }
+fs-channel = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+tracing     = { workspace = true }
+async-trait = { workspace = true }
+tokio       = { workspace = true }
+
+# Optional — LLM-powered commands
+fs-llm = { workspace = true, optional = true }

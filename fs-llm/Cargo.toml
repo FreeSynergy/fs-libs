@@ -1,0 +1,28 @@
+[package]
+name        = "fs-llm"
+description = "LLM provider abstraction (Ollama, Claude, OpenAI-compat) for FreeSynergy"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[features]
+default       = []
+ollama        = ["dep:reqwest", "dep:tokio"]
+claude        = ["dep:reqwest", "dep:tokio"]
+openai-compat = ["dep:reqwest", "dep:tokio"]
+
+[dependencies]
+serde = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }
+tracing     = { workspace = true }
+async-trait = { workspace = true }
+
+# Optional — HTTP providers
+reqwest = { workspace = true, optional = true }
+tokio   = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

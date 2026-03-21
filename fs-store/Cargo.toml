@@ -1,0 +1,21 @@
+[package]
+name        = "fs-store"
+description = "Universal store client for FreeSynergy module registry"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[dependencies]
+fs-error  = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+toml       = { workspace = true }
+reqwest = { workspace = true }
+tokio      = { workspace = true }
+tracing    = { workspace = true }
+backon     = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"

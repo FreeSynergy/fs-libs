@@ -1,21 +1,21 @@
 [workspace]
 members = [
     # Core
-    "fsn-types", "fsn-error", "fsn-config",
-    "fsn-core", "fsn-crypto", "fsn-health",
-    "fsn-db", "fsn-bus", "fsn-sync",
-    "fsn-template", "fsn-inventory",
-    "fsn-bridge", "fsn-sysinfo",
+    "fs-types", "fs-error", "fs-config",
+    "fs-core", "fs-crypto", "fs-health",
+    "fs-db", "fs-bus", "fs-sync",
+    "fs-template", "fs-inventory",
+    "fs-bridge", "fs-sysinfo",
     # UI
-    "fsn-theme", "fsn-help", "fsn-i18n",
-    "fsn-render", "fsn-components", "fsn-ui",
+    "fs-theme", "fs-help", "fs-i18n",
+    "fs-render", "fs-components", "fs-ui",
     # Ext
-    "fsn-store", "fsn-pkg",
-    "fsn-plugin-sdk", "fsn-plugin-runtime",
-    "fsn-container",
+    "fs-store", "fs-pkg",
+    "fs-plugin-sdk", "fs-plugin-runtime",
+    "fs-container",
     # Net
-    "fsn-auth", "fsn-federation", "fsn-bridge-sdk",
-    "fsn-channel", "fsn-llm", "fsn-bot",
+    "fs-auth", "fs-federation", "fs-bridge-sdk",
+    "fs-channel", "fs-llm", "fs-bot",
 ]
 resolver = "2"
 
@@ -29,36 +29,36 @@ repository  = "https://github.com/FreeSynergy/fs-libs"
 # ── Shared dependency versions ─────────────────────────────────────────────────
 [workspace.dependencies]
 # Internal
-fsn-types          = { path = "fsn-types" }
-fsn-error          = { path = "fsn-error" }
-fsn-config         = { path = "fsn-config" }
-fsn-core           = { path = "fsn-core" }
-fsn-crypto         = { path = "fsn-crypto" }
-fsn-health         = { path = "fsn-health" }
-fsn-db             = { path = "fsn-db" }
-fsn-bus            = { path = "fsn-bus" }
-fsn-sync           = { path = "fsn-sync" }
-fsn-template       = { path = "fsn-template" }
-fsn-inventory      = { path = "fsn-inventory" }
-fsn-bridge         = { path = "fsn-bridge" }
-fsn-sysinfo        = { path = "fsn-sysinfo" }
-fsn-theme          = { path = "fsn-theme" }
-fsn-help           = { path = "fsn-help" }
-fsn-i18n           = { path = "fsn-i18n" }
-fsn-render         = { path = "fsn-render" }
-fsn-components     = { path = "fsn-components" }
-fsn-ui             = { path = "fsn-ui" }
-fsn-store          = { path = "fsn-store" }
-fsn-pkg            = { path = "fsn-pkg" }
-fsn-plugin-sdk     = { path = "fsn-plugin-sdk" }
-fsn-plugin-runtime = { path = "fsn-plugin-runtime" }
-fsn-container      = { path = "fsn-container" }
-fsn-auth           = { path = "fsn-auth" }
-fsn-federation     = { path = "fsn-federation" }
-fsn-bridge-sdk     = { path = "fsn-bridge-sdk" }
-fsn-channel        = { path = "fsn-channel" }
-fsn-llm            = { path = "fsn-llm" }
-fsn-bot            = { path = "fsn-bot" }
+fs-types          = { path = "fs-types" }
+fs-error          = { path = "fs-error" }
+fs-config         = { path = "fs-config" }
+fs-core           = { path = "fs-core" }
+fs-crypto         = { path = "fs-crypto" }
+fs-health         = { path = "fs-health" }
+fs-db             = { path = "fs-db" }
+fs-bus            = { path = "fs-bus" }
+fs-sync           = { path = "fs-sync" }
+fs-template       = { path = "fs-template" }
+fs-inventory      = { path = "fs-inventory" }
+fs-bridge         = { path = "fs-bridge" }
+fs-sysinfo        = { path = "fs-sysinfo" }
+fs-theme          = { path = "fs-theme" }
+fs-help           = { path = "fs-help" }
+fs-i18n           = { path = "fs-i18n" }
+fs-render         = { path = "fs-render" }
+fs-components     = { path = "fs-components" }
+fs-ui             = { path = "fs-ui" }
+fs-store          = { path = "fs-store" }
+fs-pkg            = { path = "fs-pkg" }
+fs-plugin-sdk     = { path = "fs-plugin-sdk" }
+fs-plugin-runtime = { path = "fs-plugin-runtime" }
+fs-container      = { path = "fs-container" }
+fs-auth           = { path = "fs-auth" }
+fs-federation     = { path = "fs-federation" }
+fs-bridge-sdk     = { path = "fs-bridge-sdk" }
+fs-channel        = { path = "fs-channel" }
+fs-llm            = { path = "fs-llm" }
+fs-bot            = { path = "fs-bot" }
 
 # Serde
 serde       = { version = "1", features = ["derive"] }

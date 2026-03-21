@@ -1,0 +1,10 @@
+[package]
+name        = "fs-help"
+description = "Context-sensitive help topic system for FreeSynergy"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[dependencies]

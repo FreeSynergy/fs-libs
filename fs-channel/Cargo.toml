@@ -1,0 +1,25 @@
+[package]
+name        = "fs-channel"
+description = "Messaging channel abstraction (Matrix, Telegram) for FreeSynergy"
+version.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+authors.workspace    = true
+repository.workspace = true
+
+[features]
+default  = []
+matrix   = ["dep:matrix-sdk", "dep:tokio"]
+telegram = ["dep:teloxide", "dep:tokio"]
+
+[dependencies]
+serde     = { workspace = true }
+thiserror = { workspace = true }
+tracing     = { workspace = true }
+async-trait = { workspace = true }
+chrono      = { workspace = true }
+
+# Optional adapters
+matrix-sdk = { workspace = true, optional = true }
+teloxide   = { workspace = true, optional = true }
+tokio      = { workspace = true, optional = true }
