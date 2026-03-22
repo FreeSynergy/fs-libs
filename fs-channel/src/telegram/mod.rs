@@ -9,7 +9,7 @@ use tracing::{debug, info};
 
 use crate::channel::Channel;
 use crate::error::ChannelError;
-use crate::message::{ChannelMessage, IncomingMessage, MessageKind};
+use crate::message::{ChannelMessage, IncomingMessage};
 
 pub use config::TelegramConfig;
 
@@ -73,19 +73,9 @@ impl Channel for TelegramAdapter {
 
         let chat = ChatId(chat_id);
 
-        match &message.kind {
-            MessageKind::Markdown | MessageKind::Code { .. } => {
-                bot.send_message(chat, &message.body)
-                    .parse_mode(ParseMode::MarkdownV2)
-                    .await
-                    .map_err(|e| ChannelError::send(room_id, e.to_string()))?;
-            }
-            _ => {
-                bot.send_message(chat, &message.body)
-                    .await
-                    .map_err(|e| ChannelError::send(room_id, e.to_string()))?;
-            }
-        }
+        let req = bot.send_message(chat, message.rendered_body().as_ref());
+        let req = if message.kind.is_rich() { req.parse_mode(ParseMode::MarkdownV2) } else { req };
+        req.await.map_err(|e| ChannelError::send(room_id, e.to_string()))?;
 
         debug!(chat = %chat_id, "telegram message sent");
         Ok(())

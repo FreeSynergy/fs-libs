@@ -13,7 +13,7 @@ use tracing::{debug, info};
 
 use crate::channel::Channel;
 use crate::error::ChannelError;
-use crate::message::{ChannelMessage, IncomingMessage, MessageKind};
+use crate::message::{ChannelMessage, IncomingMessage};
 
 pub use config::MatrixConfig;
 
@@ -55,18 +55,10 @@ impl MatrixAdapter {
     }
 
     fn build_content(msg: &ChannelMessage) -> RoomMessageEventContent {
-        match &msg.kind {
-            MessageKind::Text | MessageKind::Notice =>
-                RoomMessageEventContent::text_plain(&msg.body),
-            MessageKind::Markdown =>
-                RoomMessageEventContent::text_markdown(&msg.body),
-            MessageKind::Code { language } => {
-                let body = match language {
-                    Some(lang) => format!("```{lang}\n{}\n```", msg.body),
-                    None       => format!("```\n{}\n```", msg.body),
-                };
-                RoomMessageEventContent::text_markdown(body)
-            }
+        if msg.kind.is_rich() {
+            RoomMessageEventContent::text_markdown(msg.rendered_body().as_ref())
+        } else {
+            RoomMessageEventContent::text_plain(&msg.body)
         }
     }
 }
