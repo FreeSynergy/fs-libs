@@ -55,6 +55,10 @@ impl PartialEq<String> for Translation {
     fn eq(&self, other: &String) -> bool { self.0 == *other }
 }
 
+impl From<Translation> for String {
+    fn from(t: Translation) -> String { t.0 }
+}
+
 // ── LanguageCode ──────────────────────────────────────────────────────────────
 
 /// A BCP-47 language code (e.g. `"de"`, `"en"`, `"ar"`).
