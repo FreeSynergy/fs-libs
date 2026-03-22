@@ -61,9 +61,10 @@ impl FsSidebarItem {
 /// Inject this once at the app root.
 pub const FS_SIDEBAR_CSS: &str = r#"
 /* ── Sidebar: bookmark-drawer overlay ───────────────────────────────── */
-/* Structure: [panel 220px] [tab-strip 44px]
-   Closed: translateX(-220px) → only tab-strip visible at the left edge.
-   Open  : translateX(0)      → full sidebar visible.                   */
+/* Structure: [panel 220px] [tab-strip compact pill]
+   Closed: translateX(-220px) → only the pill visible at the left edge.
+   Open  : translateX(0)      → full sidebar + pill visible.
+   The pill is vertically centered; above/below it the wallpaper shows. */
 .fs-sidebar {
     position: absolute;
     left: 0;
@@ -72,25 +73,27 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     z-index: 200;
     display: flex;
     flex-direction: row;
+    align-items: center;        /* pill is vertically centered         */
     transform: translateX(-220px);
     transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: all;
+    pointer-events: none;       /* transparent above/below the pill    */
 }
 .fs-sidebar:hover {
     transform: translateX(0);
-    filter: drop-shadow(4px 0 16px rgba(0, 0, 0, 0.45));
 }
 /* ── Panel: the navigation content that slides in ─────────────────── */
 .fs-sidebar__panel {
     width: 220px;
     min-width: 220px;
     flex-shrink: 0;
-    height: 100%;
+    align-self: stretch;        /* panel fills full height when open   */
     background: var(--fs-bg-sidebar, #0a0f1a);
     border-right: 1px solid var(--fs-border, rgba(148,170,200,0.18));
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    pointer-events: all;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
 }
 .fs-sidebar__scroll {
     flex: 1;
@@ -171,23 +174,27 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     margin: 4px 8px;
     flex-shrink: 0;
 }
-/* ── Tab strip: bookmark tabs sticking out at the left edge ─────── */
+/* ── Tab strip: compact pill that sticks out from the left edge ─── */
+/* Height = auto (only as tall as the icons inside it).
+   Vertically centered by the parent align-items: center.
+   Rounded right corners give the "Beule" (bump) look.                */
 .fs-sidebar__tab-strip {
     width: 44px;
     flex-shrink: 0;
-    height: 100%;
+    /* height: auto — sized by content only */
     background: var(--fs-bg-surface, #162032);
+    border-top: 1px solid var(--fs-border, rgba(148,170,200,0.18));
     border-right: 1px solid var(--fs-border, rgba(148,170,200,0.18));
+    border-bottom: 1px solid var(--fs-border, rgba(148,170,200,0.18));
+    border-radius: 0 10px 10px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 8px 0;
     gap: 4px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: none;
+    pointer-events: all;
+    box-shadow: 3px 0 12px rgba(0, 0, 0, 0.35);
 }
-.fs-sidebar__tab-strip::-webkit-scrollbar { display: none; }
 .fs-sidebar__tab-btn {
     width: 36px;
     height: 36px;
