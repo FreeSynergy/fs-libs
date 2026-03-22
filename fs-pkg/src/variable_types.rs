@@ -16,6 +16,7 @@
 //
 // Pattern: Enum with methods (each variant carries its own validation logic).
 
+use fs_types::StrLabel;
 use serde::{Deserialize, Serialize};
 
 // ── VariableKind ──────────────────────────────────────────────────────────────
@@ -137,10 +138,10 @@ impl std::fmt::Display for ValidationError {
     }
 }
 
-impl std::fmt::Display for VariableKind {
-    /// Renders the human-readable UI label (e.g. `"Text"`, `"URL"`, `"Secret 🔒"`).
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let s = match self {
+impl StrLabel for VariableKind {
+    /// Human-readable UI label (e.g. `"Text"`, `"URL"`, `"Secret 🔒"`).
+    fn label(&self) -> &'static str {
+        match self {
             Self::String           => "Text",
             Self::Integer          => "Integer",
             Self::Boolean          => "Yes/No",
@@ -155,15 +156,16 @@ impl std::fmt::Display for VariableKind {
             Self::Duration         => "Duration",
             Self::Cron             => "Cron Expression",
             Self::Select           => "Selection",
-            Self::Secret           => "Secret 🔒",
-            Self::Password         => "Password 🔒",
-            Self::ApiKey           => "API Key 🔒",
-            Self::Certificate      => "Certificate 🔒",
-            Self::PrivateKey       => "Private Key 🔒",
-        };
-        f.write_str(s)
+            Self::Secret           => "Secret \u{1f512}",
+            Self::Password         => "Password \u{1f512}",
+            Self::ApiKey           => "API Key \u{1f512}",
+            Self::Certificate      => "Certificate \u{1f512}",
+            Self::PrivateKey       => "Private Key \u{1f512}",
+        }
     }
 }
+
+fs_types::impl_str_label_display!(VariableKind);
 
 // ── VariableSpec ──────────────────────────────────────────────────────────────
 

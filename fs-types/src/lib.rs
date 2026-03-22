@@ -23,6 +23,7 @@
 
 pub mod capability;
 pub mod host;
+pub mod label;
 pub mod module;
 pub mod permission;
 pub mod project;
@@ -35,6 +36,7 @@ pub mod type_system;
 
 pub use capability::Capability;
 pub use host::{HostMode, HostStatus};
+pub use label::StrLabel;
 pub use module::{ModuleSource, ModuleStatus};
 pub use permission::{Action, Scope};
 pub use project::{ProjectStatus, ProjectVisibility};

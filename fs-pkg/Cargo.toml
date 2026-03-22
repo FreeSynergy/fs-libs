@@ -16,6 +16,7 @@ signing = ["dep:fs-crypto", "fs-crypto/signing"]
 
 [dependencies]
 fs-error  = { workspace = true }
+fs-types  = { workspace = true }
 serde      = { workspace = true }
 serde_json = { workspace = true }
 toml       = { workspace = true }

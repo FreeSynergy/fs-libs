@@ -2,6 +2,8 @@
 
 use dioxus::prelude::*;
 
+use crate::VariantStyle;
+
 // ── Card ──────────────────────────────────────────────────────────────────────
 
 #[derive(Props, Clone, PartialEq)]
@@ -68,8 +70,10 @@ impl BadgeVariant {
             Self::Info    => "var(--fs-color-primary, #06b6d4)",
         }
     }
+}
 
-    fn style(self) -> &'static str {
+impl VariantStyle for BadgeVariant {
+    fn css(&self) -> &'static str {
         match self {
             Self::Default => "background: rgba(100,116,139,0.2); color: #94a3b8;",
             Self::Success => "background: rgba(63,185,80,0.15);  color: #3fb950;",
@@ -93,7 +97,7 @@ pub fn Badge(props: BadgeProps) -> Element {
     let style = format!(
         "display: inline-block; padding: 2px 8px; border-radius: 999px; \
          font-size: 11px; font-weight: 600; line-height: 1.6; {}",
-        props.variant.style()
+        props.variant.css()
     );
     rsx! {
         span {

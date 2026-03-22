@@ -31,65 +31,52 @@ pub struct ErrorExplanation {
     pub suggestions: Vec<String>,
 }
 
-// ── interpret_command ─────────────────────────────────────────────────────────
+// ── LlmTaskRunner ─────────────────────────────────────────────────────────────
 
-/// Interpret a natural-language command into a structured [`InterpretedCommand`].
-///
-/// The provider is prompted to return JSON with `action`, `args`, and `confidence`.
-///
-/// # Example
-///
-/// ```rust,ignore
-/// let cmd = interpret_command(&provider, "deploy the matrix service to prod").await?;
-/// assert_eq!(cmd.action, "deploy");
-/// ```
-pub async fn interpret_command(
-    provider: &dyn LlmProvider,
-    command: &str,
-) -> Result<InterpretedCommand, LlmError> {
-    let system = r#"You are a command interpreter for a server management system.
+pub struct LlmTaskRunner<'a> {
+    provider: &'a dyn LlmProvider,
+}
+
+impl<'a> LlmTaskRunner<'a> {
+    pub fn new(provider: &'a dyn LlmProvider) -> Self {
+        Self { provider }
+    }
+
+    /// Interpret a natural-language command into a structured [`InterpretedCommand`].
+    ///
+    /// The provider is prompted to return JSON with `action`, `args`, and `confidence`.
+    pub async fn interpret_command(&self, command: &str) -> Result<InterpretedCommand, LlmError> {
+        let system = r#"You are a command interpreter for a server management system.
 Parse the user's natural-language instruction into a JSON object with exactly these fields:
   "action"     : string — the action to perform (deploy, restart, stop, start, status, install, remove, backup, update)
   "args"       : object — key/value string pairs of relevant arguments (service, host, environment, etc.)
   "confidence" : number — your confidence in the parse from 0.0 to 1.0
 Reply with ONLY the JSON object, no markdown, no explanation."#;
 
-    let reply = provider
-        .ask_with_system(system, command)
-        .await?;
+        let reply = self.provider.ask_with_system(system, command).await?;
 
-    serde_json::from_str::<InterpretedCommand>(reply.trim())
-        .map_err(|e| LlmError::task_parse(format!("interpret_command: {e} — raw: {reply}")))
-}
+        serde_json::from_str::<InterpretedCommand>(reply.trim())
+            .map_err(|e| LlmError::task_parse(format!("interpret_command: {e} — raw: {reply}")))
+    }
 
-// ── summarize_logs ────────────────────────────────────────────────────────────
-
-/// Summarize a block of log lines into a short human-readable description.
-///
-/// Returns 2–5 sentences describing what happened and any notable events.
-pub async fn summarize_logs(
-    provider: &dyn LlmProvider,
-    logs: &str,
-) -> Result<String, LlmError> {
-    let system = r#"You are a log analyst for a server management system.
+    /// Summarize a block of log lines into a short human-readable description.
+    ///
+    /// Returns 2–5 sentences describing what happened and any notable events.
+    pub async fn summarize_logs(&self, logs: &str) -> Result<String, LlmError> {
+        let system = r#"You are a log analyst for a server management system.
 Summarize the provided log excerpt in 2–5 concise sentences.
 Focus on: errors, warnings, notable state changes, and performance anomalies.
 Do not include raw log lines in your summary. Write plain English."#;
 
-    let prompt = format!("Summarize these logs:\n\n{logs}");
-    provider.ask_with_system(system, &prompt).await
-}
+        let prompt = format!("Summarize these logs:\n\n{logs}");
+        self.provider.ask_with_system(system, &prompt).await
+    }
 
-// ── explain_error ─────────────────────────────────────────────────────────────
-
-/// Explain an error message in plain language with suggested remediation.
-///
-/// The provider is prompted to return JSON with `summary`, `cause`, and `suggestions`.
-pub async fn explain_error(
-    provider: &dyn LlmProvider,
-    error: &str,
-) -> Result<ErrorExplanation, LlmError> {
-    let system = r#"You are a systems engineering expert.
+    /// Explain an error message in plain language with suggested remediation.
+    ///
+    /// The provider is prompted to return JSON with `summary`, `cause`, and `suggestions`.
+    pub async fn explain_error(&self, error: &str) -> Result<ErrorExplanation, LlmError> {
+        let system = r#"You are a systems engineering expert.
 Explain the provided error message and suggest fixes.
 Reply with ONLY a JSON object with these fields:
   "summary"     : string — one sentence describing what failed
@@ -97,25 +84,23 @@ Reply with ONLY a JSON object with these fields:
   "suggestions" : array of strings — ordered list of things to try, most likely first
 No markdown, no code fences, just the JSON."#;
 
-    let reply = provider.ask_with_system(system, error).await?;
+        let reply = self.provider.ask_with_system(system, error).await?;
 
-    serde_json::from_str::<ErrorExplanation>(reply.trim())
-        .map_err(|e| LlmError::task_parse(format!("explain_error: {e} — raw: {reply}")))
-}
+        serde_json::from_str::<ErrorExplanation>(reply.trim())
+            .map_err(|e| LlmError::task_parse(format!("explain_error: {e} — raw: {reply}")))
+    }
 
-// ── suggest_config ────────────────────────────────────────────────────────────
-
-/// Suggest a corrected or completed TOML config based on partial input.
-///
-/// `schema_hint` is a brief description of expected fields (not a full schema).
-/// Returns a complete, valid TOML string.
-pub async fn suggest_config(
-    provider: &dyn LlmProvider,
-    partial_toml: &str,
-    schema_hint: &str,
-) -> Result<String, LlmError> {
-    let system = format!(
-        r#"You are a TOML configuration expert for a server management system.
+    /// Suggest a corrected or completed TOML config based on partial input.
+    ///
+    /// `schema_hint` is a brief description of expected fields (not a full schema).
+    /// Returns a complete, valid TOML string.
+    pub async fn suggest_config(
+        &self,
+        partial_toml: &str,
+        schema_hint: &str,
+    ) -> Result<String, LlmError> {
+        let system = format!(
+            r#"You are a TOML configuration expert for a server management system.
 The user provides a partial TOML config. Complete and correct it.
 Expected fields: {schema_hint}
 Rules:
@@ -123,21 +108,47 @@ Rules:
 - Preserve all values the user already provided.
 - Add missing required fields with sensible defaults.
 - Fix syntax errors if present."#
-    );
+        );
 
-    let prompt = format!("Complete this TOML config:\n\n{partial_toml}");
-    let reply = provider.ask_with_system(&system, &prompt).await?;
+        let prompt = format!("Complete this TOML config:\n\n{partial_toml}");
+        let reply = self.provider.ask_with_system(&system, &prompt).await?;
 
-    // Strip optional markdown code fences if the model added them.
-    let clean = reply
-        .trim()
-        .trim_start_matches("```toml")
-        .trim_start_matches("```")
-        .trim_end_matches("```")
-        .trim()
-        .to_string();
+        // Strip optional markdown code fences if the model added them.
+        let clean = reply
+            .trim()
+            .trim_start_matches("```toml")
+            .trim_start_matches("```")
+            .trim_end_matches("```")
+            .trim()
+            .to_string();
 
-    Ok(clean)
+        Ok(clean)
+    }
+}
+
+// ── Public shims ──────────────────────────────────────────────────────────────
+
+pub async fn interpret_command(
+    provider: &dyn LlmProvider,
+    command: &str,
+) -> Result<InterpretedCommand, LlmError> {
+    LlmTaskRunner::new(provider).interpret_command(command).await
+}
+
+pub async fn summarize_logs(provider: &dyn LlmProvider, logs: &str) -> Result<String, LlmError> {
+    LlmTaskRunner::new(provider).summarize_logs(logs).await
+}
+
+pub async fn explain_error(provider: &dyn LlmProvider, error: &str) -> Result<ErrorExplanation, LlmError> {
+    LlmTaskRunner::new(provider).explain_error(error).await
+}
+
+pub async fn suggest_config(
+    provider: &dyn LlmProvider,
+    partial_toml: &str,
+    schema_hint: &str,
+) -> Result<String, LlmError> {
+    LlmTaskRunner::new(provider).suggest_config(partial_toml, schema_hint).await
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────

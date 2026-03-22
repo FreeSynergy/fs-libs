@@ -284,7 +284,7 @@ mod tests {
 
         let matcher = CapabilityMatcher::new(&reg);
         let m = matcher.resolve_role("OAUTH_ISSUER_URL", "iam.oidc-discovery-url").unwrap();
-        assert_eq!(m.provider_id, "iam/kanidm");
+        assert_eq!(m.provider_id.as_str(), "iam/kanidm");
         assert!(!m.requires_user_choice);
         assert!(m.value.contains("well-known"));
     }

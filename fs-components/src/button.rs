@@ -2,6 +2,8 @@
 
 use dioxus::prelude::*;
 
+use crate::VariantStyle;
+
 // ── ButtonVariant ─────────────────────────────────────────────────────────────
 
 /// Visual style variant for a button.
@@ -18,8 +20,8 @@ pub enum ButtonVariant {
     Danger,
 }
 
-impl ButtonVariant {
-    fn css(self) -> &'static str {
+impl VariantStyle for ButtonVariant {
+    fn css(&self) -> &'static str {
         match self {
             Self::Primary   => "background: var(--fs-color-primary, #06b6d4); \
                                 color: var(--fs-color-primary-text, #000); \
@@ -36,8 +38,7 @@ impl ButtonVariant {
         }
     }
 
-    /// CSS class suffix for aria / test selection.
-    pub fn class_suffix(self) -> &'static str {
+    fn class_suffix(&self) -> &'static str {
         match self {
             Self::Primary   => "primary",
             Self::Secondary => "secondary",

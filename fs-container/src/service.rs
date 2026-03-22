@@ -7,6 +7,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+use fs_types::StrLabel;
+
 // ── PortBinding ───────────────────────────────────────────────────────────────
 
 /// A host ↔ container port mapping.
@@ -107,11 +109,11 @@ impl RestartPolicy {
     }
 }
 
-impl std::fmt::Display for RestartPolicy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
+impl StrLabel for RestartPolicy {
+    fn label(&self) -> &'static str { self.as_str() }
 }
+
+fs_types::impl_str_label_display!(RestartPolicy);
 
 // ── HealthCheck ───────────────────────────────────────────────────────────────
 

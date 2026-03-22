@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 fs-error  = { workspace = true }
+fs-types  = { workspace = true }
 serde  = { workspace = true }
 tokio  = { workspace = true }
 tracing    = { workspace = true }

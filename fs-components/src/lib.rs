@@ -14,6 +14,9 @@
 //   web      — dioxus + dioxus/web
 
 // Always available.
+pub mod styles;
+pub use styles::VariantStyle;
+
 pub mod toast_bus;
 pub use toast_bus::{ErrorBus, ErrorMessage, ToastBus, ToastLevel, ToastMessage};
 

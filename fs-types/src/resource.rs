@@ -1,6 +1,7 @@
 //! Core resource abstraction — the base of all managed FreeSynergy entities.
 
 use serde::{Deserialize, Serialize};
+use crate::StrLabel;
 
 // ── ResourceKind ──────────────────────────────────────────────────────────────
 
@@ -20,18 +21,21 @@ pub enum ResourceKind {
     Theme,
 }
 
-impl ResourceKind {
-    /// Human-readable singular label for UI display.
-    pub fn label(self) -> &'static str {
+impl StrLabel for ResourceKind {
+    fn label(&self) -> &'static str {
         match self {
-            ResourceKind::Project => "Project",
-            ResourceKind::Host    => "Host",
-            ResourceKind::Service => "Service",
-            ResourceKind::Plugin  => "Plugin",
-            ResourceKind::Theme   => "Theme",
+            Self::Project => "Project",
+            Self::Host    => "Host",
+            Self::Service => "Service",
+            Self::Plugin  => "Plugin",
+            Self::Theme   => "Theme",
         }
     }
+}
 
+crate::impl_str_label_display!(ResourceKind);
+
+impl ResourceKind {
     /// i18n key for the resource kind label.
     pub fn i18n_key(self) -> &'static str {
         match self {

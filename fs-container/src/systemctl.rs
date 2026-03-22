@@ -3,12 +3,12 @@
 // Wraps `systemctl` and exposes typed results.
 // Always operates in `--user` mode (rootless Podman).
 
-use std::fmt;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
 use fs_error::FsError;
+use fs_types::StrLabel;
 
 // ── UnitActiveState ───────────────────────────────────────────────────────────
 
@@ -30,19 +30,20 @@ pub enum UnitActiveState {
     Unknown,
 }
 
-impl fmt::Display for UnitActiveState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s = match self {
+impl StrLabel for UnitActiveState {
+    fn label(&self) -> &'static str {
+        match self {
             Self::Active       => "active",
             Self::Inactive     => "inactive",
             Self::Activating   => "activating",
             Self::Deactivating => "deactivating",
             Self::Failed       => "failed",
             Self::Unknown      => "unknown",
-        };
-        f.write_str(s)
+        }
     }
 }
+
+fs_types::impl_str_label_display!(UnitActiveState);
 
 impl FromStr for UnitActiveState {
     type Err = std::convert::Infallible;

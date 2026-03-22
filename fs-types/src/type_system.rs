@@ -4,6 +4,7 @@
 //! health checker, and dependency resolver.
 
 use serde::{Deserialize, Serialize};
+use crate::StrLabel;
 
 // ── ServiceType ───────────────────────────────────────────────────────────────
 
@@ -96,27 +97,30 @@ pub enum ContainerPurpose {
     Custom,
 }
 
-impl ContainerPurpose {
-    /// Human-readable label for UI display.
-    pub fn label(self) -> &'static str {
+impl StrLabel for ContainerPurpose {
+    fn label(&self) -> &'static str {
         match self {
-            ContainerPurpose::Proxy      => "Proxy",
-            ContainerPurpose::Iam        => "IAM",
-            ContainerPurpose::Mail       => "Mail",
-            ContainerPurpose::Git        => "Git",
-            ContainerPurpose::Wiki       => "Wiki",
-            ContainerPurpose::Chat       => "Chat",
-            ContainerPurpose::Collab     => "Collab",
-            ContainerPurpose::Tasks      => "Tasks",
-            ContainerPurpose::Tickets    => "Tickets",
-            ContainerPurpose::Maps       => "Maps",
-            ContainerPurpose::Monitoring => "Monitoring",
-            ContainerPurpose::Database   => "Database",
-            ContainerPurpose::Cache      => "Cache",
-            ContainerPurpose::Custom     => "Custom",
+            Self::Proxy      => "Proxy",
+            Self::Iam        => "IAM",
+            Self::Mail       => "Mail",
+            Self::Git        => "Git",
+            Self::Wiki       => "Wiki",
+            Self::Chat       => "Chat",
+            Self::Collab     => "Collab",
+            Self::Tasks      => "Tasks",
+            Self::Tickets    => "Tickets",
+            Self::Maps       => "Maps",
+            Self::Monitoring => "Monitoring",
+            Self::Database   => "Database",
+            Self::Cache      => "Cache",
+            Self::Custom     => "Custom",
         }
     }
+}
 
+crate::impl_str_label_display!(ContainerPurpose);
+
+impl ContainerPurpose {
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {

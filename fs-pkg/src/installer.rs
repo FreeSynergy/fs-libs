@@ -15,6 +15,7 @@
 //   4. Run post_remove hooks
 //   5. Emit RemoveCompleted event
 //
+// Both flows share a single `execute_lifecycle` Template Method.
 // On any failure: emit InstallFailed / abort (no partial rollback in v0.1).
 
 use std::collections::HashMap;
@@ -90,7 +91,7 @@ pub struct InstallOutcome {
     /// Package version.
     pub version: String,
 
-    /// Files that were written (absolute destination paths).
+    /// Files that were written or removed (absolute destination paths).
     pub written_files: Vec<PathBuf>,
 
     /// Hook commands that ran (in order).
@@ -98,6 +99,19 @@ pub struct InstallOutcome {
 
     /// `true` if this was a dry run (nothing was actually written).
     pub dry_run: bool,
+}
+
+// ── LifecyclePhase ────────────────────────────────────────────────────────────
+
+/// The varying parts of a package lifecycle operation (install vs remove).
+///
+/// Passed to [`PackageInstaller::execute_lifecycle`] to parameterize
+/// the Template Method with the correct hooks and event kinds.
+struct LifecyclePhase<'a> {
+    pre_hooks:    &'a [String],
+    post_hooks:   &'a [String],
+    on_started:   InstallEventKind,
+    on_completed: InstallEventKind,
 }
 
 // ── PackageInstaller ──────────────────────────────────────────────────────────
@@ -151,69 +165,37 @@ impl PackageInstaller {
         manifest: &ApiManifest,
         options: InstallOptions,
     ) -> Result<InstallOutcome, FsError> {
-        let id = &manifest.package.id;
-        let ver = &manifest.package.version;
-
-        self.bus.emit(&InstallEvent::new(id, ver, InstallEventKind::InstallStarted))?;
-
-        let mut written_files = Vec::new();
-        let mut ran_hooks = Vec::new();
-
-        // Pre-install hooks
-        if !options.skip_hooks {
-            for cmd in &manifest.hooks.pre_install {
-                run_hook(cmd, &options.vars, options.dry_run)?;
-                ran_hooks.push(cmd.clone());
-            }
-        }
-
-        // Write all declared files
-        for mapping in manifest.files.all() {
-            let src = mapping.source.as_str();
-            let dest = options.vars.expand(&mapping.dest);
-            let dest_path = PathBuf::from(&dest);
-
-            if !options.dry_run {
-                if let Some(parent) = dest_path.parent() {
-                    fs::create_dir_all(parent).map_err(|e| {
+        self.execute_lifecycle(
+            manifest,
+            options,
+            LifecyclePhase {
+                pre_hooks:    &manifest.hooks.pre_install,
+                post_hooks:   &manifest.hooks.post_install,
+                on_started:   InstallEventKind::InstallStarted,
+                on_completed: InstallEventKind::InstallCompleted,
+            },
+            |src, dest_path, dry_run| {
+                if !dry_run {
+                    if let Some(parent) = dest_path.parent() {
+                        fs::create_dir_all(parent).map_err(|e| {
+                            FsError::internal(format!(
+                                "pkg install: cannot create {}: {e}",
+                                parent.display()
+                            ))
+                        })?;
+                    }
+                    // In production this copies from the package bundle.
+                    let content = format!("# installed from package: {src}\n");
+                    fs::write(&dest_path, content).map_err(|e| {
                         FsError::internal(format!(
-                            "pkg install: cannot create {}: {e}",
-                            parent.display()
+                            "pkg install: cannot write {}: {e}",
+                            dest_path.display()
                         ))
                     })?;
                 }
-
-                // For now: write the source path as a marker file.
-                // In production this copies from the package bundle.
-                let content = format!("# installed from package: {src}\n");
-                fs::write(&dest_path, content).map_err(|e| {
-                    FsError::internal(format!(
-                        "pkg install: cannot write {}: {e}",
-                        dest_path.display()
-                    ))
-                })?;
-            }
-
-            written_files.push(dest_path);
-        }
-
-        // Post-install hooks
-        if !options.skip_hooks {
-            for cmd in &manifest.hooks.post_install {
-                run_hook(cmd, &options.vars, options.dry_run)?;
-                ran_hooks.push(cmd.clone());
-            }
-        }
-
-        self.bus.emit(&InstallEvent::new(id, ver, InstallEventKind::InstallCompleted))?;
-
-        Ok(InstallOutcome {
-            package_id: id.clone(),
-            version:    ver.clone(),
-            written_files,
-            ran_hooks,
-            dry_run: options.dry_run,
-        })
+                Ok(dest_path)
+            },
+        )
     }
 
     /// Remove a package, deleting all files declared in `manifest`.
@@ -222,55 +204,78 @@ impl PackageInstaller {
         manifest: &ApiManifest,
         options: InstallOptions,
     ) -> Result<InstallOutcome, FsError> {
-        let id = &manifest.package.id;
+        self.execute_lifecycle(
+            manifest,
+            options,
+            LifecyclePhase {
+                pre_hooks:    &manifest.hooks.pre_remove,
+                post_hooks:   &manifest.hooks.post_remove,
+                on_started:   InstallEventKind::RemoveStarted,
+                on_completed: InstallEventKind::RemoveCompleted,
+            },
+            |_src, dest_path, dry_run| {
+                if !dry_run && dest_path.exists() {
+                    fs::remove_file(&dest_path).map_err(|e| {
+                        FsError::internal(format!(
+                            "pkg remove: cannot delete {}: {e}",
+                            dest_path.display()
+                        ))
+                    })?;
+                }
+                Ok(dest_path)
+            },
+        )
+    }
+
+    // ── Template Method ───────────────────────────────────────────────────────
+
+    /// Shared lifecycle skeleton: emit → pre-hooks → file-op → post-hooks → emit.
+    ///
+    /// `file_op(source, dest_path, dry_run) → Result<PathBuf>` performs the
+    /// per-file action (write for install, delete for remove).
+    fn execute_lifecycle(
+        &mut self,
+        manifest: &ApiManifest,
+        options: InstallOptions,
+        phase: LifecyclePhase,
+        mut file_op: impl FnMut(&str, PathBuf, bool) -> Result<PathBuf, FsError>,
+    ) -> Result<InstallOutcome, FsError> {
+        let id  = &manifest.package.id;
         let ver = &manifest.package.version;
 
-        self.bus.emit(&InstallEvent::new(id, ver, InstallEventKind::RemoveStarted))?;
+        self.bus.emit(&InstallEvent::new(id, ver, phase.on_started))?;
 
-        let mut removed_files = Vec::new();
-        let mut ran_hooks = Vec::new();
+        let mut touched_files = Vec::new();
+        let mut ran_hooks     = Vec::new();
 
-        // Pre-remove hooks
         if !options.skip_hooks {
-            for cmd in &manifest.hooks.pre_remove {
+            for cmd in phase.pre_hooks {
                 run_hook(cmd, &options.vars, options.dry_run)?;
                 ran_hooks.push(cmd.clone());
             }
         }
 
-        // Delete all declared files
         for mapping in manifest.files.all() {
-            let dest = options.vars.expand(&mapping.dest);
-            let path = PathBuf::from(&dest);
-
-            if !options.dry_run && path.exists() {
-                fs::remove_file(&path).map_err(|e| {
-                    FsError::internal(format!(
-                        "pkg remove: cannot delete {}: {e}",
-                        path.display()
-                    ))
-                })?;
-            }
-
-            removed_files.push(path);
+            let dest_path = PathBuf::from(options.vars.expand(&mapping.dest));
+            let touched   = file_op(&mapping.source, dest_path, options.dry_run)?;
+            touched_files.push(touched);
         }
 
-        // Post-remove hooks
         if !options.skip_hooks {
-            for cmd in &manifest.hooks.post_remove {
+            for cmd in phase.post_hooks {
                 run_hook(cmd, &options.vars, options.dry_run)?;
                 ran_hooks.push(cmd.clone());
             }
         }
 
-        self.bus.emit(&InstallEvent::new(id, ver, InstallEventKind::RemoveCompleted))?;
+        self.bus.emit(&InstallEvent::new(id, ver, phase.on_completed))?;
 
         Ok(InstallOutcome {
-            package_id: id.clone(),
-            version:    ver.clone(),
-            written_files: removed_files,
+            package_id:    id.clone(),
+            version:       ver.clone(),
+            written_files: touched_files,
             ran_hooks,
-            dry_run: options.dry_run,
+            dry_run:       options.dry_run,
         })
     }
 }
@@ -285,11 +290,10 @@ impl Default for PackageInstaller {
 
 /// Run a shell hook command.
 ///
-/// In dry-run mode: log and skip.
+/// In dry-run mode: validate and skip.
 fn run_hook(cmd: &str, vars: &TemplateVars, dry_run: bool) -> Result<(), FsError> {
     let expanded = vars.expand(cmd);
     if dry_run {
-        // In dry-run mode, just validate that the command is non-empty
         return Ok(());
     }
     let status = Command::new("sh")
@@ -321,8 +325,9 @@ id      = "test/pkg"
 name    = "Test Package"
 version = "0.1.0"
 
-[files.config]
-"config.toml" = "{data_root}/config.toml"
+[[files.config]]
+source = "config.toml"
+dest   = "{data_root}/config.toml"
 
 [hooks]
 pre_install  = ["echo pre-install"]
@@ -339,16 +344,13 @@ post_remove  = ["echo post-remove"]
     fn dry_run_install_writes_no_files() {
         let dir = TempDir::new().unwrap();
         let manifest = make_manifest();
-        let options = InstallOptions::default()
-            .with_var("data_root", dir.path().to_str().unwrap())
+        let mut options = InstallOptions::default()
             .with_var("data_root", dir.path().to_str().unwrap());
-        let mut options = options;
         options.dry_run = true;
 
         let outcome = PackageInstaller::new().install(&manifest, options).unwrap();
 
         assert!(outcome.dry_run);
-        // File should NOT exist in dry-run mode
         let dest = dir.path().join("config.toml");
         assert!(!dest.exists(), "dry-run must not create files");
     }
@@ -357,11 +359,9 @@ post_remove  = ["echo post-remove"]
     fn install_writes_declared_files() {
         let dir = TempDir::new().unwrap();
         let manifest = make_manifest();
-        let options = InstallOptions::default()
+        let mut opts = InstallOptions::default()
             .with_var("data_root", dir.path().to_str().unwrap());
-
-        let mut opts = options;
-        opts.skip_hooks = true; // skip echo hooks to keep test clean
+        opts.skip_hooks = true;
 
         let outcome = PackageInstaller::new().install(&manifest, opts).unwrap();
 
@@ -374,11 +374,10 @@ post_remove  = ["echo post-remove"]
     fn remove_deletes_installed_files() {
         let dir = TempDir::new().unwrap();
         let manifest = make_manifest();
-        let opts = InstallOptions::default()
-            .with_var("data_root", dir.path().to_str().unwrap());
 
         // Install first
-        let mut install_opts = opts.clone();
+        let mut install_opts = InstallOptions::default()
+            .with_var("data_root", dir.path().to_str().unwrap());
         install_opts.skip_hooks = true;
         PackageInstaller::new().install(&manifest, install_opts).unwrap();
 
@@ -386,7 +385,8 @@ post_remove  = ["echo post-remove"]
         assert!(dest.exists());
 
         // Remove
-        let mut remove_opts = opts;
+        let mut remove_opts = InstallOptions::default()
+            .with_var("data_root", dir.path().to_str().unwrap());
         remove_opts.skip_hooks = true;
         PackageInstaller::new().remove(&manifest, remove_opts).unwrap();
 

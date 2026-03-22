@@ -2901,6 +2901,7 @@ dependencies = [
  "backon",
  "chrono",
  "fs-template",
+ "fs-types",
  "reqwest 0.13.2",
  "serde",
  "serde_json",
@@ -2949,6 +2950,7 @@ name = "fs-container"
 version = "0.1.0"
 dependencies = [
  "fs-error",
+ "fs-types",
  "serde",
  "tokio",
  "tracing",
@@ -3066,6 +3068,7 @@ version = "0.1.0"
 dependencies = [
  "fs-crypto",
  "fs-error",
+ "fs-types",
  "reqwest 0.13.2",
  "serde",
  "serde_json",

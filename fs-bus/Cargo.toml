@@ -13,6 +13,7 @@ tera-transform  = ["dep:tera", "dep:fs-template"]
 bridge          = ["dep:reqwest"]
 
 [dependencies]
+fs-types    = { workspace = true }
 tokio       = { workspace = true }
 serde       = { workspace = true }
 serde_json  = { workspace = true }

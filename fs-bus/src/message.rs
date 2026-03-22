@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::event::Event;
+use fs_types::StrLabel;
 
 // ── DeliveryType ──────────────────────────────────────────────────────────────
 
@@ -30,11 +31,11 @@ impl DeliveryType {
     }
 }
 
-impl std::fmt::Display for DeliveryType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
+impl StrLabel for DeliveryType {
+    fn label(&self) -> &'static str { self.as_str() }
 }
+
+fs_types::impl_str_label_display!(DeliveryType);
 
 // ── StorageType ───────────────────────────────────────────────────────────────
 
@@ -62,11 +63,11 @@ impl StorageType {
     }
 }
 
-impl std::fmt::Display for StorageType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
+impl StrLabel for StorageType {
+    fn label(&self) -> &'static str { self.as_str() }
 }
+
+fs_types::impl_str_label_display!(StorageType);
 
 // ── BusMessage ────────────────────────────────────────────────────────────────
 

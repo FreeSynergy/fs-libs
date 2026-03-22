@@ -9,7 +9,6 @@ use tracing::{debug, warn};
 
 use crate::context::CommandContext;
 use crate::registry::CommandRegistry;
-use crate::response::BotResponse;
 use crate::rights::Right;
 
 // ── PermissionResolver ────────────────────────────────────────────────────────

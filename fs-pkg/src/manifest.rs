@@ -14,6 +14,7 @@
 use std::path::Path;
 
 use fs_error::FsError;
+use fs_types::StrLabel;
 use serde::{Deserialize, Serialize};
 
 use crate::channel::ReleaseChannel;
@@ -65,6 +66,10 @@ impl PartialEq<str> for PackageId {
     fn eq(&self, other: &str) -> bool { self.0 == other }
 }
 
+impl PartialEq<&str> for PackageId {
+    fn eq(&self, other: &&str) -> bool { self.0 == *other }
+}
+
 impl<'a> From<&'a PackageId> for PackageId {
     fn from(id: &'a PackageId) -> Self { id.clone() }
 }
@@ -96,9 +101,9 @@ pub enum PackageType {
     Task,
 }
 
-impl std::fmt::Display for PackageType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let s = match self {
+impl StrLabel for PackageType {
+    fn label(&self) -> &'static str {
+        match self {
             Self::App       => "app",
             Self::Container => "container",
             Self::Bundle    => "bundle",
@@ -108,10 +113,11 @@ impl std::fmt::Display for PackageType {
             Self::Bot       => "bot",
             Self::Bridge    => "bridge",
             Self::Task      => "task",
-        };
-        f.write_str(s)
+        }
     }
 }
+
+fs_types::impl_str_label_display!(PackageType);
 
 // ── ApiManifest ───────────────────────────────────────────────────────────────
 
@@ -438,7 +444,7 @@ capabilities  = ["podman", "systemd"]
     #[test]
     fn parse_full() {
         let m = ApiManifest::from_toml(FULL_TOML).unwrap();
-        assert_eq!(*m.package.id, "proxy/zentinel");
+        assert_eq!(m.package.id, "proxy/zentinel");
         assert_eq!(m.package.tags, vec!["proxy", "tls"]);
 
         // Source
