@@ -18,6 +18,24 @@ pub enum MessageKind {
     Code { language: Option<String> },
 }
 
+impl MessageKind {
+    /// Returns `true` if this kind should be sent as rich/formatted text.
+    pub fn is_rich(&self) -> bool {
+        matches!(self, Self::Markdown | Self::Code { .. })
+    }
+
+    /// Renders `body` according to this kind (wraps code in fences, etc.).
+    pub fn render_body<'a>(&self, body: &'a str) -> std::borrow::Cow<'a, str> {
+        match self {
+            Self::Code { language: Some(lang) } =>
+                std::borrow::Cow::Owned(format!("```{lang}\n{body}\n```")),
+            Self::Code { language: None } =>
+                std::borrow::Cow::Owned(format!("```\n{body}\n```")),
+            _ => std::borrow::Cow::Borrowed(body),
+        }
+    }
+}
+
 // ── Attachment ────────────────────────────────────────────────────────────────
 
 /// A file attached to a message.
@@ -73,6 +91,11 @@ impl ChannelMessage {
     pub fn with_attachment(mut self, attachment: Attachment) -> Self {
         self.attachments.push(attachment);
         self
+    }
+
+    /// Rendered body according to this message's kind.
+    pub fn rendered_body(&self) -> std::borrow::Cow<'_, str> {
+        self.kind.render_body(&self.body)
     }
 }
 

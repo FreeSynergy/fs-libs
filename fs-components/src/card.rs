@@ -58,6 +58,17 @@ pub enum BadgeVariant {
 }
 
 impl BadgeVariant {
+    /// Fill color for progress bars and similar indicators.
+    pub fn fill_color(self) -> &'static str {
+        match self {
+            Self::Default => "var(--fs-color-text-secondary, #94a3b8)",
+            Self::Success => "#22c55e",
+            Self::Warning => "#f59e0b",
+            Self::Error   => "#ef4444",
+            Self::Info    => "var(--fs-color-primary, #06b6d4)",
+        }
+    }
+
     fn style(self) -> &'static str {
         match self {
             Self::Default => "background: rgba(100,116,139,0.2); color: #94a3b8;",

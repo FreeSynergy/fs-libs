@@ -24,6 +24,14 @@ impl ChatRole {
         }
     }
 
+    fn wrapper_align(self) -> &'static str {
+        match self {
+            Self::User      => "align-self: flex-end;",
+            Self::System    => "align-self: center; max-width: 100%;",
+            Self::Assistant => "align-self: flex-start;",
+        }
+    }
+
     fn bubble_style(self) -> &'static str {
         match self {
             Self::User =>
@@ -131,11 +139,7 @@ pub fn LlmChat(props: LlmChatProps) -> Element {
                         let content      = msg.content.clone();
                         let ts           = msg.timestamp.clone();
 
-                        let wrapper_align = match msg.role {
-                            ChatRole::User      => "align-self: flex-end;",
-                            ChatRole::System    => "align-self: center; max-width: 100%;",
-                            ChatRole::Assistant => "align-self: flex-start;",
-                        };
+                        let wrapper_align = msg.role.wrapper_align();
                         let label_align = if msg.role == ChatRole::User {
                             "flex-end"
                         } else {

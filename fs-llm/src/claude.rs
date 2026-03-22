@@ -108,11 +108,7 @@ impl LlmProvider for ClaudeProvider {
             .iter()
             .filter(|m| m.role != Role::System)
             .map(|m| ClaudeMessage {
-                role: match m.role {
-                    Role::User      => "user",
-                    Role::Assistant => "assistant",
-                    Role::System    => unreachable!(),
-                },
+                role:    m.role.as_str(),
                 content: &m.content,
             })
             .collect();

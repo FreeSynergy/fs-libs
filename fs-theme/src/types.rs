@@ -119,6 +119,16 @@ impl ShadowLevel {
             Self::Xl => "--shadow-xl",
         }
     }
+
+    /// Select the matching shadow value from a `Shadows` collection.
+    pub fn select_from(self, shadows: &Shadows) -> &str {
+        match self {
+            Self::Sm => &shadows.sm,
+            Self::Md => &shadows.md,
+            Self::Lg => &shadows.lg,
+            Self::Xl => &shadows.xl,
+        }
+    }
 }
 
 // ── AnimationKind ─────────────────────────────────────────────────────────────
@@ -147,6 +157,15 @@ impl AnimationKind {
             Self::Fast => 150,
             Self::Base => 250,
             Self::Slow => 400,
+        }
+    }
+
+    /// Select the matching duration from an `Animation` collection.
+    pub fn select_from(self, anim: &Animation) -> u16 {
+        match self {
+            Self::Fast => anim.fast,
+            Self::Base => anim.base,
+            Self::Slow => anim.slow,
         }
     }
 }

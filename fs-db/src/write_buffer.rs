@@ -19,9 +19,31 @@ use fs_error::FsError;
 pub struct BufferedWrite {
     /// Raw SQL statement (parameterless — values must be embedded or use
     /// positional `?` params in `values`).
-    pub sql: String,
+    sql: String,
     /// JSON-encoded bound values (deserialized by the flush impl).
-    pub values: Vec<serde_json::Value>,
+    values: Vec<serde_json::Value>,
+}
+
+impl BufferedWrite {
+    /// Create a new buffered write from a SQL statement and bound values.
+    pub fn new(sql: impl Into<String>, values: Vec<serde_json::Value>) -> Self {
+        Self { sql: sql.into(), values }
+    }
+
+    /// Create a parameterless write (no bound values).
+    pub fn statement(sql: impl Into<String>) -> Self {
+        Self { sql: sql.into(), values: vec![] }
+    }
+
+    /// The SQL statement for this write.
+    pub fn sql(&self) -> &str {
+        &self.sql
+    }
+
+    /// The bound parameter values for this write.
+    pub fn values(&self) -> &[serde_json::Value] {
+        &self.values
+    }
 }
 
 // ── FlushResult ───────────────────────────────────────────────────────────────

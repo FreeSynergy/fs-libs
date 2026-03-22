@@ -20,16 +20,25 @@ pub struct PortBinding {
     /// Port exposed inside the container.
     pub container_port: u16,
     /// Protocol: `"tcp"` or `"udp"`.
-    #[serde(default = "default_protocol")]
+    #[serde(default = "PortBinding::default_protocol")]
     pub protocol: String,
 }
 
-fn default_protocol() -> String { "tcp".to_string() }
-
 impl PortBinding {
+    const DEFAULT_PROTOCOL: &'static str = "tcp";
+
+    fn default_protocol() -> String {
+        Self::DEFAULT_PROTOCOL.to_string()
+    }
+
     /// Create a TCP port binding `host_port:container_port`.
     pub fn tcp(host_port: u16, container_port: u16) -> Self {
-        Self { host_port, container_port, protocol: "tcp".to_string() }
+        Self { host_port, container_port, protocol: Self::DEFAULT_PROTOCOL.to_string() }
+    }
+
+    /// Create a UDP port binding `host_port:container_port`.
+    pub fn udp(host_port: u16, container_port: u16) -> Self {
+        Self { host_port, container_port, protocol: "udp".to_string() }
     }
 
     /// Render as `"host:container/proto"` (Quadlet `PublishPort=` format).
@@ -98,44 +107,123 @@ impl RestartPolicy {
     }
 }
 
+impl std::fmt::Display for RestartPolicy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 // ── HealthCheck ───────────────────────────────────────────────────────────────
 
 /// Container health check configuration.
 ///
 /// Every FSN service module **must** declare a health check.
+///
+/// # Example
+///
+/// ```rust
+/// use fs_container::HealthCheck;
+///
+/// let hc = HealthCheck::new(["curl", "-fs", "http://localhost/health"]);
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HealthCheck {
     /// Command to run inside the container, e.g. `["curl", "-fs", "http://localhost/health"]`.
     pub test: Vec<String>,
     /// Interval between checks (systemd time span, e.g. `"30s"`).
-    #[serde(default = "default_interval")]
+    #[serde(default = "HealthCheck::default_interval")]
     pub interval: String,
     /// Time after which a check is considered failed (e.g. `"10s"`).
-    #[serde(default = "default_timeout")]
+    #[serde(default = "HealthCheck::default_timeout")]
     pub timeout: String,
     /// Number of consecutive failures before declaring unhealthy.
-    #[serde(default = "default_retries")]
+    #[serde(default = "HealthCheck::default_retries")]
     pub retries: u32,
     /// Grace period at startup before health checks begin (e.g. `"5s"`).
-    #[serde(default = "default_start_period")]
+    #[serde(default = "HealthCheck::default_start_period")]
     pub start_period: String,
 }
 
-fn default_interval()     -> String { "30s".to_string() }
-fn default_timeout()      -> String { "10s".to_string() }
-fn default_retries()      -> u32    { 3 }
-fn default_start_period() -> String { "5s".to_string() }
-
 impl HealthCheck {
+    // Single source of truth for all timing defaults.
+    const DEFAULT_INTERVAL:     &'static str = "30s";
+    const DEFAULT_TIMEOUT:      &'static str = "10s";
+    const DEFAULT_RETRIES:      u32          = 3;
+    const DEFAULT_START_PERIOD: &'static str = "5s";
+
+    // Serde `default = "…"` requires a function path, not a const.
+    fn default_interval()     -> String { Self::DEFAULT_INTERVAL.to_string() }
+    fn default_timeout()      -> String { Self::DEFAULT_TIMEOUT.to_string() }
+    fn default_retries()      -> u32    { Self::DEFAULT_RETRIES }
+    fn default_start_period() -> String { Self::DEFAULT_START_PERIOD.to_string() }
+
+    /// Create a health check with the given command and default timings.
+    ///
+    /// ```rust
+    /// use fs_container::HealthCheck;
+    ///
+    /// let hc = HealthCheck::new(["curl", "-fs", "http://localhost/health"]);
+    /// ```
+    pub fn new(test: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self { test: test.into_iter().map(Into::into).collect(), ..Self::default() }
+    }
+
+    /// Override the check interval (systemd time span, e.g. `"60s"`).
+    pub fn with_interval(mut self, interval: impl Into<String>) -> Self {
+        self.interval = interval.into();
+        self
+    }
+
+    /// Override the check timeout (systemd time span, e.g. `"5s"`).
+    pub fn with_timeout(mut self, timeout: impl Into<String>) -> Self {
+        self.timeout = timeout.into();
+        self
+    }
+
+    /// Override the number of retries before declaring unhealthy.
+    pub fn with_retries(mut self, retries: u32) -> Self {
+        self.retries = retries;
+        self
+    }
+
+    /// Override the startup grace period (systemd time span, e.g. `"10s"`).
+    pub fn with_start_period(mut self, start_period: impl Into<String>) -> Self {
+        self.start_period = start_period.into();
+        self
+    }
+
     /// Render as the Quadlet `HealthCmd=` line (space-separated command).
     pub fn to_quadlet_cmd(&self) -> String {
         self.test.join(" ")
     }
 }
 
+impl Default for HealthCheck {
+    fn default() -> Self {
+        Self {
+            test: Vec::new(),
+            interval: Self::DEFAULT_INTERVAL.to_string(),
+            timeout: Self::DEFAULT_TIMEOUT.to_string(),
+            retries: Self::DEFAULT_RETRIES,
+            start_period: Self::DEFAULT_START_PERIOD.to_string(),
+        }
+    }
+}
+
 // ── ServiceConfig ─────────────────────────────────────────────────────────────
 
 /// Declarative description of a container service.
+///
+/// Built via the fluent builder API starting from [`ServiceConfig::new`]:
+///
+/// ```rust,ignore
+/// let svc = ServiceConfig::new("zentinel", "ghcr.io/freeSynergy/zentinel:latest")
+///     .with_description("Zentinel reverse proxy")
+///     .with_port(PortBinding::tcp(443, 443))
+///     .with_volume(Volume::bind("/data/zentinel", "/data"))
+///     .with_healthcheck(HealthCheck::new(["curl", "-fs", "http://localhost/health"]))
+///     .with_env("LOG_LEVEL", "info");
+/// ```
 ///
 /// Passed to [`super::QuadletManager::create_quadlet`] to generate a
 /// Podman Quadlet `.container` unit file.
@@ -167,17 +255,24 @@ pub struct ServiceConfig {
     #[serde(default)]
     pub restart_policy: RestartPolicy,
     /// Podman network name (default: `"fsn"`).
-    #[serde(default = "default_network")]
+    #[serde(default = "ServiceConfig::default_network")]
     pub network: String,
     /// Optional container user override.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }
 
-fn default_network() -> String { "fsn".to_string() }
-
 impl ServiceConfig {
-    /// Create a minimal service config.
+    const DEFAULT_NETWORK: &'static str = "fsn";
+
+    fn default_network() -> String {
+        Self::DEFAULT_NETWORK.to_string()
+    }
+
+    /// Create a minimal service config with required fields.
+    ///
+    /// All optional fields are populated with safe defaults. Use the
+    /// `with_*` builder methods to configure additional settings.
     pub fn new(name: impl Into<String>, image: impl Into<String>) -> Self {
         Self {
             name: name.into(),
@@ -189,9 +284,63 @@ impl ServiceConfig {
             labels: HashMap::new(),
             healthcheck: None,
             restart_policy: RestartPolicy::Always,
-            network: default_network(),
+            network: Self::DEFAULT_NETWORK.to_string(),
             user: None,
         }
+    }
+
+    /// Set the human-readable description for the `[Unit]` section.
+    pub fn with_description(mut self, desc: impl Into<String>) -> Self {
+        self.description = Some(desc.into());
+        self
+    }
+
+    /// Add or overwrite an environment variable.
+    pub fn with_env(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.environment.insert(key.into(), value.into());
+        self
+    }
+
+    /// Add a volume mount.
+    pub fn with_volume(mut self, volume: Volume) -> Self {
+        self.volumes.push(volume);
+        self
+    }
+
+    /// Add a published port.
+    pub fn with_port(mut self, port: PortBinding) -> Self {
+        self.ports.push(port);
+        self
+    }
+
+    /// Add a container label.
+    pub fn with_label(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.labels.insert(key.into(), value.into());
+        self
+    }
+
+    /// Set the health check configuration.
+    pub fn with_healthcheck(mut self, healthcheck: HealthCheck) -> Self {
+        self.healthcheck = Some(healthcheck);
+        self
+    }
+
+    /// Set the systemd restart policy.
+    pub fn with_restart(mut self, policy: RestartPolicy) -> Self {
+        self.restart_policy = policy;
+        self
+    }
+
+    /// Set the Podman network name (default: `"fsn"`).
+    pub fn with_network(mut self, network: impl Into<String>) -> Self {
+        self.network = network.into();
+        self
+    }
+
+    /// Set the container user override.
+    pub fn with_user(mut self, user: impl Into<String>) -> Self {
+        self.user = Some(user.into());
+        self
     }
 
     /// The systemd unit name: `"fs-{name}.service"`.
@@ -235,5 +384,42 @@ mod tests {
         assert_eq!(RestartPolicy::Always.as_str(),    "always");
         assert_eq!(RestartPolicy::OnFailure.as_str(), "on-failure");
         assert_eq!(RestartPolicy::No.as_str(),        "no");
+    }
+
+    #[test]
+    fn healthcheck_defaults() {
+        let hc = HealthCheck::new(["curl", "-fs", "http://localhost/health"]);
+        assert_eq!(hc.interval, "30s");
+        assert_eq!(hc.timeout, "10s");
+        assert_eq!(hc.retries, 3);
+        assert_eq!(hc.start_period, "5s");
+        assert_eq!(hc.to_quadlet_cmd(), "curl -fs http://localhost/health");
+    }
+
+    #[test]
+    fn healthcheck_builder() {
+        let hc = HealthCheck::new(["nc", "-z", "localhost", "5432"])
+            .with_interval("60s")
+            .with_retries(5);
+        assert_eq!(hc.interval, "60s");
+        assert_eq!(hc.retries, 5);
+        assert_eq!(hc.timeout, "10s"); // unchanged default
+    }
+
+    #[test]
+    fn service_config_builder() {
+        let svc = ServiceConfig::new("myapp", "example.com/myapp:1.0")
+            .with_description("My app")
+            .with_env("LOG_LEVEL", "debug")
+            .with_volume(Volume::bind("/data", "/data"))
+            .with_port(PortBinding::tcp(8080, 8080))
+            .with_restart(RestartPolicy::OnFailure);
+
+        assert_eq!(svc.description.as_deref(), Some("My app"));
+        assert_eq!(svc.environment.get("LOG_LEVEL").map(String::as_str), Some("debug"));
+        assert_eq!(svc.volumes.len(), 1);
+        assert_eq!(svc.ports.len(), 1);
+        assert_eq!(svc.restart_policy.as_str(), "on-failure");
+        assert_eq!(svc.network, "fsn"); // default unchanged
     }
 }

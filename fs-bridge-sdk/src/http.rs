@@ -41,16 +41,24 @@ impl HttpBridge {
         Ok(Self { config, client })
     }
 
+    /// Shared HTTP request execution: send, check status, decode JSON.
+    async fn send_and_decode<T: DeserializeOwned>(
+        &self,
+        builder: reqwest::RequestBuilder,
+        url: &str,
+        method: &str,
+    ) -> Result<T, FsError> {
+        let resp = builder
+            .send()
+            .await
+            .map_err(|e| FsError::network(format!("{method} {url}: {e}")))?;
+        self.json(resp, url).await
+    }
+
     /// GET `{base_url}/{path}` and deserialize the JSON response body.
     pub async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, FsError> {
         let url = self.url(path);
-        let resp = self
-            .client
-            .get(&url)
-            .send()
-            .await
-            .map_err(|e| FsError::network(format!("GET {url}: {e}")))?;
-        self.json(resp, &url).await
+        self.send_and_decode(self.client.get(&url), &url, "GET").await
     }
 
     /// POST `{base_url}/{path}` with a JSON body and deserialize the JSON response.
@@ -60,14 +68,7 @@ impl HttpBridge {
         body: &B,
     ) -> Result<T, FsError> {
         let url = self.url(path);
-        let resp = self
-            .client
-            .post(&url)
-            .json(body)
-            .send()
-            .await
-            .map_err(|e| FsError::network(format!("POST {url}: {e}")))?;
-        self.json(resp, &url).await
+        self.send_and_decode(self.client.post(&url).json(body), &url, "POST").await
     }
 
     /// PUT `{base_url}/{path}` with a JSON body and deserialize the JSON response.
@@ -77,14 +78,7 @@ impl HttpBridge {
         body: &B,
     ) -> Result<T, FsError> {
         let url = self.url(path);
-        let resp = self
-            .client
-            .put(&url)
-            .json(body)
-            .send()
-            .await
-            .map_err(|e| FsError::network(format!("PUT {url}: {e}")))?;
-        self.json(resp, &url).await
+        self.send_and_decode(self.client.put(&url).json(body), &url, "PUT").await
     }
 
     /// DELETE `{base_url}/{path}`. Returns an error if the response is not successful.

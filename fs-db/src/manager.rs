@@ -124,6 +124,7 @@ impl DbManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::repository::{HostStatus, ModuleStatus, ProjectStatus};
 
     #[tokio::test]
     async fn open_memory_and_migrate() {
@@ -212,7 +213,7 @@ mod tests {
         assert_eq!(h.name, "web-01");
         assert_eq!(h.status, "unknown");
 
-        db.hosts().update_status(h.id, "online").await.unwrap();
+        db.hosts().update_status(h.id, HostStatus::Online).await.unwrap();
         let updated = db.hosts().find_by_id(h.id).await.unwrap().unwrap();
         assert_eq!(updated.status, "online");
 
@@ -239,7 +240,7 @@ mod tests {
 
         let updated = db
             .projects()
-            .update(p.id, "acme", Some("acme.example.com".into()), None, "active")
+            .update(p.id, "acme", Some("acme.example.com".into()), None, ProjectStatus::Active)
             .await
             .unwrap();
         assert_eq!(updated.status, "active");
@@ -271,7 +272,7 @@ mod tests {
         assert_eq!(m.module_type, "proxy");
         assert_eq!(m.status, "stopped");
 
-        db.modules().update_status(m.id, "running").await.unwrap();
+        db.modules().update_status(m.id, ModuleStatus::Running).await.unwrap();
         let found = db.modules().find_by_id(m.id).await.unwrap().unwrap();
         assert_eq!(found.status, "running");
 

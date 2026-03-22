@@ -1,4 +1,8 @@
 //! Main [`I18n`] struct — loads Fluent `.ftl` files and TOML strings, provides translation lookup.
+//!
+//! Typed return values:
+//!   [`Translation`]  — resolved translated text; implements `Display` + `Deref<str>`
+//!   [`LanguageCode`] — a BCP-47 language code; implements `Display` + `Deref<str>`
 
 use std::collections::HashMap;
 use std::path::Path;
@@ -6,6 +10,81 @@ use std::path::Path;
 use fs_error::FsError;
 
 use crate::bundle::LocaleBundle;
+
+// ── Translation ───────────────────────────────────────────────────────────────
+
+/// A resolved, translated string.
+///
+/// Returned by [`I18n::t`] and [`I18n::t_with`] instead of a plain `String`
+/// so callers always work with a typed value.  Access the text via `Display`,
+/// `Deref`, or `as_str()`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Translation(String);
+
+impl Translation {
+    pub(crate) fn new(s: String) -> Self { Self(s) }
+
+    /// Borrows the translated text as a `&str`.
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+
+impl std::fmt::Display for Translation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::ops::Deref for Translation {
+    type Target = str;
+    fn deref(&self) -> &str { &self.0 }
+}
+
+impl AsRef<str> for Translation {
+    fn as_ref(&self) -> &str { &self.0 }
+}
+
+impl PartialEq<str> for Translation {
+    fn eq(&self, other: &str) -> bool { self.0 == other }
+}
+
+impl PartialEq<&str> for Translation {
+    fn eq(&self, other: &&str) -> bool { self.0 == *other }
+}
+
+impl PartialEq<String> for Translation {
+    fn eq(&self, other: &String) -> bool { self.0 == *other }
+}
+
+// ── LanguageCode ──────────────────────────────────────────────────────────────
+
+/// A BCP-47 language code (e.g. `"de"`, `"en"`, `"ar"`).
+///
+/// Returned by [`I18n::lang`] instead of a plain `&str` so callers always
+/// hold a typed value.  Access the code via `Display`, `Deref`, or `as_str()`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LanguageCode(String);
+
+impl LanguageCode {
+    pub(crate) fn new(s: impl Into<String>) -> Self { Self(s.into()) }
+
+    /// Borrows the language code as a `&str`.
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+
+impl std::fmt::Display for LanguageCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::ops::Deref for LanguageCode {
+    type Target = str;
+    fn deref(&self) -> &str { &self.0 }
+}
+
+impl AsRef<str> for LanguageCode {
+    fn as_ref(&self) -> &str { &self.0 }
+}
 
 // ── I18n ──────────────────────────────────────────────────────────────────────
 
@@ -119,34 +198,34 @@ impl I18n {
     }
 
     /// Return the active language code.
-    pub fn lang(&self) -> &str {
-        &self.active_lang
+    pub fn lang(&self) -> LanguageCode {
+        LanguageCode::new(&self.active_lang)
     }
 
     /// Translate a key using the active language.
     ///
     /// Fallback chain:
     /// active Fluent → active TOML → fallback Fluent → fallback TOML → raw key.
-    pub fn t(&self, key: &str) -> String {
+    pub fn t(&self, key: &str) -> Translation {
         // active Fluent
         if let Some(v) = self.bundles.get(&self.active_lang).and_then(|b| b.get(key)) {
-            return v;
+            return Translation::new(v);
         }
         // active TOML
         if let Some(v) = self.toml_maps.get(&self.active_lang).and_then(|m| m.get(key)) {
-            return v.clone();
+            return Translation::new(v.clone());
         }
         if self.active_lang != self.fallback_lang {
             // fallback Fluent
             if let Some(v) = self.bundles.get(&self.fallback_lang).and_then(|b| b.get(key)) {
-                return v;
+                return Translation::new(v);
             }
             // fallback TOML
             if let Some(v) = self.toml_maps.get(&self.fallback_lang).and_then(|m| m.get(key)) {
-                return v.clone();
+                return Translation::new(v.clone());
             }
         }
-        key.to_string()
+        Translation::new(key.to_string())
     }
 
     /// Translate a key with named string arguments.
@@ -161,18 +240,18 @@ impl I18n {
     /// ```rust,ignore
     /// i18n.t_with("phrase-confirm-delete", &[("item", "module")])
     /// ```
-    pub fn t_with(&self, key: &str, args: &[(&str, &str)]) -> String {
+    pub fn t_with(&self, key: &str, args: &[(&str, &str)]) -> Translation {
         // active Fluent
         if let Some(v) = self
             .bundles
             .get(&self.active_lang)
             .and_then(|b| b.get_with_args(key, args))
         {
-            return v;
+            return Translation::new(v);
         }
         // active TOML
         if let Some(template) = self.toml_maps.get(&self.active_lang).and_then(|m| m.get(key)) {
-            return apply_args(template, args);
+            return Translation::new(apply_args(template, args));
         }
         if self.active_lang != self.fallback_lang {
             // fallback Fluent
@@ -181,16 +260,16 @@ impl I18n {
                 .get(&self.fallback_lang)
                 .and_then(|b| b.get_with_args(key, args))
             {
-                return v;
+                return Translation::new(v);
             }
             // fallback TOML
             if let Some(template) =
                 self.toml_maps.get(&self.fallback_lang).and_then(|m| m.get(key))
             {
-                return apply_args(template, args);
+                return Translation::new(apply_args(template, args));
             }
         }
-        key.to_string()
+        Translation::new(key.to_string())
     }
 
     /// Return `true` if the active language bundle contains `key`.

@@ -107,11 +107,7 @@ impl LlmProvider for OpenAiCompatProvider {
         let wire_msgs: Vec<OaiMessage<'_>> = messages
             .iter()
             .map(|m| OaiMessage {
-                role: match m.role {
-                    Role::System    => "system",
-                    Role::User      => "user",
-                    Role::Assistant => "assistant",
-                },
+                role:    m.role.as_str(),
                 content: &m.content,
             })
             .collect();

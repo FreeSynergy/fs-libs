@@ -31,20 +31,11 @@ impl ThemeProvider for TomlTheme {
     }
 
     fn shadow(&self, level: ShadowLevel) -> String {
-        match level {
-            ShadowLevel::Sm => self.0.shadows.sm.clone(),
-            ShadowLevel::Md => self.0.shadows.md.clone(),
-            ShadowLevel::Lg => self.0.shadows.lg.clone(),
-            ShadowLevel::Xl => self.0.shadows.xl.clone(),
-        }
+        level.select_from(&self.0.shadows).to_string()
     }
 
     fn animation(&self, kind: AnimationKind) -> String {
-        match kind {
-            AnimationKind::Fast => format!("{}ms", self.0.animation.fast),
-            AnimationKind::Base => format!("{}ms", self.0.animation.base),
-            AnimationKind::Slow => format!("{}ms", self.0.animation.slow),
-        }
+        format!("{}ms", kind.select_from(&self.0.animation))
     }
 }
 

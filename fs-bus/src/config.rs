@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::error::BusError;
 use crate::message::{DeliveryType, StorageType};
 use crate::topic::topic_matches;
 
@@ -88,16 +89,17 @@ pub struct RoutingConfig {
 
 impl RoutingConfig {
     /// Parse from a TOML string.
-    pub fn from_toml(content: &str) -> Result<Self, String> {
-        let mut cfg: Self = toml::from_str(content).map_err(|e| e.to_string())?;
+    pub fn from_toml(content: &str) -> Result<Self, BusError> {
+        let mut cfg: Self = toml::from_str(content)
+            .map_err(|e| BusError::internal(format!("routing config parse error: {e}")))?;
         cfg.rules.sort_by(|a, b| b.priority.cmp(&a.priority));
         Ok(cfg)
     }
 
     /// Load from a file path.
-    pub fn load(path: &str) -> Result<Self, String> {
+    pub fn load(path: &str) -> Result<Self, BusError> {
         let content = std::fs::read_to_string(path)
-            .map_err(|e| format!("cannot read {path}: {e}"))?;
+            .map_err(|e| BusError::internal(format!("cannot read {path}: {e}")))?;
         Self::from_toml(&content)
     }
 

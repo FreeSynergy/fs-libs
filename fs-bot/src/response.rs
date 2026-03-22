@@ -23,4 +23,13 @@ impl BotResponse {
     pub fn error(msg: impl Into<String>) -> Self {
         Self::Error(msg.into())
     }
+
+    /// Convert into a `ChannelMessage` to send, or `None` for `Silent`.
+    pub fn into_channel_message(self) -> Option<fs_channel::ChannelMessage> {
+        match self {
+            Self::Text(text)  => Some(fs_channel::ChannelMessage::text(text)),
+            Self::Error(text) => Some(fs_channel::ChannelMessage::text(format!("Error: {text}"))),
+            Self::Silent      => None,
+        }
+    }
 }

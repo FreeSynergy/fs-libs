@@ -32,26 +32,15 @@ pub trait Repository {
 // ── RepositoryError ───────────────────────────────────────────────────────────
 
 /// Errors returned by [`RepositoryManager`] operations.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum RepositoryError {
     /// No repository with the given ID exists.
+    #[error("Repository not found: {0}")]
     NotFound(String),
     /// The repository exists but is marked builtin and cannot be removed.
+    #[error("Cannot remove builtin repository: {0}")]
     CannotRemoveBuiltin(String),
 }
-
-impl std::fmt::Display for RepositoryError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::NotFound(id) => write!(f, "Repository not found: {id}"),
-            Self::CannotRemoveBuiltin(id) => {
-                write!(f, "Cannot remove builtin repository: {id}")
-            }
-        }
-    }
-}
-
-impl std::error::Error for RepositoryError {}
 
 // ── RepositoryManager ─────────────────────────────────────────────────────────
 

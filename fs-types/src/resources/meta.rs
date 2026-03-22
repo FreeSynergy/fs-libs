@@ -25,6 +25,27 @@ impl Role {
     pub fn as_str(&self) -> &str {
         &self.0
     }
+
+    /// The minimum set of standard methods that a bridge for this role must map.
+    ///
+    /// A bridge that is missing any of these gets `ValidationStatus::Incomplete`.
+    pub fn required_bridge_methods(&self) -> &'static [&'static str] {
+        match self.0.as_str() {
+            "iam"        => &["user.create", "user.get", "user.list", "user.update", "user.delete",
+                              "group.create", "group.list", "group.add_member"],
+            "wiki"       => &["page.create", "page.get", "page.list", "page.search"],
+            "git"        => &["repo.create", "repo.list", "repo.get", "commit.list"],
+            "chat"       => &["message.send", "channel.list", "channel.get"],
+            "database"   => &["query.execute", "schema.list"],
+            "cache"      => &["key.get", "key.set", "key.delete"],
+            "smtp"       => &["mail.send"],
+            "llm"        => &["completion.create", "model.list"],
+            "map"        => &["tile.get", "search.geocode"],
+            "tasks"      => &["task.create", "task.list", "task.update"],
+            "monitoring" => &["metric.query", "alert.list"],
+            _            => &[],
+        }
+    }
 }
 
 impl std::fmt::Display for Role {
@@ -279,6 +300,30 @@ pub struct ResourceMeta {
 }
 
 impl ResourceMeta {
+    /// Builder: set `name`.
+    pub fn with_name(mut self, name: impl Into<String>) -> Self {
+        self.name = name.into();
+        self
+    }
+
+    /// Builder: set `description`.
+    pub fn with_description(mut self, description: impl Into<String>) -> Self {
+        self.description = description.into();
+        self
+    }
+
+    /// Builder: set `version`.
+    pub fn with_version(mut self, version: impl Into<String>) -> Self {
+        self.version = version.into();
+        self
+    }
+
+    /// Builder: set `tags` (replaces existing).
+    pub fn with_tags(mut self, tags: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.tags = tags.into_iter().map(|t| t.into()).collect();
+        self
+    }
+
     /// Run basic field validation and return an updated status.
     ///
     /// This does **not** verify the cryptographic signature — that requires

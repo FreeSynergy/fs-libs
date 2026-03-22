@@ -41,20 +41,19 @@ pub enum RepairAction {
     },
 }
 
-impl RepairAction {
-    /// Return a human-readable one-line description of this action.
-    pub fn describe(&self) -> String {
+impl std::fmt::Display for RepairAction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             RepairAction::SetDefault { field, value } =>
-                format!("set `{field}` to default `{value}`"),
+                write!(f, "set `{field}` to default `{value}`"),
             RepairAction::Remove { field } =>
-                format!("removed unknown field `{field}`"),
+                write!(f, "removed unknown field `{field}`"),
             RepairAction::Rename { from, to } =>
-                format!("renamed `{from}` → `{to}`"),
+                write!(f, "renamed `{from}` → `{to}`"),
             RepairAction::Trim { field } =>
-                format!("trimmed whitespace in `{field}`"),
+                write!(f, "trimmed whitespace in `{field}`"),
             RepairAction::Insert { field, value } =>
-                format!("inserted `{field}` = `{value}`"),
+                write!(f, "inserted `{field}` = `{value}`"),
         }
     }
 }
@@ -100,15 +99,13 @@ impl RepairOutcome {
         matches!(self, RepairOutcome::AutoRepaired(_) | RepairOutcome::AlreadyValid)
     }
 
-    /// Collect all action descriptions from an `AutoRepaired` outcome.
+    /// Returns the applied repair actions for `AutoRepaired`, otherwise `&[]`.
     ///
-    /// Returns an empty `Vec` for all other variants.
-    pub fn action_summary(&self) -> Vec<String> {
+    /// Each action implements [`Display`](std::fmt::Display) for human-readable output.
+    pub fn actions(&self) -> &[RepairAction] {
         match self {
-            RepairOutcome::AutoRepaired(actions) => {
-                actions.iter().map(|a| a.describe()).collect()
-            }
-            _ => vec![],
+            RepairOutcome::AutoRepaired(actions) => actions,
+            _ => &[],
         }
     }
 }
@@ -150,14 +147,14 @@ mod tests {
     use crate::validation::ValidationIssue;
 
     #[test]
-    fn repair_action_describe() {
+    fn repair_action_display() {
         let a = RepairAction::SetDefault { field: "x".into(), value: "42".into() };
-        assert!(a.describe().contains("x"));
-        assert!(a.describe().contains("42"));
+        assert!(a.to_string().contains("x"));
+        assert!(a.to_string().contains("42"));
 
         let b = RepairAction::Rename { from: "old".into(), to: "new".into() };
-        assert!(b.describe().contains("old"));
-        assert!(b.describe().contains("new"));
+        assert!(b.to_string().contains("old"));
+        assert!(b.to_string().contains("new"));
     }
 
     #[test]
@@ -169,20 +166,19 @@ mod tests {
     }
 
     #[test]
-    fn action_summary_from_auto_repaired() {
+    fn actions_from_auto_repaired() {
         let actions = vec![
             RepairAction::Trim { field: "name".into() },
             RepairAction::Remove { field: "junk".into() },
         ];
         let outcome = RepairOutcome::AutoRepaired(actions);
-        let summary = outcome.action_summary();
-        assert_eq!(summary.len(), 2);
+        assert_eq!(outcome.actions().len(), 2);
     }
 
     #[test]
-    fn action_summary_empty_for_other_variants() {
-        assert!(RepairOutcome::AlreadyValid.action_summary().is_empty());
-        assert!(RepairOutcome::Unrecoverable("x".into()).action_summary().is_empty());
+    fn actions_empty_for_other_variants() {
+        assert!(RepairOutcome::AlreadyValid.actions().is_empty());
+        assert!(RepairOutcome::Unrecoverable("x".into()).actions().is_empty());
     }
 
     struct TrivialConfig { name: String }
@@ -224,7 +220,7 @@ mod tests {
         let outcome = cfg.repair();
         assert_eq!(cfg.name, "default");
         assert!(outcome.is_usable());
-        let summary = outcome.action_summary();
-        assert!(summary[0].contains("default"));
+        let summary = outcome.actions();
+        assert!(summary[0].to_string().contains("default"));
     }
 }

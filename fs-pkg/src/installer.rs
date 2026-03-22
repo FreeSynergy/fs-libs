@@ -25,7 +25,7 @@ use std::process::Command;
 use fs_error::FsError;
 
 use crate::event::{EventBus, InstallEvent, InstallEventKind};
-use crate::manifest::ApiManifest;
+use crate::manifest::{ApiManifest, PackageId};
 
 // ── TemplateVars ──────────────────────────────────────────────────────────────
 
@@ -85,7 +85,7 @@ impl InstallOptions {
 #[derive(Debug, Clone)]
 pub struct InstallOutcome {
     /// Package ID.
-    pub package_id: String,
+    pub package_id: PackageId,
 
     /// Package version.
     pub version: String,

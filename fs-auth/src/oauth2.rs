@@ -84,7 +84,7 @@ impl OAuth2Client {
     /// to prevent CSRF attacks.
     pub fn authorization_url(&self, state: &str) -> String {
         let scopes = self.config.scopes.join(" ");
-        let mut url = format!(
+        let url = format!(
             "{}?response_type=code&client_id={}&redirect_uri={}&scope={}&state={}",
             self.config.auth_url,
             urlencoded(&self.config.client_id),
@@ -120,7 +120,7 @@ impl OAuth2Client {
             .map_err(|e| FsError::network(e.to_string()))?;
 
         if !resp.status().is_success() {
-            let body = resp.text().await.unwrap_or_default();
+            let body = resp.text().await.unwrap_or_else(|_| String::new());
             return Err(FsError::auth(format!("token exchange failed: {body}")));
         }
 
@@ -147,7 +147,7 @@ impl OAuth2Client {
             .map_err(|e| FsError::network(e.to_string()))?;
 
         if !resp.status().is_success() {
-            let body = resp.text().await.unwrap_or_default();
+            let body = resp.text().await.unwrap_or_else(|_| String::new());
             return Err(FsError::auth(format!("token refresh failed: {body}")));
         }
 

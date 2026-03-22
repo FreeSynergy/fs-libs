@@ -6,6 +6,13 @@
 use super::meta::ResourceMeta;
 use serde::{Deserialize, Serialize};
 
+// ── TokenSet trait ────────────────────────────────────────────────────────────
+
+/// Implemented by every CSS token set — checks that no token value is empty.
+pub trait TokenSet {
+    fn is_complete(&self) -> bool;
+}
+
 // ── ColorScheme ───────────────────────────────────────────────────────────────
 
 /// All mandatory CSS colour tokens for a FreeSynergy colour scheme.
@@ -38,9 +45,8 @@ pub struct ColorTokens {
     pub border_focus: String,
 }
 
-impl ColorTokens {
-    /// Validate that no token value is empty.
-    pub fn is_complete(&self) -> bool {
+impl TokenSet for ColorTokens {
+    fn is_complete(&self) -> bool {
         ![
             &self.bg_base, &self.bg_surface, &self.bg_elevated, &self.bg_card,
             &self.bg_input, &self.text_primary, &self.text_secondary, &self.text_muted,
@@ -57,16 +63,6 @@ impl ColorTokens {
 pub struct ColorScheme {
     pub meta: ResourceMeta,
     pub colors: ColorTokens,
-}
-
-impl ColorScheme {
-    /// Validate tokens and update `meta.status`.
-    pub fn validate(&mut self) {
-        self.meta.validate();
-        if !self.colors.is_complete() {
-            self.meta.status = super::meta::ValidationStatus::Broken;
-        }
-    }
 }
 
 // ── StyleResource (G3) ────────────────────────────────────────────────────────
@@ -104,9 +100,8 @@ pub struct StyleTokens {
     pub transition_slow: String,
 }
 
-impl StyleTokens {
-    /// Validate that no token value is empty.
-    pub fn is_complete(&self) -> bool {
+impl TokenSet for StyleTokens {
+    fn is_complete(&self) -> bool {
         ![
             &self.radius_sm, &self.radius, &self.radius_lg,
             &self.spacing_xs, &self.spacing_sm, &self.spacing_md,
@@ -119,7 +114,9 @@ impl StyleTokens {
         .iter()
         .any(|v| v.trim().is_empty())
     }
+}
 
+impl StyleTokens {
     /// Return the default style tokens (matching the FreeSynergy base theme).
     pub fn default_tokens() -> Self {
         Self {
@@ -149,21 +146,11 @@ impl StyleTokens {
 /// Spacing, radius, shadows — the standardized style resource.
 ///
 /// All fields in `StyleTokens` are mandatory.  A missing field causes
-/// `ValidationStatus::Broken`.  This is enforced by `validate()`.
+/// `ValidationStatus::Broken`.  Call [`Validate::validate`] to check.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StyleResource {
     pub meta: ResourceMeta,
     pub style: StyleTokens,
-}
-
-impl StyleResource {
-    /// Validate tokens and update `meta.status`.
-    pub fn validate(&mut self) {
-        self.meta.validate();
-        if !self.style.is_complete() {
-            self.meta.status = super::meta::ValidationStatus::Broken;
-        }
-    }
 }
 
 // ── FontSet ───────────────────────────────────────────────────────────────────
@@ -240,8 +227,8 @@ pub struct ButtonStyleTokens {
     pub hover_transform: String,
 }
 
-impl ButtonStyleTokens {
-    pub fn is_complete(&self) -> bool {
+impl TokenSet for ButtonStyleTokens {
+    fn is_complete(&self) -> bool {
         ![
             &self.border_radius, &self.padding_x, &self.padding_y,
             &self.font_weight, &self.border_width, &self.hover_transform,
@@ -258,15 +245,6 @@ pub struct ButtonStyle {
     pub tokens: ButtonStyleTokens,
 }
 
-impl ButtonStyle {
-    pub fn validate(&mut self) {
-        self.meta.validate();
-        if !self.tokens.is_complete() {
-            self.meta.status = super::meta::ValidationStatus::Broken;
-        }
-    }
-}
-
 // ── WindowChrome ──────────────────────────────────────────────────────────────
 
 /// CSS token overrides for window title bars and resize handles.
@@ -280,8 +258,8 @@ pub struct WindowChromeTokens {
     pub button_minimize_color: String,
 }
 
-impl WindowChromeTokens {
-    pub fn is_complete(&self) -> bool {
+impl TokenSet for WindowChromeTokens {
+    fn is_complete(&self) -> bool {
         ![
             &self.titlebar_height, &self.titlebar_bg, &self.titlebar_text,
             &self.resize_handle_size, &self.button_close_color, &self.button_minimize_color,
@@ -298,15 +276,6 @@ pub struct WindowChrome {
     pub tokens: WindowChromeTokens,
 }
 
-impl WindowChrome {
-    pub fn validate(&mut self) {
-        self.meta.validate();
-        if !self.tokens.is_complete() {
-            self.meta.status = super::meta::ValidationStatus::Broken;
-        }
-    }
-}
-
 // ── AnimationSet ─────────────────────────────────────────────────────────────
 
 /// CSS transition and keyframe animation overrides.
@@ -319,8 +288,8 @@ pub struct AnimationTokens {
     pub keyframes: String,
 }
 
-impl AnimationTokens {
-    pub fn is_complete(&self) -> bool {
+impl TokenSet for AnimationTokens {
+    fn is_complete(&self) -> bool {
         ![&self.transition_fast, &self.transition, &self.transition_slow]
             .iter()
             .any(|v| v.trim().is_empty())
@@ -334,21 +303,13 @@ pub struct AnimationSet {
     pub tokens: AnimationTokens,
 }
 
-impl AnimationSet {
-    pub fn validate(&mut self) {
-        self.meta.validate();
-        if !self.tokens.is_complete() {
-            self.meta.status = super::meta::ValidationStatus::Broken;
-        }
-    }
-}
-
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::resources::meta::{Dependency, ResourceType, ValidationStatus};
+    use crate::resources::validator::Validate;
     use std::path::PathBuf;
 
     fn base_meta(rt: ResourceType) -> ResourceMeta {
@@ -365,6 +326,8 @@ mod tests {
             dependencies: Vec::<Dependency>::new(),
             signature: None,
             status: ValidationStatus::Incomplete,
+            source: None,
+            platform: None,
         }
     }
 

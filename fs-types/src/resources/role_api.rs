@@ -291,14 +291,66 @@ pub struct MetricPoint {
     pub value: f64,
 }
 
+// ── AlertSeverity ─────────────────────────────────────────────────────────────
+
+/// Severity of an active monitoring alert.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AlertSeverity {
+    Critical,
+    Warning,
+    Info,
+}
+
+impl AlertSeverity {
+    /// Human-readable label.
+    pub fn label(self) -> &'static str {
+        match self {
+            AlertSeverity::Critical => "critical",
+            AlertSeverity::Warning  => "warning",
+            AlertSeverity::Info     => "info",
+        }
+    }
+}
+
+// ── AlertState ────────────────────────────────────────────────────────────────
+
+/// Lifecycle state of an active monitoring alert.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AlertState {
+    Firing,
+    Resolved,
+}
+
+impl AlertState {
+    /// Human-readable label.
+    pub fn label(self) -> &'static str {
+        match self {
+            AlertState::Firing   => "firing",
+            AlertState::Resolved => "resolved",
+        }
+    }
+
+    /// `true` when the alert is currently active.
+    pub fn is_active(self) -> bool {
+        matches!(self, AlertState::Firing)
+    }
+}
+
 /// `alert.list` — an active alert.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Alert {
     pub id: String,
     pub name: String,
-    /// "critical", "warning", or "info".
-    pub severity: String,
-    /// "firing" or "resolved".
-    pub state: String,
+    pub severity: AlertSeverity,
+    pub state: AlertState,
     pub message: String,
+}
+
+impl Alert {
+    /// `true` when this alert is currently firing.
+    pub fn is_active(&self) -> bool {
+        self.state.is_active()
+    }
 }

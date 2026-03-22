@@ -9,14 +9,15 @@ pub enum IssueSeverity {
     Error,
 }
 
-impl IssueSeverity {
-    /// Single-character indicator for compact display.
-    pub fn indicator(self) -> &'static str {
-        match self {
+impl std::fmt::Display for IssueSeverity {
+    /// Renders the compact single-character indicator: `i`, `⚠`, or `✗`.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
             IssueSeverity::Info    => "i",
             IssueSeverity::Warning => "⚠",
             IssueSeverity::Error   => "✗",
-        }
+        };
+        f.write_str(s)
     }
 }
 
@@ -64,9 +65,9 @@ mod tests {
 
     #[test]
     fn indicator_chars() {
-        assert_eq!(IssueSeverity::Info.indicator(), "i");
-        assert_eq!(IssueSeverity::Warning.indicator(), "⚠");
-        assert_eq!(IssueSeverity::Error.indicator(), "✗");
+        assert_eq!(IssueSeverity::Info.to_string(), "i");
+        assert_eq!(IssueSeverity::Warning.to_string(), "⚠");
+        assert_eq!(IssueSeverity::Error.to_string(), "✗");
     }
 
     #[test]

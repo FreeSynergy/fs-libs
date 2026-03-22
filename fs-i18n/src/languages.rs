@@ -19,17 +19,19 @@ pub enum TextDirection {
 }
 
 impl TextDirection {
-    /// Returns `"ltr"` or `"rtl"`.
-    pub fn as_str(self) -> &'static str {
-        match self {
-            TextDirection::Ltr => "ltr",
-            TextDirection::Rtl => "rtl",
-        }
-    }
-
     /// Returns `true` for right-to-left languages.
     pub fn is_rtl(self) -> bool {
         matches!(self, TextDirection::Rtl)
+    }
+}
+
+impl std::fmt::Display for TextDirection {
+    /// Renders `"ltr"` or `"rtl"`.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TextDirection::Ltr => f.write_str("ltr"),
+            TextDirection::Rtl => f.write_str("rtl"),
+        }
     }
 }
 
@@ -134,7 +136,7 @@ mod tests {
         let m = language_meta("ar").unwrap();
         assert_eq!(m.name, "Arabic");
         assert!(m.is_rtl());
-        assert_eq!(m.direction.as_str(), "rtl");
+        assert_eq!(m.direction.to_string(), "rtl");
     }
 
     #[test]

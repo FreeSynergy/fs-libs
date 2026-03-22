@@ -46,7 +46,7 @@ pub use resources::{
     StyleResource, WidgetResource, WindowChrome,
     Dependency, PackageSource, ResourceMeta, ResourceType, Role, ValidationStatus,
     OsFamily, PlatformFilter, RequiredFeature, platform_filter_from_tags,
-    Validate, required_methods_for_role,
+    Validate,
 };
 pub use type_system::{ContainerPurpose, ServiceType, TypeEntry, TypeRegistry};
 

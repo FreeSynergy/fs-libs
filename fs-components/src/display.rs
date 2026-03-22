@@ -138,13 +138,7 @@ pub struct ProgressProps {
 pub fn Progress(props: ProgressProps) -> Element {
     let pct = (props.value.clamp(0.0, 1.0) * 100.0) as u32;
 
-    let fill_color = match props.variant {
-        BadgeVariant::Default => "var(--fs-color-text-secondary, #94a3b8)",
-        BadgeVariant::Success => "#22c55e",
-        BadgeVariant::Warning => "#f59e0b",
-        BadgeVariant::Error   => "#ef4444",
-        BadgeVariant::Info    => "var(--fs-color-primary, #06b6d4)",
-    };
+    let fill_color = props.variant.fill_color();
 
     rsx! {
         div {

@@ -208,27 +208,52 @@ pub fn forgejo_git_bridge() -> BridgeResource {
 
 // ── BuiltinCatalog ────────────────────────────────────────────────────────────
 
+/// Factory function type for a built-in bridge.
+type BridgeFactory = fn() -> BridgeResource;
+
+/// A registration entry: bridge ID paired with its factory function.
+struct BridgeEntry {
+    id: &'static str,
+    factory: BridgeFactory,
+}
+
+impl BridgeEntry {
+    const fn new(id: &'static str, factory: BridgeFactory) -> Self {
+        Self { id, factory }
+    }
+}
+
+/// All built-in bridges registered in one place.
+///
+/// To add a new bridge: append a `BridgeEntry` here — no `match` arm required.
+static BUILTIN_BRIDGES: &[BridgeEntry] = &[
+    BridgeEntry::new("kanidm-iam-bridge",   kanidm_iam_bridge),
+    BridgeEntry::new("outline-wiki-bridge", outline_wiki_bridge),
+    BridgeEntry::new("forgejo-git-bridge",  forgejo_git_bridge),
+];
+
 /// The default [`BridgeCatalog`] — serves the three built-in bridge definitions.
 ///
 /// Used by [`super::BridgeDispatcher::new`]. Custom catalogs can be plugged in
 /// via [`super::BridgeDispatcher::with_catalog`].
+///
+/// Adding a new bridge requires only appending to [`BUILTIN_BRIDGES`]; no
+/// `match` arm needs to be touched.
 pub struct BuiltinCatalog;
 
 impl BridgeCatalog for BuiltinCatalog {
     fn load(&self, bridge_id: &str) -> Option<BridgeResource> {
-        match bridge_id {
-            "kanidm-iam-bridge"   => Some(kanidm_iam_bridge()),
-            "outline-wiki-bridge" => Some(outline_wiki_bridge()),
-            "forgejo-git-bridge"  => Some(forgejo_git_bridge()),
-            _                     => None,
-        }
+        BUILTIN_BRIDGES
+            .iter()
+            .find(|e| e.id == bridge_id)
+            .map(|e| (e.factory)())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fs_types::resources::validator::{required_methods_for_role, Validate};
+    use fs_types::resources::{validator::Validate, meta::Role};
 
     #[test]
     fn kanidm_bridge_validates_ok() {
@@ -254,7 +279,7 @@ mod tests {
     #[test]
     fn kanidm_bridge_has_all_required_iam_methods() {
         let b = kanidm_iam_bridge();
-        let required = required_methods_for_role("iam");
+        let required = Role::new("iam").required_bridge_methods();
         let mapped: std::collections::HashSet<&str> =
             b.methods.iter().map(|m| m.standard_name.as_str()).collect();
         for req in required {
@@ -265,7 +290,7 @@ mod tests {
     #[test]
     fn outline_bridge_has_all_required_wiki_methods() {
         let b = outline_wiki_bridge();
-        let required = required_methods_for_role("wiki");
+        let required = Role::new("wiki").required_bridge_methods();
         let mapped: std::collections::HashSet<&str> =
             b.methods.iter().map(|m| m.standard_name.as_str()).collect();
         for req in required {
@@ -276,7 +301,7 @@ mod tests {
     #[test]
     fn forgejo_bridge_has_all_required_git_methods() {
         let b = forgejo_git_bridge();
-        let required = required_methods_for_role("git");
+        let required = Role::new("git").required_bridge_methods();
         let mapped: std::collections::HashSet<&str> =
             b.methods.iter().map(|m| m.standard_name.as_str()).collect();
         for req in required {

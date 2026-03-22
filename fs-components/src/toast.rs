@@ -36,22 +36,14 @@ impl ToastEntry {
         }
     }
 
+    /// CSS `border-left` declaration for this entry's severity — delegates to `ToastLevel`.
     fn level_style(&self) -> &'static str {
-        match self.level {
-            ToastLevel::Info    => "border-left: 3px solid #06b6d4;",
-            ToastLevel::Success => "border-left: 3px solid #22c55e;",
-            ToastLevel::Warning => "border-left: 3px solid #f59e0b;",
-            ToastLevel::Error   => "border-left: 3px solid #ef4444;",
-        }
+        self.level.border_css()
     }
 
+    /// Unicode icon for this entry's severity — delegates to `ToastLevel`.
     fn level_icon(&self) -> &'static str {
-        match self.level {
-            ToastLevel::Info    => "ℹ",
-            ToastLevel::Success => "✓",
-            ToastLevel::Warning => "⚠",
-            ToastLevel::Error   => "✗",
-        }
+        self.level.icon()
     }
 }
 

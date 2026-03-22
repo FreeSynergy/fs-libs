@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use fs_bus::{BusError, Event, TopicHandler};
-use fs_channel::{Channel, ChannelMessage, IncomingMessage};
+use fs_channel::{Channel, IncomingMessage};
 use tracing::{debug, warn};
 
 use crate::context::CommandContext;
@@ -94,18 +94,10 @@ impl BotRouter {
             None    => return,
         };
 
-        match response {
-            BotResponse::Text(text) => {
-                if let Err(e) = self.channel.send(&msg.room_id, ChannelMessage::text(text)).await {
-                    warn!("BotRouter: send failed: {e}");
-                }
+        if let Some(msg_out) = response.into_channel_message() {
+            if let Err(e) = self.channel.send(&msg.room_id, msg_out).await {
+                warn!("BotRouter: send failed: {e}");
             }
-            BotResponse::Error(text) => {
-                if let Err(e) = self.channel.send(&msg.room_id, ChannelMessage::text(format!("Error: {text}"))).await {
-                    warn!("BotRouter: error send failed: {e}");
-                }
-            }
-            BotResponse::Silent => {}
         }
     }
 }

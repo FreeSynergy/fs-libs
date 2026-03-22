@@ -20,6 +20,56 @@ use serde::{Deserialize, Serialize};
 use crate::channel::ReleaseChannel;
 use crate::oci::OciRef;
 
+// ── PackageId ─────────────────────────────────────────────────────────────────
+
+/// A unique package identifier (e.g. `"proxy/zentinel"`, `"iam/kanidm"`).
+///
+/// Wraps a `String` to ensure all package IDs are typed values rather than
+/// plain strings.  Access the underlying text via `Display`, `Deref`, or
+/// `as_str()`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct PackageId(String);
+
+impl PackageId {
+    /// Construct a `PackageId` from any string-like value.
+    pub fn new(s: impl Into<String>) -> Self { Self(s.into()) }
+
+    /// Borrows the identifier as a `&str`.
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+
+impl std::fmt::Display for PackageId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::ops::Deref for PackageId {
+    type Target = str;
+    fn deref(&self) -> &str { &self.0 }
+}
+
+impl AsRef<str> for PackageId {
+    fn as_ref(&self) -> &str { &self.0 }
+}
+
+impl From<String> for PackageId {
+    fn from(s: String) -> Self { Self(s) }
+}
+
+impl From<&str> for PackageId {
+    fn from(s: &str) -> Self { Self(s.to_owned()) }
+}
+
+impl PartialEq<str> for PackageId {
+    fn eq(&self, other: &str) -> bool { self.0 == other }
+}
+
+impl<'a> From<&'a PackageId> for PackageId {
+    fn from(id: &'a PackageId) -> Self { id.clone() }
+}
+
 // ── PackageType ───────────────────────────────────────────────────────────────
 
 /// The category of a FreeSynergy package — determines how it is installed and managed.
@@ -47,10 +97,9 @@ pub enum PackageType {
     Task,
 }
 
-impl PackageType {
-    /// Return the snake_case string representation.
-    pub fn as_str(self) -> &'static str {
-        match self {
+impl std::fmt::Display for PackageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
             Self::App       => "app",
             Self::Container => "container",
             Self::Bundle    => "bundle",
@@ -60,13 +109,8 @@ impl PackageType {
             Self::Bot       => "bot",
             Self::Bridge    => "bridge",
             Self::Task      => "task",
-        }
-    }
-}
-
-impl std::fmt::Display for PackageType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
+        };
+        f.write_str(s)
     }
 }
 
@@ -159,7 +203,7 @@ impl ApiManifest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PackageMeta {
     /// Unique identifier (e.g. `"proxy/zentinel"`).
-    pub id: String,
+    pub id: PackageId,
 
     /// Display name.
     pub name: String,
@@ -368,7 +412,7 @@ capabilities  = ["podman", "systemd"]
     #[test]
     fn parse_full() {
         let m = ApiManifest::from_toml(FULL_TOML).unwrap();
-        assert_eq!(m.package.id, "proxy/zentinel");
+        assert_eq!(*m.package.id, "proxy/zentinel");
         assert_eq!(m.package.tags, vec!["proxy", "tls"]);
 
         // Source

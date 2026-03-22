@@ -17,38 +17,46 @@ pub enum HealthLevel {
     Error,
 }
 
-impl HealthLevel {
-    /// Single-character Unicode indicator for compact TUI display.
-    pub fn indicator(self) -> &'static str {
-        match self {
-            HealthLevel::Ok      => "✓",
-            HealthLevel::Warning => "⚠",
-            HealthLevel::Error   => "✗",
-        }
-    }
+/// All presentation metadata for a [`HealthLevel`] in one place.
+pub struct LevelData {
+    pub indicator: &'static str,
+    pub text:      &'static str,
+    pub i18n_key:  &'static str,
+}
 
-    /// Plain-text label for accessibility / screenreaders.
-    pub fn indicator_text(self) -> &'static str {
-        match self {
-            HealthLevel::Ok      => "ok",
-            HealthLevel::Warning => "warning",
-            HealthLevel::Error   => "error",
-        }
-    }
-
-    /// Combined indicator: `"✓ (ok)"`.
-    pub fn indicator_with_text(self) -> String {
+/// OOP interface for health-level presentation metadata.
+///
+/// Consolidates `indicator`, `indicator_text`, and `i18n_key` into a single
+/// `match` in `level_data()` — no duplicate match blocks.
+pub trait LevelMeta {
+    fn level_data(&self) -> LevelData;
+    fn indicator(&self) -> &'static str      { self.level_data().indicator }
+    fn indicator_text(&self) -> &'static str { self.level_data().text }
+    fn i18n_key(&self) -> &'static str       { self.level_data().i18n_key }
+    fn indicator_with_text(&self) -> String {
         format!("{} ({})", self.indicator(), self.indicator_text())
     }
+}
 
-    /// i18n key for the level label.
-    pub fn i18n_key(self) -> &'static str {
+impl LevelMeta for HealthLevel {
+    fn level_data(&self) -> LevelData {
         match self {
-            HealthLevel::Ok      => "health.ok",
-            HealthLevel::Warning => "health.warning",
-            HealthLevel::Error   => "health.error",
+            HealthLevel::Ok      => LevelData { indicator: "✓", text: "ok",      i18n_key: "health.ok"      },
+            HealthLevel::Warning => LevelData { indicator: "⚠", text: "warning", i18n_key: "health.warning" },
+            HealthLevel::Error   => LevelData { indicator: "✗", text: "error",   i18n_key: "health.error"   },
         }
     }
+}
+
+impl HealthLevel {
+    /// Single-character Unicode indicator for compact TUI display.
+    pub fn indicator(self) -> &'static str      { LevelMeta::indicator(&self) }
+    /// Plain-text label for accessibility / screenreaders.
+    pub fn indicator_text(self) -> &'static str { LevelMeta::indicator_text(&self) }
+    /// i18n key for the level label.
+    pub fn i18n_key(self) -> &'static str       { LevelMeta::i18n_key(&self) }
+    /// Combined indicator: `"✓ (ok)"`.
+    pub fn indicator_with_text(self) -> String  { LevelMeta::indicator_with_text(&self) }
 
     /// `true` when the level indicates the resource is fully operational.
     pub fn is_ok(self) -> bool {

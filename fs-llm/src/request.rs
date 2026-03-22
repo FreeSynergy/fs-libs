@@ -27,6 +27,17 @@ pub struct Message {
     pub content: String,
 }
 
+impl Role {
+    /// Return the wire string used by OpenAI-compatible and Ollama APIs.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::System    => "system",
+            Self::User      => "user",
+            Self::Assistant => "assistant",
+        }
+    }
+}
+
 impl Message {
     /// Create a system-role message.
     pub fn system(content: impl Into<String>) -> Self {

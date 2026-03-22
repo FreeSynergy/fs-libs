@@ -32,7 +32,7 @@ pub use channel::ReleaseChannel;
 pub use dependency_resolver::{DepGraph, PackageDep, ResolutionError};
 pub use event::{EventBus, InstallEvent, InstallHook};
 pub use installer::{InstallOptions, InstallOutcome, PackageInstaller};
-pub use manifest::{ApiManifest, BundleManifest, PackageFiles, PackageHooks, PackageMeta, PackageRequires, PackageType};
+pub use manifest::{ApiManifest, BundleManifest, PackageFiles, PackageHooks, PackageId, PackageMeta, PackageRequires, PackageType};
 pub use oci::OciRef;
 pub use scaling::{InstanceRole, ScalingDialog, ScalingManifest, WorkerMode};
 pub use signing::{SignaturePolicy, SignatureVerifier, VerifyOutcome};

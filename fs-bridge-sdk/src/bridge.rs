@@ -18,6 +18,19 @@ pub struct BridgeInfo {
     pub healthy: bool,
 }
 
+impl BridgeInfo {
+    /// Returns `true` when the service was reported as reachable and healthy.
+    pub fn is_healthy(&self) -> bool {
+        self.healthy
+    }
+
+    /// Human-readable summary: `"<service_id> <version> @ <base_url> (healthy/unreachable)"`.
+    pub fn summary(&self) -> String {
+        let health = if self.healthy { "healthy" } else { "unreachable" };
+        format!("{} {} @ {} ({})", self.service_id, self.version, self.base_url, health)
+    }
+}
+
 // ── BridgeConfig ──────────────────────────────────────────────────────────────
 
 /// Configuration for an HTTP-based bridge.
@@ -81,8 +94,8 @@ pub trait Bridge: Send + Sync {
 /// Object-safe version of [`Bridge`] using boxed futures.
 ///
 /// Use this when you need `dyn ProbableBridge` (e.g. in [`super::registry::BridgeRegistry`]).
-/// Implement `Bridge` for your concrete type, then blanket-impl `ProbableBridge` automatically
-/// via the provided blanket impl, or implement it manually.
+/// Types that already implement [`Bridge`] receive this automatically via the
+/// blanket impl below — no manual implementation required.
 pub trait ProbableBridge: Send + Sync {
     /// Unique service identifier, e.g. `"forgejo"`.
     fn service_id(&self) -> &str;
@@ -94,4 +107,28 @@ pub trait ProbableBridge: Send + Sync {
     fn probe(
         &self,
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<BridgeInfo, FsError>> + Send + '_>>;
+}
+
+// ── Blanket impl: Bridge → ProbableBridge ─────────────────────────────────────
+
+/// Any type implementing [`Bridge`] automatically satisfies [`ProbableBridge`].
+///
+/// This eliminates the DRY violation of having to implement both traits on every
+/// concrete bridge type.  Implementing [`Bridge`] (the RPITIT version) is
+/// sufficient; the registry and other object-safe consumers see [`ProbableBridge`].
+impl<T: Bridge> ProbableBridge for T {
+    fn service_id(&self) -> &str {
+        Bridge::service_id(self)
+    }
+
+    fn base_url(&self) -> &str {
+        Bridge::base_url(self)
+    }
+
+    fn probe(
+        &self,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<BridgeInfo, FsError>> + Send + '_>>
+    {
+        Box::pin(Bridge::probe(self))
+    }
 }

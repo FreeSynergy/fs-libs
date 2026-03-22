@@ -37,6 +37,25 @@ pub struct PublishedEvent {
     pub handler_results: Vec<Result<(), BusError>>,
 }
 
+impl PublishedEvent {
+    /// Returns `true` if any handler returned an error.
+    pub fn has_errors(&self) -> bool {
+        self.handler_results.iter().any(|r| r.is_err())
+    }
+
+    /// Collect all handler errors.
+    pub fn errors(&self) -> Vec<&BusError> {
+        self.handler_results.iter()
+            .filter_map(|r| r.as_ref().err())
+            .collect()
+    }
+
+    /// Returns `true` if the event was delivered to at least one subscription.
+    pub fn was_delivered(&self) -> bool {
+        !self.delivered_to.is_empty()
+    }
+}
+
 // ── MessageBus ────────────────────────────────────────────────────────────────
 
 /// The main bus: publish events, manage subscriptions, fire standing orders.
@@ -73,13 +92,13 @@ impl MessageBus {
     // ── Configuration ──────────────────────────────────────────────────────────
 
     /// Load routing rules from a TOML string. Replaces existing config.
-    pub fn load_config_toml(&mut self, toml: &str) -> Result<(), String> {
+    pub fn load_config_toml(&mut self, toml: &str) -> Result<(), BusError> {
         self.config = RoutingConfig::from_toml(toml)?;
         Ok(())
     }
 
     /// Load routing rules from a file. Replaces existing config.
-    pub fn load_config_file(&mut self, path: &str) -> Result<(), String> {
+    pub fn load_config_file(&mut self, path: &str) -> Result<(), BusError> {
         self.config = RoutingConfig::load(path)?;
         Ok(())
     }

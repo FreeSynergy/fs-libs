@@ -8,13 +8,14 @@
 //   VersionManager  — list / activate / rollback / prune old versions
 
 use crate::channel::ReleaseChannel;
+use crate::manifest::PackageId;
 use serde::{Deserialize, Serialize};
 
 /// A single installed version snapshot.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VersionRecord {
     /// Package identifier.
-    pub package_id: String,
+    pub package_id: PackageId,
     /// Semver version string.
     pub version: String,
     /// Release channel this version came from.
@@ -49,7 +50,7 @@ impl VersionManager {
         let mut v: Vec<&VersionRecord> = self
             .records
             .iter()
-            .filter(|r| r.package_id == package_id)
+            .filter(|r| *r.package_id == *package_id)
             .collect();
         v.sort_by(|a, b| b.installed_at.cmp(&a.installed_at));
         v
@@ -59,7 +60,7 @@ impl VersionManager {
     pub fn active_version(&self, package_id: &str) -> Option<&VersionRecord> {
         self.records
             .iter()
-            .find(|r| r.package_id == package_id && r.active)
+            .find(|r| *r.package_id == *package_id && r.active)
     }
 
     /// Register a new installation. Marks it active, deactivates any previous active version.
@@ -76,17 +77,17 @@ impl VersionManager {
     /// Roll back to a specific version string. Returns `Err` if the version isn't found.
     pub fn rollback(&mut self, package_id: &str, target_version: &str) -> Result<(), RollbackError> {
         let target_exists = self.records.iter().any(|r| {
-            r.package_id == package_id && r.version == target_version
+            *r.package_id == *package_id && r.version == target_version
         });
         if !target_exists {
             return Err(RollbackError::VersionNotFound {
-                package_id: package_id.to_string(),
+                package_id: PackageId::new(package_id),
                 version:    target_version.to_string(),
             });
         }
 
         for r in &mut self.records {
-            if r.package_id == package_id {
+            if *r.package_id == *package_id {
                 r.active = r.version == target_version;
             }
         }
@@ -99,14 +100,14 @@ impl VersionManager {
             let mut v: Vec<&VersionRecord> = self
                 .records
                 .iter()
-                .filter(|r| r.package_id == package_id)
+                .filter(|r| *r.package_id == *package_id)
                 .collect();
             v.sort_by(|a, b| b.installed_at.cmp(&a.installed_at));
             v.iter().map(|r| r.version.clone()).collect()
         };
 
         match versions.as_slice() {
-            [] | [_] => Err(RollbackError::NoPreviousVersion { package_id: package_id.to_string() }),
+            [] | [_] => Err(RollbackError::NoPreviousVersion { package_id: PackageId::new(package_id) }),
             [_current, prev, ..] => self.rollback(package_id, prev),
         }
     }
@@ -117,7 +118,7 @@ impl VersionManager {
             .records
             .iter()
             .enumerate()
-            .filter(|(_, r)| r.package_id == package_id && !r.active)
+            .filter(|(_, r)| *r.package_id == *package_id && !r.active)
             .map(|(i, _)| i)
             .collect();
 
@@ -127,7 +128,7 @@ impl VersionManager {
         let to_remove = inactive.len().saturating_sub(keep);
         let mut removed = 0;
         self.records.retain(|r| {
-            if r.package_id == package_id && !r.active && removed < to_remove {
+            if *r.package_id == *package_id && !r.active && removed < to_remove {
                 removed += 1;
                 false
             } else {
@@ -141,9 +142,9 @@ impl VersionManager {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RollbackError {
     /// The requested version is not in the version history.
-    VersionNotFound { package_id: String, version: String },
+    VersionNotFound { package_id: PackageId, version: String },
     /// Only one version is installed — cannot roll back.
-    NoPreviousVersion { package_id: String },
+    NoPreviousVersion { package_id: PackageId },
 }
 
 impl std::fmt::Display for RollbackError {

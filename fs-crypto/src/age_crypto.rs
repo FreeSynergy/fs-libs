@@ -5,6 +5,34 @@ use std::io::{Read, Write};
 use age::secrecy::ExposeSecret;
 use fs_error::FsError;
 
+// ── Shared helper ─────────────────────────────────────────────────────────────
+
+/// Wrap an already-configured `age::Encryptor` with ASCII armor, write `plaintext`, and
+/// finalize — returns the armored ciphertext bytes.
+fn finish_armored_write(encryptor: age::Encryptor, plaintext: &[u8]) -> Result<Vec<u8>, FsError> {
+    let mut output = Vec::new();
+    let armored = age::armor::ArmoredWriter::wrap_output(
+        &mut output,
+        age::armor::Format::AsciiArmor,
+    )
+    .map_err(|e| FsError::internal(format!("age armored writer failed: {e}")))?;
+
+    let mut writer = encryptor
+        .wrap_output(armored)
+        .map_err(|e| FsError::internal(format!("age wrap_output failed: {e}")))?;
+
+    writer
+        .write_all(plaintext)
+        .map_err(|e| FsError::internal(format!("age write failed: {e}")))?;
+
+    writer
+        .finish()
+        .and_then(|w| w.finish())
+        .map_err(|e| FsError::internal(format!("age finish failed: {e}")))?;
+
+    Ok(output)
+}
+
 // ── AgeEncryptor ──────────────────────────────────────────────────────────────
 
 /// Encrypts data using the age encryption format.
@@ -29,28 +57,7 @@ impl AgeEncryptor {
         let encryptor =
             age::Encryptor::with_recipients(std::iter::once(&recipient as &dyn age::Recipient))
                 .map_err(|e| FsError::internal(format!("age encryptor init failed: {e}")))?;
-
-        let mut output = Vec::new();
-        let armored = age::armor::ArmoredWriter::wrap_output(
-            &mut output,
-            age::armor::Format::AsciiArmor,
-        )
-        .map_err(|e| FsError::internal(format!("age armored writer failed: {e}")))?;
-
-        let mut writer = encryptor
-            .wrap_output(armored)
-            .map_err(|e| FsError::internal(format!("age wrap_output failed: {e}")))?;
-
-        writer
-            .write_all(plaintext)
-            .map_err(|e| FsError::internal(format!("age write failed: {e}")))?;
-
-        writer
-            .finish()
-            .and_then(|w| w.finish())
-            .map_err(|e| FsError::internal(format!("age finish failed: {e}")))?;
-
-        Ok(output)
+        finish_armored_write(encryptor, plaintext)
     }
 }
 
@@ -110,28 +117,7 @@ impl AgePassphraseEncryptor {
     /// Encrypt `plaintext` with the configured passphrase. Returns armored ASCII output.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, FsError> {
         let encryptor = age::Encryptor::with_user_passphrase(self.passphrase.clone());
-
-        let mut output = Vec::new();
-        let armored = age::armor::ArmoredWriter::wrap_output(
-            &mut output,
-            age::armor::Format::AsciiArmor,
-        )
-        .map_err(|e| FsError::internal(format!("age armored writer failed: {e}")))?;
-
-        let mut writer = encryptor
-            .wrap_output(armored)
-            .map_err(|e| FsError::internal(format!("age wrap_output failed: {e}")))?;
-
-        writer
-            .write_all(plaintext)
-            .map_err(|e| FsError::internal(format!("age write failed: {e}")))?;
-
-        writer
-            .finish()
-            .and_then(|w| w.finish())
-            .map_err(|e| FsError::internal(format!("age finish failed: {e}")))?;
-
-        Ok(output)
+        finish_armored_write(encryptor, plaintext)
     }
 }
 

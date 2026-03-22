@@ -2,6 +2,8 @@
 ///
 /// Each repository wraps a reference to a [`sea_orm::DatabaseConnection`] and
 /// provides typed async methods for the corresponding table.
+use std::fmt;
+
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
     Order, QueryFilter, QueryOrder, QuerySelect,
@@ -17,6 +19,127 @@ fn unix_now() -> i64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs() as i64)
         .unwrap_or(0)
+}
+
+// ── CrudRepo trait ────────────────────────────────────────────────────────────
+
+/// Common CRUD operations shared by every database repository.
+///
+/// All concrete repositories in this module implement this trait.
+/// Use it for generic code that operates across repository types.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// async fn remove_any<R: CrudRepo>(repo: &R, id: i64) -> Result<(), FsError> {
+///     repo.delete_by_id(id).await
+/// }
+/// ```
+#[allow(async_fn_in_trait)]
+pub trait CrudRepo {
+    /// The SeaORM model type this repository operates on.
+    type Model: Send;
+
+    /// Find a record by its primary key. Returns `None` if not found.
+    async fn find_by_id(&self, id: i64) -> Result<Option<Self::Model>, FsError>;
+
+    /// Delete a record by its primary key.
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError>;
+}
+
+// ── Status types ──────────────────────────────────────────────────────────────
+
+/// Operational status of a managed host.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum HostStatus {
+    /// Status not yet known — assigned on registration.
+    #[default]
+    Unknown,
+    /// Host is reachable and healthy.
+    Online,
+    /// Host is unreachable.
+    Offline,
+    /// Host is reachable but reports degraded health.
+    Degraded,
+}
+
+impl HostStatus {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Unknown  => "unknown",
+            Self::Online   => "online",
+            Self::Offline  => "offline",
+            Self::Degraded => "degraded",
+        }
+    }
+}
+
+impl fmt::Display for HostStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+/// Lifecycle status of a deployed module.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ModuleStatus {
+    /// Module process is not running — initial state after registration.
+    #[default]
+    Stopped,
+    /// Module is in the process of starting up.
+    Starting,
+    /// Module is fully running and healthy.
+    Running,
+    /// Module is shutting down gracefully.
+    Stopping,
+    /// Module exited with an error.
+    Failed,
+}
+
+impl ModuleStatus {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Stopped  => "stopped",
+            Self::Starting => "starting",
+            Self::Running  => "running",
+            Self::Stopping => "stopping",
+            Self::Failed   => "failed",
+        }
+    }
+}
+
+impl fmt::Display for ModuleStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+/// Lifecycle status of a project.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ProjectStatus {
+    /// Project is being set up — initial state.
+    #[default]
+    Draft,
+    /// Project is live and actively managed.
+    Active,
+    /// Project has been archived and is read-only.
+    Archived,
+}
+
+impl ProjectStatus {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Draft    => "draft",
+            Self::Active   => "active",
+            Self::Archived => "archived",
+        }
+    }
+}
+
+impl fmt::Display for ProjectStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
 }
 
 // ── ResourceRepo ──────────────────────────────────────────────────────────────
@@ -58,14 +181,6 @@ impl<'a> ResourceRepo<'a> {
             .map_err(|e| FsError::internal(format!("ResourceRepo::insert: {e}")))
     }
 
-    /// Find a resource by its primary key.
-    pub async fn find_by_id(&self, id: i64) -> Result<Option<resource::Model>, FsError> {
-        resource::Entity::find_by_id(id)
-            .one(self.conn)
-            .await
-            .map_err(|e| FsError::internal(format!("ResourceRepo::find_by_id: {e}")))
-    }
-
     /// List all resources of a given kind.
     pub async fn find_by_kind(&self, kind: &str) -> Result<Vec<resource::Model>, FsError> {
         resource::Entity::find()
@@ -102,9 +217,19 @@ impl<'a> ResourceRepo<'a> {
             .await
             .map_err(|e| FsError::internal(format!("ResourceRepo::update: {e}")))
     }
+}
 
-    /// Delete a resource by its primary key.
-    pub async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+impl CrudRepo for ResourceRepo<'_> {
+    type Model = resource::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<resource::Model>, FsError> {
+        resource::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("ResourceRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
         resource::Entity::delete_by_id(id)
             .exec(self.conn)
             .await
@@ -173,6 +298,21 @@ impl<'a> PermissionRepo<'a> {
     }
 }
 
+impl CrudRepo for PermissionRepo<'_> {
+    type Model = permission::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<permission::Model>, FsError> {
+        permission::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("PermissionRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+        self.revoke(id).await
+    }
+}
+
 // ── AuditRepo ─────────────────────────────────────────────────────────────────
 
 /// Append-only repository for the `audit_logs` table.
@@ -232,6 +372,25 @@ impl<'a> AuditRepo<'a> {
             .all(self.conn)
             .await
             .map_err(|e| FsError::internal(format!("AuditRepo::find_for_resource: {e}")))
+    }
+}
+
+impl CrudRepo for AuditRepo<'_> {
+    type Model = audit_log::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<audit_log::Model>, FsError> {
+        audit_log::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("AuditRepo::find_by_id: {e}")))
+    }
+
+    /// Audit logs are immutable — this always returns `Ok(())` without deleting.
+    ///
+    /// Audit entries must never be removed to preserve the audit trail.
+    /// Use archival or retention policies at the database level instead.
+    async fn delete_by_id(&self, _id: i64) -> Result<(), FsError> {
+        Ok(())
     }
 }
 
@@ -329,9 +488,19 @@ impl<'a> PluginRepo<'a> {
             .map(|_| ())
             .map_err(|e| FsError::internal(format!("PluginRepo::set_enabled: {e}")))
     }
+}
 
-    /// Remove a plugin registration by its primary key.
-    pub async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+impl CrudRepo for PluginRepo<'_> {
+    type Model = plugin::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<plugin::Model>, FsError> {
+        plugin::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("PluginRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
         plugin::Entity::delete_by_id(id)
             .exec(self.conn)
             .await
@@ -368,7 +537,7 @@ impl<'a> HostRepo<'a> {
             fqdn: Set(fqdn.into()),
             ip_address: Set(ip_address.into()),
             ssh_port: Set(ssh_port),
-            status: Set("unknown".into()),
+            status: Set(HostStatus::default().to_string()),
             os: Set(None),
             architecture: Set(None),
             agent_version: Set(None),
@@ -383,14 +552,6 @@ impl<'a> HostRepo<'a> {
             .map_err(|e| FsError::internal(format!("HostRepo::insert: {e}")))
     }
 
-    /// Find a host by its primary key.
-    pub async fn find_by_id(&self, id: i64) -> Result<Option<host::Model>, FsError> {
-        host::Entity::find_by_id(id)
-            .one(self.conn)
-            .await
-            .map_err(|e| FsError::internal(format!("HostRepo::find_by_id: {e}")))
-    }
-
     /// List all hosts.
     pub async fn find_all(&self) -> Result<Vec<host::Model>, FsError> {
         host::Entity::find()
@@ -400,10 +561,10 @@ impl<'a> HostRepo<'a> {
     }
 
     /// Update the operational status of a host.
-    pub async fn update_status(&self, id: i64, status: impl Into<String>) -> Result<(), FsError> {
+    pub async fn update_status(&self, id: i64, status: HostStatus) -> Result<(), FsError> {
         let active = host::ActiveModel {
             id: Set(id),
-            status: Set(status.into()),
+            status: Set(status.to_string()),
             updated_at: Set(unix_now()),
             ..Default::default()
         };
@@ -413,9 +574,19 @@ impl<'a> HostRepo<'a> {
             .map(|_| ())
             .map_err(|e| FsError::internal(format!("HostRepo::update_status: {e}")))
     }
+}
 
-    /// Delete a host by its primary key.
-    pub async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+impl CrudRepo for HostRepo<'_> {
+    type Model = host::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<host::Model>, FsError> {
+        host::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("HostRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
         host::Entity::delete_by_id(id)
             .exec(self.conn)
             .await
@@ -449,7 +620,7 @@ impl<'a> ProjectRepo<'a> {
             name: Set(name.into()),
             domain: Set(domain),
             description: Set(description),
-            status: Set("draft".into()),
+            status: Set(ProjectStatus::default().to_string()),
             created_at: Set(now),
             updated_at: Set(now),
             ..Default::default()
@@ -458,14 +629,6 @@ impl<'a> ProjectRepo<'a> {
             .insert(self.conn)
             .await
             .map_err(|e| FsError::internal(format!("ProjectRepo::insert: {e}")))
-    }
-
-    /// Find a project by its primary key.
-    pub async fn find_by_id(&self, id: i64) -> Result<Option<project::Model>, FsError> {
-        project::Entity::find_by_id(id)
-            .one(self.conn)
-            .await
-            .map_err(|e| FsError::internal(format!("ProjectRepo::find_by_id: {e}")))
     }
 
     /// List all projects.
@@ -483,14 +646,14 @@ impl<'a> ProjectRepo<'a> {
         name: impl Into<String>,
         domain: Option<String>,
         description: Option<String>,
-        status: impl Into<String>,
+        status: ProjectStatus,
     ) -> Result<project::Model, FsError> {
         let active = project::ActiveModel {
             id: Set(id),
             name: Set(name.into()),
             domain: Set(domain),
             description: Set(description),
-            status: Set(status.into()),
+            status: Set(status.to_string()),
             updated_at: Set(unix_now()),
             ..Default::default()
         };
@@ -499,9 +662,19 @@ impl<'a> ProjectRepo<'a> {
             .await
             .map_err(|e| FsError::internal(format!("ProjectRepo::update: {e}")))
     }
+}
 
-    /// Delete a project by its primary key.
-    pub async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+impl CrudRepo for ProjectRepo<'_> {
+    type Model = project::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<project::Model>, FsError> {
+        project::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("ProjectRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
         project::Entity::delete_by_id(id)
             .exec(self.conn)
             .await
@@ -539,7 +712,7 @@ impl<'a> ModuleRepo<'a> {
             module_type: Set(module_type.into()),
             host_id: Set(host_id),
             project_id: Set(project_id),
-            status: Set("stopped".into()),
+            status: Set(ModuleStatus::default().to_string()),
             version: Set(version),
             config: Set(config),
             created_at: Set(now),
@@ -550,14 +723,6 @@ impl<'a> ModuleRepo<'a> {
             .insert(self.conn)
             .await
             .map_err(|e| FsError::internal(format!("ModuleRepo::insert: {e}")))
-    }
-
-    /// Find a module by its primary key.
-    pub async fn find_by_id(&self, id: i64) -> Result<Option<module::Model>, FsError> {
-        module::Entity::find_by_id(id)
-            .one(self.conn)
-            .await
-            .map_err(|e| FsError::internal(format!("ModuleRepo::find_by_id: {e}")))
     }
 
     /// List all modules running on a specific host.
@@ -579,14 +744,10 @@ impl<'a> ModuleRepo<'a> {
     }
 
     /// Update the operational status of a module.
-    pub async fn update_status(
-        &self,
-        id: i64,
-        status: impl Into<String>,
-    ) -> Result<(), FsError> {
+    pub async fn update_status(&self, id: i64, status: ModuleStatus) -> Result<(), FsError> {
         let active = module::ActiveModel {
             id: Set(id),
-            status: Set(status.into()),
+            status: Set(status.to_string()),
             updated_at: Set(unix_now()),
             ..Default::default()
         };
@@ -596,9 +757,19 @@ impl<'a> ModuleRepo<'a> {
             .map(|_| ())
             .map_err(|e| FsError::internal(format!("ModuleRepo::update_status: {e}")))
     }
+}
 
-    /// Delete a module by its primary key.
-    pub async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+impl CrudRepo for ModuleRepo<'_> {
+    type Model = module::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<module::Model>, FsError> {
+        module::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("ModuleRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
         module::Entity::delete_by_id(id)
             .exec(self.conn)
             .await
@@ -691,14 +862,24 @@ impl<'a> InstalledPackageRepo<'a> {
             .map(|_| ())
             .map_err(|e| FsError::internal(format!("InstalledPackageRepo::set_active: {e}")))
     }
+}
 
-    /// Remove a package record by its primary key.
-    pub async fn remove(&self, id: i64) -> Result<(), FsError> {
+impl CrudRepo for InstalledPackageRepo<'_> {
+    type Model = installed_package::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<installed_package::Model>, FsError> {
+        installed_package::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("InstalledPackageRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
         installed_package::Entity::delete_by_id(id)
             .exec(self.conn)
             .await
             .map(|_| ())
-            .map_err(|e| FsError::internal(format!("InstalledPackageRepo::remove: {e}")))
+            .map_err(|e| FsError::internal(format!("InstalledPackageRepo::delete_by_id: {e}")))
     }
 }
 
@@ -802,5 +983,24 @@ impl<'a> ServiceRegistryRepo<'a> {
             .await
             .map(|_| ())
             .map_err(|e| FsError::internal(format!("ServiceRegistryRepo::set_healthy: {e}")))
+    }
+}
+
+impl CrudRepo for ServiceRegistryRepo<'_> {
+    type Model = service_registry::Model;
+
+    async fn find_by_id(&self, id: i64) -> Result<Option<service_registry::Model>, FsError> {
+        service_registry::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("ServiceRegistryRepo::find_by_id: {e}")))
+    }
+
+    async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+        service_registry::Entity::delete_by_id(id)
+            .exec(self.conn)
+            .await
+            .map(|_| ())
+            .map_err(|e| FsError::internal(format!("ServiceRegistryRepo::delete_by_id: {e}")))
     }
 }

@@ -12,6 +12,8 @@
 use fs_error::FsError;
 use serde::{Deserialize, Serialize};
 
+use crate::manifest::PackageId;
+
 // ── InstallEvent ──────────────────────────────────────────────────────────────
 
 /// The kind of install lifecycle event.
@@ -38,7 +40,7 @@ pub enum InstallEventKind {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InstallEvent {
     /// The package ID (e.g. `"proxy/zentinel"`).
-    pub package_id: String,
+    pub package_id: PackageId,
 
     /// The package version being operated on.
     pub version: String,
@@ -54,7 +56,7 @@ pub struct InstallEvent {
 impl InstallEvent {
     /// Create a new event.
     pub fn new(
-        package_id: impl Into<String>,
+        package_id: impl Into<PackageId>,
         version: impl Into<String>,
         kind: InstallEventKind,
     ) -> Self {
@@ -249,7 +251,7 @@ mod tests {
     fn event_carries_package_info() {
         let event = InstallEvent::new("iam/kanidm", "1.0.0", InstallEventKind::RemoveCompleted)
             .with_message("cleanup done");
-        assert_eq!(event.package_id, "iam/kanidm");
+        assert_eq!(*event.package_id, *"iam/kanidm");
         assert_eq!(event.version, "1.0.0");
         assert_eq!(event.kind, InstallEventKind::RemoveCompleted);
         assert_eq!(event.message.as_deref(), Some("cleanup done"));

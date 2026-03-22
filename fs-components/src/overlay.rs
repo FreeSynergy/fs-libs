@@ -223,12 +223,7 @@ pub fn NotificationList(props: NotificationListProps) -> Element {
                     let ts      = item.timestamp.clone();
                     let trigger = props.on_dismiss.clone();
 
-                    let accent = match item.level {
-                        ToastLevel::Info    => "border-left: 3px solid #06b6d4;",
-                        ToastLevel::Success => "border-left: 3px solid #22c55e;",
-                        ToastLevel::Warning => "border-left: 3px solid #f59e0b;",
-                        ToastLevel::Error   => "border-left: 3px solid #ef4444;",
-                    };
+                    let accent = item.level.border_css();
 
                     rsx! {
                         div {

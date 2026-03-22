@@ -17,6 +17,28 @@ pub enum ToastLevel {
     Error,
 }
 
+impl ToastLevel {
+    /// CSS `border-left` declaration for this severity level.
+    pub fn border_css(self) -> &'static str {
+        match self {
+            Self::Info    => "border-left: 3px solid #06b6d4;",
+            Self::Success => "border-left: 3px solid #22c55e;",
+            Self::Warning => "border-left: 3px solid #f59e0b;",
+            Self::Error   => "border-left: 3px solid #ef4444;",
+        }
+    }
+
+    /// Unicode icon character representing this severity level.
+    pub fn icon(self) -> &'static str {
+        match self {
+            Self::Info    => "ℹ",
+            Self::Success => "✓",
+            Self::Warning => "⚠",
+            Self::Error   => "✗",
+        }
+    }
+}
+
 // ── ToastMessage ──────────────────────────────────────────────────────────────
 
 /// A single toast notification message.

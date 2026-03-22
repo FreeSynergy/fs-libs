@@ -12,32 +12,9 @@ use super::{
     container::ContainerResource,
     messenger_adapter::MessengerAdapterResource,
     meta::ValidationStatus,
-    theme::{AnimationSet, ButtonStyle, ColorScheme, CursorSet, FontSet, IconSet, StyleResource, WindowChrome},
+    theme::{AnimationSet, ButtonStyle, ColorScheme, CursorSet, FontSet, IconSet, StyleResource, TokenSet, WindowChrome},
     widget::WidgetResource,
 };
-
-// ── Standard role API method names ────────────────────────────────────────────
-
-/// The minimum set of standard methods that a bridge for a given role must map.
-///
-/// A bridge that is missing any of these is `ValidationStatus::Incomplete`.
-pub fn required_methods_for_role(role: &str) -> &'static [&'static str] {
-    match role {
-        "iam"        => &["user.create", "user.get", "user.list", "user.update", "user.delete",
-                          "group.create", "group.list", "group.add_member"],
-        "wiki"       => &["page.create", "page.get", "page.list", "page.search"],
-        "git"        => &["repo.create", "repo.list", "repo.get", "commit.list"],
-        "chat"       => &["message.send", "channel.list", "channel.get"],
-        "database"   => &["query.execute", "schema.list"],
-        "cache"      => &["key.get", "key.set", "key.delete"],
-        "smtp"       => &["mail.send"],
-        "llm"        => &["completion.create", "model.list"],
-        "map"        => &["tile.get", "search.geocode"],
-        "tasks"      => &["task.create", "task.list", "task.update"],
-        "monitoring" => &["metric.query", "alert.list"],
-        _            => &[],
-    }
-}
 
 // ── Validate trait ────────────────────────────────────────────────────────────
 
@@ -88,7 +65,7 @@ impl Validate for ContainerResource {
             .all(|s| s.healthcheck.is_some());
         // All required variables must have a description
         let vars_ok = self.variables.iter().filter(|v| v.required).all(|v| {
-            !v.description.trim().is_empty() && !matches!(v.var_type, _)
+            !v.description.trim().is_empty()
         });
         if !main_has_healthcheck || !vars_ok {
             self.meta.status = ValidationStatus::Incomplete;
@@ -141,7 +118,7 @@ impl Validate for BridgeResource {
             return;
         }
         // Check all required standard methods are mapped
-        let required = required_methods_for_role(self.target_role.as_str());
+        let required = self.target_role.required_bridge_methods();
         let mapped: std::collections::HashSet<&str> =
             self.methods.iter().map(|m| m.standard_name.as_str()).collect();
         let missing_required = required.iter().any(|m| !mapped.contains(m));
@@ -182,31 +159,46 @@ impl Validate for BundleResource {
 
 impl Validate for ColorScheme {
     fn validate(&mut self) {
-        ColorScheme::validate(self);
+        self.meta.validate();
+        if !self.colors.is_complete() {
+            self.meta.status = ValidationStatus::Broken;
+        }
     }
 }
 
 impl Validate for StyleResource {
     fn validate(&mut self) {
-        StyleResource::validate(self);
+        self.meta.validate();
+        if !self.style.is_complete() {
+            self.meta.status = ValidationStatus::Broken;
+        }
     }
 }
 
 impl Validate for ButtonStyle {
     fn validate(&mut self) {
-        ButtonStyle::validate(self);
+        self.meta.validate();
+        if !self.tokens.is_complete() {
+            self.meta.status = ValidationStatus::Broken;
+        }
     }
 }
 
 impl Validate for WindowChrome {
     fn validate(&mut self) {
-        WindowChrome::validate(self);
+        self.meta.validate();
+        if !self.tokens.is_complete() {
+            self.meta.status = ValidationStatus::Broken;
+        }
     }
 }
 
 impl Validate for AnimationSet {
     fn validate(&mut self) {
-        AnimationSet::validate(self);
+        self.meta.validate();
+        if !self.tokens.is_complete() {
+            self.meta.status = ValidationStatus::Broken;
+        }
     }
 }
 
@@ -298,12 +290,14 @@ mod tests {
             dependencies: Vec::<Dependency>::new(),
             signature: None,
             status: ValidationStatus::Incomplete,
+            source: None,
+            platform: None,
         }
     }
 
     #[test]
     fn bridge_validate_ok_with_all_iam_methods() {
-        let methods: Vec<BridgeMethod> = required_methods_for_role("iam")
+        let methods: Vec<BridgeMethod> = Role::new("iam").required_bridge_methods()
             .iter()
             .map(|name| BridgeMethod {
                 standard_name:    name.to_string(),

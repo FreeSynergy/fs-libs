@@ -46,23 +46,23 @@ impl TomlRepair {
                 RepairAction::Insert { field, value } => {
                     if let Some(parsed) = parse_toml_value(value) {
                         if set_at_path(root, field, parsed) {
-                            applied.push(action.describe());
+                            applied.push(action.to_string());
                         }
                     }
                 }
                 RepairAction::Remove { field } => {
                     if remove_at_path(root, field) {
-                        applied.push(action.describe());
+                        applied.push(action.to_string());
                     }
                 }
                 RepairAction::Rename { from, to } => {
                     if rename_path(root, from, to) {
-                        applied.push(action.describe());
+                        applied.push(action.to_string());
                     }
                 }
                 RepairAction::Trim { field } => {
                     if trim_string_at_path(root, field) {
-                        applied.push(action.describe());
+                        applied.push(action.to_string());
                     }
                 }
             }

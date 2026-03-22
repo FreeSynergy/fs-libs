@@ -79,30 +79,6 @@ impl VariableKind {
         )
     }
 
-    /// Human-readable label for UI display.
-    pub fn label(&self) -> &'static str {
-        match self {
-            Self::String           => "Text",
-            Self::Integer          => "Integer",
-            Self::Boolean          => "Yes/No",
-            Self::Url              => "URL",
-            Self::Email            => "E-mail",
-            Self::Hostname         => "Hostname",
-            Self::Ip               => "IP Address",
-            Self::Port             => "Port",
-            Self::Path             => "Path",
-            Self::ConnectionString => "Connection String",
-            Self::Bytes            => "Byte Size",
-            Self::Duration         => "Duration",
-            Self::Cron             => "Cron Expression",
-            Self::Select           => "Selection",
-            Self::Secret           => "Secret 🔒",
-            Self::Password         => "Password 🔒",
-            Self::ApiKey           => "API Key 🔒",
-            Self::Certificate      => "Certificate 🔒",
-            Self::PrivateKey       => "Private Key 🔒",
-        }
-    }
 
     /// Validate a string value against this type.
     ///
@@ -158,6 +134,34 @@ impl ValidationError {
 impl std::fmt::Display for ValidationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.message)
+    }
+}
+
+impl std::fmt::Display for VariableKind {
+    /// Renders the human-readable UI label (e.g. `"Text"`, `"URL"`, `"Secret 🔒"`).
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Self::String           => "Text",
+            Self::Integer          => "Integer",
+            Self::Boolean          => "Yes/No",
+            Self::Url              => "URL",
+            Self::Email            => "E-mail",
+            Self::Hostname         => "Hostname",
+            Self::Ip               => "IP Address",
+            Self::Port             => "Port",
+            Self::Path             => "Path",
+            Self::ConnectionString => "Connection String",
+            Self::Bytes            => "Byte Size",
+            Self::Duration         => "Duration",
+            Self::Cron             => "Cron Expression",
+            Self::Select           => "Selection",
+            Self::Secret           => "Secret 🔒",
+            Self::Password         => "Password 🔒",
+            Self::ApiKey           => "API Key 🔒",
+            Self::Certificate      => "Certificate 🔒",
+            Self::PrivateKey       => "Private Key 🔒",
+        };
+        f.write_str(s)
     }
 }
 

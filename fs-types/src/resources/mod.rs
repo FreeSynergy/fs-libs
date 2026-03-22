@@ -39,5 +39,5 @@ pub use role_api::{
     LlmCompletionResponse, LlmModel, MailSend, MapTileRequest, MetricPoint, MetricQuery, Task,
     TaskCreate, TaskUpdate, WikiPage, WikiPageCreate, WikiPageSummary, WikiSearchResult,
 };
-pub use validator::{required_methods_for_role, Validate};
+pub use validator::Validate;
 pub use widget::WidgetResource;

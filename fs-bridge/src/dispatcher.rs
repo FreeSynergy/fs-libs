@@ -13,7 +13,7 @@ use crate::{
     error::BridgeError,
     executor::BridgeExecutor,
 };
-use fs_inventory::Inventory;
+use fs_inventory::{models::BridgeStatus, Inventory};
 use fs_types::resources::bridge::BridgeResource;
 use serde_json::Value;
 use std::sync::Arc;
@@ -67,10 +67,7 @@ impl BridgeDispatcher {
 
         let instance = bridges
             .into_iter()
-            .find(|b| {
-                use fs_inventory::models::BridgeStatus;
-                b.status == BridgeStatus::Active
-            })
+            .find(|b| b.status == BridgeStatus::Active)
             .ok_or_else(|| BridgeError::NoBridgeForRole { role: role.to_owned() })?;
 
         // 2. Load the bridge resource definition from the catalog.

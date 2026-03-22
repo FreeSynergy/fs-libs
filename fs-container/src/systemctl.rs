@@ -116,7 +116,7 @@ impl SystemctlManager {
         let sub_raw     = lines.next().unwrap_or("").trim().to_string();
         let description = lines.next().unwrap_or("").trim().to_string();
 
-        let active_state: UnitActiveState = active_raw.parse().unwrap();
+        let active_state: UnitActiveState = active_raw.parse().unwrap_or(UnitActiveState::Unknown);
 
         Ok(ServiceStatus { name: unit.to_string(), active_state, sub_state: sub_raw, description })
     }

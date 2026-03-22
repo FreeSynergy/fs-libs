@@ -21,7 +21,7 @@ pub enum DeliveryType {
 
 impl DeliveryType {
     /// String form used in DB and config files.
-    pub fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &'static str {
         match self {
             Self::FireAndForget  => "fire-and-forget",
             Self::Guaranteed     => "guaranteed",
@@ -53,7 +53,7 @@ pub enum StorageType {
 
 impl StorageType {
     /// String form used in DB and config files.
-    pub fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &'static str {
         match self {
             Self::NoStore    => "no-store",
             Self::UntilAck   => "until-ack",

@@ -17,6 +17,12 @@
 pub mod toast_bus;
 pub use toast_bus::{ErrorBus, ErrorMessage, ToastBus, ToastLevel, ToastMessage};
 
+// Desktop launch abstraction — wraps all dioxus::desktop API calls.
+#[cfg(feature = "desktop")]
+pub mod launch;
+#[cfg(feature = "desktop")]
+pub use launch::{launch_desktop, spawn_window, DesktopConfig};
+
 // Dioxus-gated components.
 #[cfg(feature = "dioxus")]
 pub mod nav;

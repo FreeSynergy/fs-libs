@@ -78,11 +78,7 @@ impl LlmProvider for OllamaProvider {
         let wire_msgs: Vec<OllamaMessage<'_>> = messages
             .iter()
             .map(|m| OllamaMessage {
-                role: match m.role {
-                    Role::System    => "system",
-                    Role::User      => "user",
-                    Role::Assistant => "assistant",
-                },
+                role:    m.role.as_str(),
                 content: &m.content,
             })
             .collect();

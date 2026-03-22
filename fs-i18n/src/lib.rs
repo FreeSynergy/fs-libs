@@ -26,7 +26,7 @@ pub mod macros;
 pub mod snippets;
 pub mod tools;
 
-pub use i18n::I18n;
+pub use i18n::{I18n, LanguageCode, Translation};
 pub use languages::{language_meta, all_languages, LanguageMeta, TextDirection};
 
 use std::path::Path;
@@ -102,13 +102,13 @@ pub fn add_toml_lang(lang: &str, toml_src: &str) -> Result<(), FsError> {
 /// Return the active language code of the global [`I18n`] instance.
 ///
 /// Returns `"en"` when the global instance has not been initialized yet.
-pub fn active_lang() -> String {
+pub fn active_lang() -> LanguageCode {
     match GLOBAL_I18N.get() {
         Some(lock) => match lock.read() {
-            Ok(i18n) => i18n.lang().to_string(),
-            Err(_) => "en".to_string(),
+            Ok(i18n) => i18n.lang(),
+            Err(_) => LanguageCode::new("en"),
         },
-        None => "en".to_string(),
+        None => LanguageCode::new("en"),
     }
 }
 
@@ -116,13 +116,13 @@ pub fn active_lang() -> String {
 ///
 /// Returns the key itself when the global instance is not initialized or the
 /// key is not found.
-pub fn t(key: &str) -> String {
+pub fn t(key: &str) -> Translation {
     match GLOBAL_I18N.get() {
         Some(lock) => match lock.read() {
             Ok(i18n) => i18n.t(key),
-            Err(_) => key.to_string(),
+            Err(_) => Translation::new(key.to_string()),
         },
-        None => key.to_string(),
+        None => Translation::new(key.to_string()),
     }
 }
 
@@ -153,13 +153,13 @@ pub fn init_with_toml_strs(active_lang: &str, locales: &[(&str, &str)]) -> Resul
 ///
 /// Returns the key itself when the global instance is not initialized or the
 /// key is not found.
-pub fn t_with(key: &str, args: &[(&str, &str)]) -> String {
+pub fn t_with(key: &str, args: &[(&str, &str)]) -> Translation {
     match GLOBAL_I18N.get() {
         Some(lock) => match lock.read() {
             Ok(i18n) => i18n.t_with(key, args),
-            Err(_) => key.to_string(),
+            Err(_) => Translation::new(key.to_string()),
         },
-        None => key.to_string(),
+        None => Translation::new(key.to_string()),
     }
 }
 
