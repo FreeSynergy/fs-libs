@@ -76,6 +76,15 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+/* Rail: visible border-box around the items group, flush with the right border */
+.fs-sidebar__rail {
+    border-top: 1px solid var(--fs-border, rgba(148,170,200,0.18));
+    border-bottom: 1px solid var(--fs-border, rgba(148,170,200,0.18));
+    padding: 6px 0;
 }
 .fs-sidebar__pinned {
     flex-shrink: 0;
@@ -298,23 +307,25 @@ pub fn FsSidebar(
 
             // ── Scrollable main section ───────────────────────────────────────
             div { class: "fs-sidebar__scroll",
-                div { class: "{main_level_class}",
-                    if main_in_folder {
-                        button {
-                            class: "fs-sidebar__item fs-sidebar__back",
-                            title: "Back",
-                            onclick: move |_| main_open_folder.set(None),
-                            span { class: "fs-sidebar__icon", "‹" }
-                            span { class: "fs-sidebar__label", "{main_back_label}" }
+                div { class: "fs-sidebar__rail",
+                    div { class: "{main_level_class}",
+                        if main_in_folder {
+                            button {
+                                class: "fs-sidebar__item fs-sidebar__back",
+                                title: "Back",
+                                onclick: move |_| main_open_folder.set(None),
+                                span { class: "fs-sidebar__icon", "‹" }
+                                span { class: "fs-sidebar__label", "{main_back_label}" }
+                            }
+                            div { class: "fs-sidebar__divider" }
                         }
-                        div { class: "fs-sidebar__divider" }
-                    }
-                    SidebarItemList {
-                        items:     main_show_items,
-                        active_id: active_id.clone(),
-                        in_folder: main_in_folder,
-                        on_select: move |id| on_select.call(id),
-                        on_enter:  move |fid| main_open_folder.set(Some(fid)),
+                        SidebarItemList {
+                            items:     main_show_items,
+                            active_id: active_id.clone(),
+                            in_folder: main_in_folder,
+                            on_select: move |id| on_select.call(id),
+                            on_enter:  move |fid| main_open_folder.set(Some(fid)),
+                        }
                     }
                 }
             }
@@ -415,6 +426,7 @@ pub const FS_TAB_VIEW_CSS: &str = r#"
 }
 .fs-tab-view__bar {
     display: flex;
+    justify-content: center;
     flex-shrink: 0;
     background: var(--fs-bg-surface, #162032);
     border-bottom: 1px solid var(--fs-border, rgba(148,170,200,0.18));
