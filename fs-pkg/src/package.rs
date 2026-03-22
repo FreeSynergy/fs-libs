@@ -21,9 +21,9 @@ use serde::{Deserialize, Serialize};
 use fs_error::FsError;
 
 use crate::manageable::{
-    ConfigField, ConfigValue, HealthCheck, Manageable, PackageHealth, RunStatus,
+    ConfigField, ConfigFieldKind, ConfigValue, HealthCheck, Manageable, PackageHealth, RunStatus,
 };
-use crate::manifest::{ApiManifest, PackageMeta, PackageType};
+use crate::manifest::{ApiManifest, ManifestFieldType, PackageMeta, PackageType};
 
 // ── InstalledRecord ───────────────────────────────────────────────────────────
 
@@ -208,9 +208,46 @@ impl Manageable for Package {
     }
 
     fn config_fields(&self) -> Vec<ConfigField> {
-        // Base implementation: no fields.
-        // Concrete package types override this to expose their TOML keys.
-        vec![]
+        // Build ConfigFields from the manifest's [[variables]] entries.
+        // Each ManifestVariable maps to one ConfigField rendered in the Config tab.
+        self.manifest.variables.iter().map(|v| {
+            let kind = match v.field_type {
+                ManifestFieldType::Bool     => ConfigFieldKind::Bool,
+                ManifestFieldType::Port     => ConfigFieldKind::Port,
+                ManifestFieldType::Password |
+                ManifestFieldType::Secret   => ConfigFieldKind::Password,
+                ManifestFieldType::Path     => ConfigFieldKind::Path,
+                ManifestFieldType::Textarea => ConfigFieldKind::Textarea,
+                ManifestFieldType::Text |
+                ManifestFieldType::String   => ConfigFieldKind::Text,
+            };
+
+            let default_value = v.default.as_deref().map(|d| {
+                if v.field_type == ManifestFieldType::Port {
+                    d.parse::<u16>().map(ConfigValue::Port).unwrap_or_else(|_| ConfigValue::Text(d.to_string()))
+                } else if v.field_type == ManifestFieldType::Bool {
+                    ConfigValue::Bool(d == "true" || d == "1" || d == "yes")
+                } else {
+                    ConfigValue::Text(d.to_string())
+                }
+            }).unwrap_or(ConfigValue::Empty);
+
+            let mut field = ConfigField::new(
+                &v.name,
+                v.display_label(),
+                &v.description,
+                kind,
+            )
+            .with_value(default_value);
+
+            if v.required {
+                field = field.required();
+            }
+            if v.needs_restart {
+                field = field.needs_restart();
+            }
+            field
+        }).collect()
     }
 
     fn apply_config(&mut self, key: &str, value: ConfigValue) -> Result<(), FsError> {
@@ -290,12 +327,18 @@ mod tests {
                 icon:         String::new(),
                 package_type: pkg_type,
                 channel:      Default::default(),
+                origin:       Default::default(),
             },
-            source:  None,
-            files:   Default::default(),
-            hooks:   Default::default(),
-            requires: Default::default(),
-            bundle:  None,
+            source:    None,
+            app:       None,
+            container: None,
+            files:     Default::default(),
+            hooks:     Default::default(),
+            requires:  Default::default(),
+            bundle:    None,
+            variables: vec![],
+            setup:     None,
+            contract:  None,
         }
     }
 

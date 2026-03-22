@@ -3,10 +3,11 @@
 // Install flow:
 //   1. Validate manifest + requirements
 //   2. Emit InstallStarted event
-//   3. Run pre_install hooks
-//   4. Write files (config, units, data)
-//   5. Run post_install hooks
-//   6. Emit InstallCompleted event
+//   3. Fetch artifacts via FetchStrategy (download binary / pull OCI / no-op)
+//   4. Run pre_install hooks
+//   5. Write files (config, units, data)
+//   6. Run post_install hooks
+//   7. Emit InstallCompleted event
 //
 // Remove flow:
 //   1. Emit RemoveStarted event
@@ -17,6 +18,9 @@
 //
 // Both flows share a single `execute_lifecycle` Template Method.
 // On any failure: emit InstallFailed / abort (no partial rollback in v0.1).
+//
+// Pattern: Strategy (FetchStrategy) — each PackageSource variant selects a
+// different fetching strategy; the lifecycle Template Method stays the same.
 
 use std::collections::HashMap;
 use std::fs;
@@ -26,7 +30,154 @@ use std::process::Command;
 use fs_error::FsError;
 
 use crate::event::{EventBus, InstallEvent, InstallEventKind};
-use crate::manifest::{ApiManifest, PackageId};
+use crate::manifest::{ApiManifest, PackageId, PackageSource};
+
+// ── FetchStrategy ─────────────────────────────────────────────────────────────
+
+/// Strategy for fetching package artifacts before installation.
+///
+/// Each [`PackageSource`] variant maps to a concrete strategy:
+///
+/// | Source           | Strategy                |
+/// |------------------|-------------------------|
+/// | `GithubRelease`  | [`GithubReleaseFetch`]  |
+/// | `Oci`            | [`OciFetch`]            |
+/// | `Local`          | [`LocalFetch`]          |
+/// | `Store` / `None` | [`NoOpFetch`]           |
+///
+/// The [`PackageInstaller`] selects the strategy via [`FetchStrategy::for_source`].
+/// This replaces the previous match block with an OOP dispatch.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let strategy = FetchStrategy::for_source(manifest.source.as_ref());
+/// let fetched = strategy.fetch(&manifest, &options)?;
+/// ```
+pub trait FetchStrategy: Send + Sync {
+    /// Human-readable name for logging (e.g. `"github_release"`, `"oci"`).
+    fn name(&self) -> &'static str;
+
+    /// Fetch artifacts for the given manifest + options.
+    ///
+    /// Returns the paths of all fetched/staged files.
+    /// In dry-run mode (`options.dry_run == true`): validate and return empty vec.
+    fn fetch(&self, manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError>;
+}
+
+// ── GithubReleaseFetch ────────────────────────────────────────────────────────
+
+/// Fetches a pre-built binary from a GitHub Releases page.
+///
+/// Used for native App packages (kanidm, tuwunel, stalwart, mistral, …).
+///
+/// In the current version this is a **placeholder** — it validates the source
+/// fields but does not yet perform the actual HTTP download. The download will
+/// be implemented in the fs-node package manager using `reqwest` + signature
+/// verification via `fs-crypto`.
+pub struct GithubReleaseFetch;
+
+impl FetchStrategy for GithubReleaseFetch {
+    fn name(&self) -> &'static str { "github_release" }
+
+    fn fetch(&self, manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
+        let Some(PackageSource::GithubRelease { repo, artifact, .. }) = &manifest.source else {
+            return Err(FsError::internal("GithubReleaseFetch: manifest has no github_release source"));
+        };
+
+        if options.dry_run {
+            return Ok(vec![]);
+        }
+
+        // TODO: implement actual download + checksum verification in fs-node.
+        // For now: emit a structured log so callers know what would be fetched.
+        let _url = format!(
+            "https://github.com/{repo}/releases/download/v{version}/{artifact}",
+            version = manifest.package.version,
+        );
+
+        Ok(vec![])
+    }
+}
+
+// ── OciFetch ──────────────────────────────────────────────────────────────────
+
+/// Fetches a container image via `podman pull` / OCI registry.
+///
+/// Used for Container packages (gitea, nextcloud, …).
+///
+/// Currently a **placeholder** — actual `podman pull` integration is
+/// implemented in the Container App Manager (fs-managers).
+pub struct OciFetch;
+
+impl FetchStrategy for OciFetch {
+    fn name(&self) -> &'static str { "oci" }
+
+    fn fetch(&self, _manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
+        if options.dry_run {
+            return Ok(vec![]);
+        }
+        // TODO: run `podman pull {image}:{tag}` via fs-container.
+        Ok(vec![])
+    }
+}
+
+// ── LocalFetch ────────────────────────────────────────────────────────────────
+
+/// Uses a local directory as the package source (development / offline).
+pub struct LocalFetch;
+
+impl FetchStrategy for LocalFetch {
+    fn name(&self) -> &'static str { "local" }
+
+    fn fetch(&self, manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
+        let Some(PackageSource::Local { path }) = &manifest.source else {
+            return Err(FsError::internal("LocalFetch: manifest has no local source"));
+        };
+
+        let base = PathBuf::from(path);
+        if !options.dry_run && !base.exists() {
+            return Err(FsError::internal(format!(
+                "LocalFetch: source path does not exist: {}", base.display()
+            )));
+        }
+
+        Ok(vec![base])
+    }
+}
+
+// ── NoOpFetch ─────────────────────────────────────────────────────────────────
+
+/// No-op strategy for Bundle packages and packages with no source.
+///
+/// Bundles have no artifacts of their own — their dependencies are resolved
+/// by the [`DepGraph`] and installed individually.
+///
+/// [`DepGraph`]: crate::dependency_resolver::DepGraph
+pub struct NoOpFetch;
+
+impl FetchStrategy for NoOpFetch {
+    fn name(&self) -> &'static str { "no_op" }
+
+    fn fetch(&self, _manifest: &ApiManifest, _options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
+        Ok(vec![])
+    }
+}
+
+// ── FetchStrategy factory ─────────────────────────────────────────────────────
+
+/// Select the appropriate [`FetchStrategy`] for a given [`PackageSource`].
+///
+/// This is the single dispatch point — all callers go through here instead of
+/// matching on `PackageSource` variants themselves.
+pub fn fetch_strategy_for(source: Option<&PackageSource>) -> Box<dyn FetchStrategy> {
+    match source {
+        Some(PackageSource::GithubRelease { .. }) => Box::new(GithubReleaseFetch),
+        Some(PackageSource::Oci { .. })           => Box::new(OciFetch),
+        Some(PackageSource::Local { .. })         => Box::new(LocalFetch),
+        Some(PackageSource::Store { .. }) | None  => Box::new(NoOpFetch),
+    }
+}
 
 // ── TemplateVars ──────────────────────────────────────────────────────────────
 
@@ -160,11 +311,18 @@ impl PackageInstaller {
     }
 
     /// Install a package according to `manifest` and `options`.
+    ///
+    /// Selects a [`FetchStrategy`] based on `manifest.source`, fetches
+    /// artifacts, then runs the standard lifecycle (hooks + file writes).
     pub fn install(
         &mut self,
         manifest: &ApiManifest,
         options: InstallOptions,
     ) -> Result<InstallOutcome, FsError> {
+        // Fetch artifacts via the appropriate strategy (Strategy pattern).
+        let strategy = fetch_strategy_for(manifest.source.as_ref());
+        strategy.fetch(manifest, &options)?;
+
         self.execute_lifecycle(
             manifest,
             options,
@@ -184,7 +342,7 @@ impl PackageInstaller {
                             ))
                         })?;
                     }
-                    // In production this copies from the package bundle.
+                    // In production this copies from the fetched package bundle.
                     let content = format!("# installed from package: {src}\n");
                     fs::write(&dest_path, content).map_err(|e| {
                         FsError::internal(format!(

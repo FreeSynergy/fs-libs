@@ -6,10 +6,15 @@
 // TOML structure:
 //
 //   [package]        — identity (id, name, version, …)
-//   [source]         — where to get the package (OCI | store | local)
+//   [source]         — where to get the package (OCI | GithubRelease | local)
+//   [app]            — native binary config (only for PackageType::App)
+//   [container]      — container config (only for PackageType::Container)
 //   [files]          — files this package installs
 //   [hooks]          — shell commands to run during install/remove lifecycle
 //   [requires]       — other packages or capabilities this package needs
+//   [[variables]]    — user-configurable variables (drives Config tab)
+//   [setup]          — setup wizard fields (shown before first install)
+//   [contract]       — reverse proxy integration (routes via Zentinel)
 
 use std::path::Path;
 
@@ -80,10 +85,10 @@ impl<'a> From<&'a PackageId> for PackageId {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PackageType {
-    /// A FreeSynergy core application (Node, Desktop, Conductor, …).
+    /// A native binary application (downloaded from GitHub Releases, runs as a systemd service).
     #[default]
     App,
-    /// A containerized application running via Podman/Docker.
+    /// A containerized application running via Podman/Docker (Quadlet).
     Container,
     /// A meta-package that bundles several packages together.
     Bundle,
@@ -122,6 +127,11 @@ fs_types::impl_str_label_display!(PackageType);
 // ── ApiManifest ───────────────────────────────────────────────────────────────
 
 /// The top-level `manifest.toml` for a FreeSynergy package.
+///
+/// Type-specific sections (`app`, `container`) are optional and only present
+/// for the matching `PackageType`. The Manager reads `variables` to populate
+/// the Config tab; `setup` drives the first-install wizard; `contract` tells
+/// Zentinel how to proxy traffic for this package.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApiManifest {
     /// Package identity.
@@ -130,6 +140,14 @@ pub struct ApiManifest {
     /// Package source (where to fetch it from).
     #[serde(default)]
     pub source: Option<PackageSource>,
+
+    /// Native binary section — present when `package.package_type == App`.
+    #[serde(default)]
+    pub app: Option<AppManifest>,
+
+    /// Container section — present when `package.package_type == Container`.
+    #[serde(default)]
+    pub container: Option<ContainerManifest>,
 
     /// Files this package installs.
     #[serde(default)]
@@ -144,10 +162,434 @@ pub struct ApiManifest {
     pub requires: PackageRequires,
 
     /// Bundle metadata — only present when `package.package_type == Bundle`.
-    ///
-    /// Declares which packages this bundle includes and which are optional.
     #[serde(default)]
     pub bundle: Option<BundleManifest>,
+
+    /// User-configurable variables — drives the Config tab in the Manager.
+    ///
+    /// Each entry maps to one `ConfigField`. The Manager renders these fields;
+    /// the package defines them via `[[variables]]` entries in the manifest.
+    #[serde(default)]
+    pub variables: Vec<ManifestVariable>,
+
+    /// Setup wizard configuration — shown before first-time installation.
+    #[serde(default)]
+    pub setup: Option<SetupManifest>,
+
+    /// Reverse proxy contract — how Zentinel routes traffic to this package.
+    #[serde(default)]
+    pub contract: Option<ContractManifest>,
+}
+
+impl ApiManifest {
+    /// Parse a manifest from a TOML string.
+    pub fn from_toml(s: &str) -> Result<Self, FsError> {
+        toml::from_str(s)
+            .map_err(|e| FsError::parse(format!("manifest parse error: {e}")))
+    }
+
+    /// Parse a manifest from a file.
+    pub fn from_file(path: &Path) -> Result<Self, FsError> {
+        let s = std::fs::read_to_string(path)
+            .map_err(|e| FsError::internal(format!("cannot read {}: {e}", path.display())))?;
+        Self::from_toml(&s)
+    }
+
+    /// Serialize to TOML.
+    pub fn to_toml(&self) -> Result<String, FsError> {
+        toml::to_string_pretty(self)
+            .map_err(|e| FsError::internal(format!("manifest serialize error: {e}")))
+    }
+
+    /// Returns the package type.
+    pub fn package_type(&self) -> PackageType {
+        self.package.package_type
+    }
+
+    /// Returns `true` when this manifest has a `[app]` section.
+    pub fn is_app(&self) -> bool {
+        self.app.is_some() || self.package.package_type == PackageType::App
+    }
+
+    /// Returns `true` when this manifest has a `[container]` section.
+    pub fn is_container(&self) -> bool {
+        self.container.is_some() || self.package.package_type == PackageType::Container
+    }
+}
+
+// ── PackageSource ─────────────────────────────────────────────────────────────
+
+/// Where to fetch this package from.
+///
+/// The [`FetchStrategy`] in `installer.rs` selects the download method based
+/// on which variant is present in `[source]`.
+///
+/// [`FetchStrategy`]: crate::installer::FetchStrategy
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum PackageSource {
+    /// Pull a container image from an OCI registry.
+    Oci {
+        /// OCI image reference (e.g. `"ghcr.io/freesynergy/zentinel:0.1.0"`).
+        image: String,
+    },
+
+    /// Download a pre-built binary from a GitHub Releases page.
+    ///
+    /// Used for native App packages built from FreeSynergy forks
+    /// (kanidm, tuwunel, stalwart, mistral, …).
+    ///
+    /// The installer resolves the download URL as:
+    /// `https://github.com/{repo}/releases/download/v{version}/{artifact}`
+    /// where `{version}` is replaced with `package.version`.
+    GithubRelease {
+        /// GitHub repository (e.g. `"FreeSynergy/fs-kanidm"`).
+        repo: String,
+
+        /// Artifact file name (e.g. `"kanidmd-x86_64-linux.tar.gz"`).
+        ///
+        /// May contain `{version}` which is substituted at download time.
+        artifact: String,
+
+        /// Optional SHA-256 hex digest for integrity verification.
+        #[serde(default)]
+        checksum: Option<String>,
+    },
+
+    /// Download from the FreeSynergy Store (namespace + package ID).
+    Store {
+        /// Store namespace (e.g. `"Node"`).
+        namespace: String,
+    },
+
+    /// Use a local directory (development / offline).
+    Local {
+        /// Absolute or workspace-relative path.
+        path: String,
+    },
+}
+
+impl PackageSource {
+    /// Parse the OCI image reference for `Oci` sources.
+    pub fn oci_ref(&self) -> Option<Result<OciRef, FsError>> {
+        match self {
+            Self::Oci { image } => Some(OciRef::parse(image)),
+            _ => None,
+        }
+    }
+
+    /// Returns the GitHub repo for `GithubRelease` sources.
+    pub fn github_repo(&self) -> Option<&str> {
+        match self {
+            Self::GithubRelease { repo, .. } => Some(repo),
+            _ => None,
+        }
+    }
+
+    /// Returns the artifact name for `GithubRelease` sources.
+    pub fn github_artifact(&self) -> Option<&str> {
+        match self {
+            Self::GithubRelease { artifact, .. } => Some(artifact),
+            _ => None,
+        }
+    }
+}
+
+// ── AppManifest ───────────────────────────────────────────────────────────────
+
+/// Native binary section (`[app]`).
+///
+/// Present when `package.package_type == App`. Describes how the binary is
+/// installed and managed on the host system.
+///
+/// # Example (TOML)
+///
+/// ```toml
+/// [app]
+/// binary     = "kanidmd"
+/// service    = "kanidm.service"
+/// data_dir   = "{data_root}/kanidm"
+/// config_dir = "{config_root}/kanidm"
+/// ```
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct AppManifest {
+    /// Primary binary name (e.g. `"kanidmd"`).
+    pub binary: String,
+
+    /// Systemd service unit name (e.g. `"kanidm.service"`).
+    /// `None` for user-managed or manually started processes.
+    #[serde(default)]
+    pub service: Option<String>,
+
+    /// Default data directory. May contain `{data_root}` placeholder.
+    #[serde(default)]
+    pub data_dir: String,
+
+    /// Default config directory. May contain `{config_root}` placeholder.
+    #[serde(default)]
+    pub config_dir: String,
+}
+
+// ── ContainerManifest ─────────────────────────────────────────────────────────
+
+/// Container section (`[container]`).
+///
+/// Present when `package.package_type == Container`. Describes the OCI image,
+/// volumes, environment variables, and health check for Podman/Quadlet deployment.
+///
+/// # Example (TOML)
+///
+/// ```toml
+/// [container]
+/// image     = "ghcr.io/matrix-construct/tuwunel"
+/// image_tag = "latest"
+/// volumes   = ["{data_root}/tuwunel:/var/lib/tuwunel:Z"]
+///
+/// [container.healthcheck]
+/// cmd          = "curl -fsS http://localhost:8008/_matrix/client/versions"
+/// interval     = "30s"
+/// timeout      = "5s"
+/// retries      = 3
+/// start_period = "30s"
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContainerManifest {
+    /// OCI image name (e.g. `"docker.io/kanidm/server"`).
+    pub image: String,
+
+    /// Image tag (e.g. `"latest"` or `"1.4.2"`).
+    #[serde(default = "default_image_tag")]
+    pub image_tag: String,
+
+    /// Volume mounts — may contain template vars like `{data_root}`.
+    #[serde(default)]
+    pub volumes: Vec<String>,
+
+    /// Published port mappings (e.g. `"8008:8008"`).
+    #[serde(default)]
+    pub ports: Vec<String>,
+
+    /// Container health check.
+    #[serde(default)]
+    pub healthcheck: Option<ContainerHealthCheck>,
+
+    /// Environment variables passed to the container.
+    /// Values may contain template vars (e.g. `{service_domain}`).
+    #[serde(default)]
+    pub environment: std::collections::HashMap<String, String>,
+}
+
+fn default_image_tag() -> String { "latest".into() }
+
+/// Container health check configuration.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContainerHealthCheck {
+    /// Shell command to run (exit 0 = healthy).
+    pub cmd: String,
+
+    /// Interval between checks (e.g. `"30s"`).
+    #[serde(default = "default_interval")]
+    pub interval: String,
+
+    /// Maximum time to wait for a check (e.g. `"5s"`).
+    #[serde(default = "default_timeout")]
+    pub timeout: String,
+
+    /// Number of consecutive failures before marking unhealthy.
+    #[serde(default = "default_retries")]
+    pub retries: u32,
+
+    /// Wait time before first check after container start.
+    #[serde(default = "default_start_period")]
+    pub start_period: String,
+}
+
+fn default_interval()     -> String { "30s".into() }
+fn default_timeout()      -> String { "5s".into() }
+fn default_retries()      -> u32    { 3 }
+fn default_start_period() -> String { "30s".into() }
+
+// ── ManifestVariable ──────────────────────────────────────────────────────────
+
+/// A user-configurable variable declared in the manifest (`[[variables]]`).
+///
+/// Maps directly to a [`ConfigField`] rendered in the Manager's Config tab.
+/// Every variable MUST have a non-empty `description` — the Manager will
+/// show a warning for variables without help text.
+///
+/// [`ConfigField`]: crate::manageable::ConfigField
+///
+/// # Example (TOML)
+///
+/// ```toml
+/// [[variables]]
+/// name        = "TUWUNEL_SERVER_NAME"
+/// description = "Matrix server name — the domain part of every user MXID."
+/// required    = true
+///
+/// [[variables]]
+/// name        = "TUWUNEL_ALLOW_REGISTRATION"
+/// description = "Allow new account registrations."
+/// field_type  = "bool"
+/// default     = "false"
+/// ```
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ManifestVariable {
+    /// Variable name — becomes the `ConfigField::key` (e.g. `"TUWUNEL_PORT"`).
+    pub name: String,
+
+    /// Human-readable description shown as help text in the Config tab.
+    ///
+    /// MANDATORY — every variable must explain what it controls.
+    #[serde(default)]
+    pub description: String,
+
+    /// Whether this variable must be set before the package can start.
+    #[serde(default)]
+    pub required: bool,
+
+    /// Default value (stored as string; converted to the appropriate `ConfigValue`).
+    #[serde(default)]
+    pub default: Option<String>,
+
+    /// Input widget type. Defaults to `text`.
+    #[serde(default)]
+    pub field_type: ManifestFieldType,
+
+    /// Optional label override — falls back to `name` if empty.
+    #[serde(default)]
+    pub label: String,
+
+    /// Whether a restart is required when this variable changes.
+    #[serde(default)]
+    pub needs_restart: bool,
+}
+
+impl ManifestVariable {
+    /// Returns the display label — `label` if set, otherwise `name`.
+    pub fn display_label(&self) -> &str {
+        if self.label.is_empty() { &self.name } else { &self.label }
+    }
+
+    /// Returns `true` when the description is non-empty.
+    pub fn has_description(&self) -> bool {
+        !self.description.is_empty()
+    }
+}
+
+/// Input field type for manifest variables — determines the Config tab widget.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ManifestFieldType {
+    /// Single-line text input (default).
+    #[default]
+    Text,
+    /// Boolean toggle.
+    Bool,
+    /// Port number (validated 1–65535).
+    Port,
+    /// Password input (value masked).
+    Password,
+    /// Secret — like password; can be auto-generated.
+    Secret,
+    /// File system path with optional picker.
+    Path,
+    /// Multi-line text area.
+    Textarea,
+    /// Plain string (alias for text — used in existing manifests).
+    String,
+}
+
+// ── SetupManifest ─────────────────────────────────────────────────────────────
+
+/// Setup wizard configuration (`[setup]`).
+///
+/// Describes the fields shown to the user in the first-install wizard.
+/// These are higher-level than `variables` — they represent choices the
+/// user makes before the package is started for the first time.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct SetupManifest {
+    /// Setup wizard fields shown before first install.
+    #[serde(default, rename = "fields")]
+    pub fields: Vec<SetupField>,
+}
+
+/// One field in the setup wizard (`[[setup.fields]]`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SetupField {
+    /// Variable key this field writes to.
+    pub key: String,
+
+    /// Human-readable label shown in the wizard.
+    pub label: String,
+
+    /// Explanation of what this setting controls.
+    #[serde(default)]
+    pub description: String,
+
+    /// Input widget type.
+    #[serde(default)]
+    pub field_type: ManifestFieldType,
+
+    /// Default value.
+    #[serde(default)]
+    pub default: Option<String>,
+
+    /// Skip showing this field if the variable is already set.
+    #[serde(default)]
+    pub skip_if_set: bool,
+
+    /// Auto-generate a random value (for passwords/secrets).
+    #[serde(default)]
+    pub auto_generate: bool,
+}
+
+// ── ContractManifest ──────────────────────────────────────────────────────────
+
+/// Reverse proxy contract (`[contract]`).
+///
+/// Describes how Zentinel (the reverse proxy) routes traffic to this package.
+/// Each route entry declares a path prefix and whether it should be stripped.
+///
+/// # Example (TOML)
+///
+/// ```toml
+/// [contract]
+/// upstream_tls = true
+///
+/// [[contract.routes]]
+/// id          = "main"
+/// path        = "/"
+/// strip       = false
+/// description = "Kanidm web UI + REST API"
+/// ```
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ContractManifest {
+    /// Whether the upstream (this package) uses TLS.
+    #[serde(default)]
+    pub upstream_tls: bool,
+
+    /// Routes this package handles.
+    #[serde(default)]
+    pub routes: Vec<ContractRoute>,
+}
+
+/// One route in the proxy contract (`[[contract.routes]]`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContractRoute {
+    /// Unique route identifier (e.g. `"main"`, `"api"`).
+    pub id: String,
+
+    /// Path prefix to match (e.g. `"/"`).
+    pub path: String,
+
+    /// Whether to strip the prefix before forwarding.
+    #[serde(default)]
+    pub strip: bool,
+
+    /// Human-readable description of what this route serves.
+    #[serde(default)]
+    pub description: String,
 }
 
 // ── BundleManifest ────────────────────────────────────────────────────────────
@@ -179,27 +621,6 @@ pub struct BundleManifest {
     /// Package IDs that are offered to the user as optional additions.
     #[serde(default)]
     pub optional: Vec<String>,
-}
-
-impl ApiManifest {
-    /// Parse a manifest from a TOML string.
-    pub fn from_toml(s: &str) -> Result<Self, FsError> {
-        toml::from_str(s)
-            .map_err(|e| FsError::parse(format!("manifest parse error: {e}")))
-    }
-
-    /// Parse a manifest from a file.
-    pub fn from_file(path: &Path) -> Result<Self, FsError> {
-        let s = std::fs::read_to_string(path)
-            .map_err(|e| FsError::internal(format!("cannot read {}: {e}", path.display())))?;
-        Self::from_toml(&s)
-    }
-
-    /// Serialize to TOML.
-    pub fn to_toml(&self) -> Result<String, FsError> {
-        toml::to_string_pretty(self)
-            .map_err(|e| FsError::internal(format!("manifest serialize error: {e}")))
-    }
 }
 
 // ── PackageOrigin ─────────────────────────────────────────────────────────────
@@ -270,7 +691,7 @@ pub struct PackageMeta {
     #[serde(default)]
     pub description: String,
 
-    /// Package category (e.g. `"deploy.proxy"`).
+    /// Package category (e.g. `"iam"`).
     #[serde(default)]
     pub category: String,
 
@@ -291,7 +712,7 @@ pub struct PackageMeta {
     pub icon: String,
 
     /// Package type — controls install behaviour and display.
-    #[serde(default)]
+    #[serde(default, rename = "type")]
     pub package_type: PackageType,
 
     /// Release channel this manifest targets.
@@ -302,41 +723,6 @@ pub struct PackageMeta {
     /// Used by the help panel and store detail view.
     #[serde(default)]
     pub origin: PackageOrigin,
-}
-
-// ── PackageSource ─────────────────────────────────────────────────────────────
-
-/// Where to fetch this package from.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "lowercase")]
-pub enum PackageSource {
-    /// Pull a container image from an OCI registry.
-    Oci {
-        /// OCI image reference (e.g. `"ghcr.io/freesynergy/zentinel:0.1.0"`).
-        image: String,
-    },
-
-    /// Download from the FreeSynergy Store (namespace + package ID).
-    Store {
-        /// Store namespace (e.g. `"Node"`).
-        namespace: String,
-    },
-
-    /// Use a local directory (development / offline).
-    Local {
-        /// Absolute or workspace-relative path.
-        path: String,
-    },
-}
-
-impl PackageSource {
-    /// Parse the OCI image reference for `Oci` sources.
-    pub fn oci_ref(&self) -> Option<Result<OciRef, FsError>> {
-        match self {
-            Self::Oci { image } => Some(OciRef::parse(image)),
-            _ => None,
-        }
-    }
 }
 
 // ── FileMapping ───────────────────────────────────────────────────────────────
@@ -450,9 +836,107 @@ id          = "proxy/zentinel"
 name        = "Zentinel"
 version     = "0.1.0"
 description = "Reverse proxy module"
-category    = "deploy.proxy"
+category    = "proxy"
 license     = "MIT"
 author      = "FreeSynergy.Net"
+"#;
+
+    const APP_TOML: &str = r#"
+[package]
+id          = "iam/kanidm"
+name        = "Kanidm"
+version     = "1.4.2"
+description = "Identity and access management server"
+category    = "iam"
+type        = "app"
+license     = "MPL-2.0"
+author      = "Kal El"
+tags        = ["iam", "identity", "oidc", "ldap", "webauthn"]
+
+[package.origin]
+website = "https://kanidm.com"
+git     = "https://github.com/FreeSynergy/fs-kanidm"
+
+[source]
+type     = "github_release"
+repo     = "FreeSynergy/fs-kanidm"
+artifact = "kanidmd-x86_64-linux.tar.gz"
+
+[app]
+binary     = "kanidmd"
+service    = "kanidm.service"
+data_dir   = "{data_root}/kanidm"
+config_dir = "{config_root}/kanidm"
+
+[[variables]]
+name        = "KANIDM_DOMAIN"
+description = "The domain Kanidm serves (e.g. auth.example.com)."
+required    = true
+field_type  = "text"
+
+[[variables]]
+name        = "KANIDM_HTTPS_PORT"
+description = "HTTPS port Kanidm listens on."
+field_type  = "port"
+default     = "8443"
+
+[setup]
+[[setup.fields]]
+key        = "kanidm_domain"
+label      = "Kanidm domain"
+field_type = "text"
+
+[contract]
+upstream_tls = true
+
+[[contract.routes]]
+id          = "main"
+path        = "/"
+strip       = false
+description = "Kanidm web UI + REST API"
+"#;
+
+    const CONTAINER_TOML: &str = r#"
+[package]
+id          = "chat/tuwunel"
+name        = "Tuwunel"
+version     = "0.1.0"
+type        = "container"
+description = "Matrix homeserver"
+category    = "chat"
+
+[source]
+type  = "oci"
+image = "ghcr.io/matrix-construct/tuwunel:latest"
+
+[container]
+image     = "ghcr.io/matrix-construct/tuwunel"
+image_tag = "latest"
+volumes   = ["{data_root}/tuwunel:/var/lib/tuwunel:Z"]
+
+[container.healthcheck]
+cmd          = "curl -fsS http://localhost:8008/_matrix/client/versions"
+interval     = "30s"
+timeout      = "5s"
+retries      = 3
+start_period = "30s"
+
+[[variables]]
+name        = "TUWUNEL_SERVER_NAME"
+description = "Matrix server name (e.g. example.com)."
+required    = true
+"#;
+
+    const BUNDLE_TOML: &str = r#"
+[package]
+id   = "proxy/zentinel-bundle"
+name = "Zentinel Bundle"
+type = "bundle"
+version = "0.1.0"
+
+[bundle]
+packages = ["proxy/zentinel", "proxy/zentinel-plane"]
+optional  = []
 "#;
 
     const FULL_TOML: &str = r#"
@@ -461,7 +945,7 @@ id          = "proxy/zentinel"
 name        = "Zentinel"
 version     = "0.1.0"
 description = "Reverse proxy module"
-category    = "deploy.proxy"
+category    = "proxy"
 license     = "MIT"
 author      = "FreeSynergy.Net"
 tags        = ["proxy", "tls"]
@@ -497,25 +981,66 @@ capabilities  = ["podman", "systemd"]
     }
 
     #[test]
+    fn parse_app_manifest() {
+        let m = ApiManifest::from_toml(APP_TOML).unwrap();
+        assert_eq!(m.package.id, "iam/kanidm");
+        assert_eq!(m.package.package_type, PackageType::App);
+        assert!(m.is_app());
+
+        let app = m.app.as_ref().unwrap();
+        assert_eq!(app.binary, "kanidmd");
+        assert_eq!(app.service.as_deref(), Some("kanidm.service"));
+
+        let src = m.source.as_ref().unwrap();
+        assert_eq!(src.github_repo(), Some("FreeSynergy/fs-kanidm"));
+        assert_eq!(src.github_artifact(), Some("kanidmd-x86_64-linux.tar.gz"));
+
+        assert_eq!(m.variables.len(), 2);
+        assert_eq!(m.variables[0].name, "KANIDM_DOMAIN");
+        assert!(m.variables[0].required);
+        assert_eq!(m.variables[1].field_type, ManifestFieldType::Port);
+        assert_eq!(m.variables[1].default.as_deref(), Some("8443"));
+
+        let contract = m.contract.as_ref().unwrap();
+        assert!(contract.upstream_tls);
+        assert_eq!(contract.routes[0].id, "main");
+    }
+
+    #[test]
+    fn parse_container_manifest() {
+        let m = ApiManifest::from_toml(CONTAINER_TOML).unwrap();
+        assert_eq!(m.package.package_type, PackageType::Container);
+        assert!(m.is_container());
+
+        let ctr = m.container.as_ref().unwrap();
+        assert_eq!(ctr.image, "ghcr.io/matrix-construct/tuwunel");
+        assert!(ctr.healthcheck.is_some());
+    }
+
+    #[test]
+    fn parse_bundle_manifest() {
+        let m = ApiManifest::from_toml(BUNDLE_TOML).unwrap();
+        assert_eq!(m.package.package_type, PackageType::Bundle);
+        let b = m.bundle.as_ref().unwrap();
+        assert!(b.packages.contains(&"proxy/zentinel".to_string()));
+        assert!(b.packages.contains(&"proxy/zentinel-plane".to_string()));
+    }
+
+    #[test]
     fn parse_full() {
         let m = ApiManifest::from_toml(FULL_TOML).unwrap();
         assert_eq!(m.package.id, "proxy/zentinel");
         assert_eq!(m.package.tags, vec!["proxy", "tls"]);
 
-        // Source
         let src = m.source.unwrap();
         let oci = src.oci_ref().unwrap().unwrap();
         assert_eq!(oci.tag(), Some("0.1.0"));
 
-        // Files
         assert!(m.files.config.iter().any(|f| f.source == "zentinel.kdl.j2"));
         assert!(m.files.units.iter().any(|f| f.source == "zentinel.container"));
 
-        // Hooks
         assert_eq!(m.hooks.pre_install, vec!["mkdir -p /srv/data/zentinel"]);
         assert_eq!(m.hooks.post_install, vec!["systemctl daemon-reload"]);
-
-        // Requires
         assert_eq!(m.requires.packages, vec!["iam/kanidm"]);
         assert!(m.requires.capabilities.contains(&"podman".to_string()));
     }
@@ -532,5 +1057,33 @@ capabilities  = ["podman", "systemd"]
     #[test]
     fn invalid_toml_returns_error() {
         assert!(ApiManifest::from_toml("not valid toml ===").is_err());
+    }
+
+    #[test]
+    fn manifest_variable_display_label() {
+        let v = ManifestVariable {
+            name: "MY_VAR".into(),
+            label: "My Variable".into(),
+            ..Default::default()
+        };
+        assert_eq!(v.display_label(), "My Variable");
+
+        let v2 = ManifestVariable {
+            name: "MY_VAR".into(),
+            ..Default::default()
+        };
+        assert_eq!(v2.display_label(), "MY_VAR");
+    }
+
+    #[test]
+    fn github_release_source() {
+        let src = PackageSource::GithubRelease {
+            repo:     "FreeSynergy/fs-kanidm".into(),
+            artifact: "kanidmd-x86_64-linux.tar.gz".into(),
+            checksum: Some("abc123".into()),
+        };
+        assert_eq!(src.github_repo(),     Some("FreeSynergy/fs-kanidm"));
+        assert_eq!(src.github_artifact(), Some("kanidmd-x86_64-linux.tar.gz"));
+        assert!(src.oci_ref().is_none());
     }
 }

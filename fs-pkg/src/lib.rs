@@ -33,12 +33,20 @@ pub use capability_match::{CapabilityMatch, CapabilityMatcher, CapabilityRegistr
 pub use channel::ReleaseChannel;
 pub use dependency_resolver::{DepGraph, PackageDep, ResolutionError};
 pub use event::{EventBus, InstallEvent, InstallHook};
-pub use installer::{InstallOptions, InstallOutcome, PackageInstaller};
+pub use installer::{
+    FetchStrategy, GithubReleaseFetch, LocalFetch, NoOpFetch, OciFetch,
+    fetch_strategy_for, InstallOptions, InstallOutcome, PackageInstaller,
+};
 pub use manageable::{
     ConfigField, ConfigFieldKind, ConfigValue, HealthCheck, InstanceRef,
     Manageable, PackageHealth, RunStatus, SelectOption,
 };
-pub use manifest::{ApiManifest, BundleManifest, FileMapping, PackageFiles, PackageHooks, PackageId, PackageMeta, PackageRequires, PackageType};
+pub use manifest::{
+    ApiManifest, AppManifest, BundleManifest, ContainerHealthCheck, ContainerManifest,
+    ContractManifest, ContractRoute, FileMapping, ManifestFieldType, ManifestVariable,
+    PackageFiles, PackageHooks, PackageId, PackageMeta, PackageRequires, PackageSource,
+    PackageType, SetupField, SetupManifest,
+};
 pub use package::{InstalledRecord, Package};
 pub use oci::OciRef;
 pub use scaling::{InstanceRole, ScalingDialog, ScalingManifest, WorkerMode};
