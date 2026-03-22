@@ -168,14 +168,9 @@ impl PackageInstaller {
         }
 
         // Write all declared files
-        let all_files: Vec<(&str, &str)> = manifest.files.config.iter()
-            .chain(manifest.files.units.iter())
-            .chain(manifest.files.data.iter())
-            .map(|(k, v)| (k.as_str(), v.as_str()))
-            .collect();
-
-        for (src, dest_template) in all_files {
-            let dest = options.vars.expand(dest_template);
+        for mapping in manifest.files.all() {
+            let src = mapping.source.as_str();
+            let dest = options.vars.expand(&mapping.dest);
             let dest_path = PathBuf::from(&dest);
 
             if !options.dry_run {
@@ -244,14 +239,8 @@ impl PackageInstaller {
         }
 
         // Delete all declared files
-        let all_dests: Vec<&str> = manifest.files.config.values()
-            .chain(manifest.files.units.values())
-            .chain(manifest.files.data.values())
-            .map(String::as_str)
-            .collect();
-
-        for dest_template in all_dests {
-            let dest = options.vars.expand(dest_template);
+        for mapping in manifest.files.all() {
+            let dest = options.vars.expand(&mapping.dest);
             let path = PathBuf::from(&dest);
 
             if !options.dry_run && path.exists() {

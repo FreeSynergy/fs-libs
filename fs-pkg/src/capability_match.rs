@@ -18,6 +18,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+use crate::manifest::PackageId;
+
 // ── ServiceCapabilities ───────────────────────────────────────────────────────
 
 /// Capabilities and requirements declared by one installed service.
@@ -25,8 +27,8 @@ use serde::{Deserialize, Serialize};
 /// Serializes to/from TOML for the `[package.capabilities]` block.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ServiceCapabilities {
-    /// Unique service identifier, e.g. `"iam/kanidm"`.
-    pub service_id: String,
+    /// Typed unique service identifier (e.g. `"iam/kanidm"`).
+    pub service_id: PackageId,
 
     /// Human-readable name for display.
     pub service_name: String,
@@ -96,7 +98,7 @@ impl CapabilityRegistry {
 
     /// Remove a service by ID.
     pub fn unregister(&mut self, service_id: &str) {
-        self.services.retain(|s| s.service_id != service_id);
+        self.services.retain(|s| s.service_id.as_str() != service_id);
     }
 
     /// All services that provide the given capability.
@@ -116,7 +118,7 @@ impl CapabilityRegistry {
 
     /// Find a service by ID.
     pub fn find(&self, service_id: &str) -> Option<&ServiceCapabilities> {
-        self.services.iter().find(|s| s.service_id == service_id)
+        self.services.iter().find(|s| s.service_id.as_str() == service_id)
     }
 }
 
@@ -131,8 +133,8 @@ pub struct CapabilityMatch {
     /// The role this variable plays (e.g. `"iam.oidc-discovery-url"`).
     pub role: String,
 
-    /// The service that provides the value.
-    pub provider_id: String,
+    /// Typed identifier of the service that provides the value.
+    pub provider_id: PackageId,
 
     /// Human-readable provider name.
     pub provider_name: String,
@@ -143,8 +145,8 @@ pub struct CapabilityMatch {
     /// `true` if there are multiple providers and the user must choose.
     pub requires_user_choice: bool,
 
-    /// All candidate providers (populated when `requires_user_choice` is true).
-    pub candidates: Vec<String>,
+    /// All candidate provider IDs (populated when `requires_user_choice` is true).
+    pub candidates: Vec<PackageId>,
 }
 
 // ── CapabilityMatcher ─────────────────────────────────────────────────────────
@@ -197,7 +199,7 @@ impl<'a> CapabilityMatcher<'a> {
         }
 
         let primary = &providers[0];
-        let candidates: Vec<String> = providers.iter().map(|p| p.service_id.clone()).collect();
+        let candidates: Vec<PackageId> = providers.iter().map(|p| p.service_id.clone()).collect();
 
         Some(CapabilityMatch {
             variable_name:      variable_name.to_string(),

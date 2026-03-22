@@ -11,7 +11,6 @@
 //   [hooks]          — shell commands to run during install/remove lifecycle
 //   [requires]       — other packages or capabilities this package needs
 
-use std::collections::HashMap;
 use std::path::Path;
 
 use fs_error::FsError;
@@ -27,7 +26,7 @@ use crate::oci::OciRef;
 /// Wraps a `String` to ensure all package IDs are typed values rather than
 /// plain strings.  Access the underlying text via `Display`, `Deref`, or
 /// `as_str()`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct PackageId(String);
 
@@ -279,27 +278,52 @@ impl PackageSource {
     }
 }
 
+// ── FileMapping ───────────────────────────────────────────────────────────────
+
+/// One source → destination file entry in a package's `[files.*]` block.
+///
+/// `source` is relative to the package root.
+/// `dest` is the absolute target path on the system; may contain
+/// `{data_root}` / `{config_root}` placeholders expanded at install time.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileMapping {
+    /// Source path relative to the package root (e.g. `"zentinel.kdl.j2"`).
+    pub source: String,
+    /// Destination path on the target system (e.g. `"{config_root}/zentinel.kdl"`).
+    pub dest: String,
+}
+
 // ── PackageFiles ──────────────────────────────────────────────────────────────
 
 /// Files this package installs (`[files]`).
+///
+/// Each subsection holds typed [`FileMapping`] entries instead of raw
+/// `HashMap<String, String>` so callers receive objects, not plain data.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct PackageFiles {
-    /// Config files to write (source path → destination path).
-    ///
-    /// Source paths are relative to the package root; destination paths are
-    /// absolute or use `{data_root}` / `{config_root}` placeholders.
+    /// Config files to write.
     #[serde(default)]
-    pub config: HashMap<String, String>,
+    pub config: Vec<FileMapping>,
 
-    /// Systemd unit files (Quadlets) to install.
-    ///
-    /// Source path → destination (typically `/etc/containers/systemd/`).
+    /// Systemd unit files (Quadlets) to install (typically to `/etc/containers/systemd/`).
     #[serde(default)]
-    pub units: HashMap<String, String>,
+    pub units: Vec<FileMapping>,
 
     /// Arbitrary data files.
     #[serde(default)]
-    pub data: HashMap<String, String>,
+    pub data: Vec<FileMapping>,
+}
+
+impl PackageFiles {
+    /// Iterator over **all** file mappings across config, units, and data (in that order).
+    pub fn all(&self) -> impl Iterator<Item = &FileMapping> {
+        self.config.iter().chain(self.units.iter()).chain(self.data.iter())
+    }
+
+    /// Iterator over all **destination** paths (may contain placeholders).
+    pub fn all_dests(&self) -> impl Iterator<Item = &str> {
+        self.all().map(|f| f.dest.as_str())
+    }
 }
 
 // ── PackageHooks ──────────────────────────────────────────────────────────────
@@ -385,11 +409,13 @@ tags        = ["proxy", "tls"]
 type      = "oci"
 image     = "ghcr.io/freesynergy/zentinel:0.1.0"
 
-[files.config]
-"zentinel.kdl.j2" = "{config_root}/zentinel.kdl"
+[[files.config]]
+source = "zentinel.kdl.j2"
+dest   = "{config_root}/zentinel.kdl"
 
-[files.units]
-"zentinel.container" = "/etc/containers/systemd/zentinel.container"
+[[files.units]]
+source = "zentinel.container"
+dest   = "/etc/containers/systemd/zentinel.container"
 
 [hooks]
 pre_install   = ["mkdir -p /srv/data/zentinel"]
@@ -421,8 +447,8 @@ capabilities  = ["podman", "systemd"]
         assert_eq!(oci.tag(), Some("0.1.0"));
 
         // Files
-        assert!(m.files.config.contains_key("zentinel.kdl.j2"));
-        assert!(m.files.units.contains_key("zentinel.container"));
+        assert!(m.files.config.iter().any(|f| f.source == "zentinel.kdl.j2"));
+        assert!(m.files.units.iter().any(|f| f.source == "zentinel.container"));
 
         // Hooks
         assert_eq!(m.hooks.pre_install, vec!["mkdir -p /srv/data/zentinel"]);
