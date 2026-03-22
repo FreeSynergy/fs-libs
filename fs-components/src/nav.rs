@@ -174,40 +174,39 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     margin: 4px 8px;
     flex-shrink: 0;
 }
-/* ── Tab strip: compact pill that sticks out from the left edge ─── */
-/* Icon + Label side by side — pill is wide enough to show names.
-   Vertically centered by the parent align-items: center.
-   Rounded right corners give the "Beule" (bump) look.                */
+/* ── Tab strip: icons-only pill that sticks out from the left edge ─── */
+/* Only icons visible — labels are hidden. When the sidebar is open
+   (panel slides in), the panel shows icon + label side by side.
+   Left corners have 45° soft diagonal chamfers; right corners are round. */
 .fs-sidebar__tab-strip {
-    width: 120px;
+    width: 44px;
     flex-shrink: 0;
-    /* height: auto — sized by content only */
     background: var(--fs-bg-surface, #162032);
-    border-top: 1px solid var(--fs-border, rgba(148,170,200,0.18));
-    border-right: 1px solid var(--fs-border, rgba(148,170,200,0.18));
-    border-bottom: 1px solid var(--fs-border, rgba(148,170,200,0.18));
-    border-radius: 0 10px 10px 0;
+    border-radius: 0 12px 12px 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: 8px 6px;
+    padding: 8px 4px;
     gap: 2px;
     pointer-events: all;
-    box-shadow: 3px 0 12px rgba(0, 0, 0, 0.35);
+    /* 45° chamfers on top-left and bottom-left, border-radius rounds top-right/bottom-right */
+    clip-path: polygon(0% 16px, 16px 0%, 100% 0%, 100% 100%, 16px 100%, 0% calc(100% - 16px));
+    /* Soft drop-shadow makes the diagonal edges appear smooth */
+    filter: drop-shadow(3px 0 10px rgba(0,0,0,0.5)) drop-shadow(0 0 1px rgba(148,170,200,0.12));
 }
 .fs-sidebar__tab-btn {
     width: 100%;
     height: auto;
-    min-height: 34px;
+    min-height: 36px;
     border: none;
     border-radius: var(--fs-radius-sm, 6px);
     background: transparent;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-    padding: 6px 8px;
-    gap: 7px;
+    justify-content: center;
+    padding: 6px 4px;
+    gap: 0;
     cursor: pointer;
     color: var(--fs-text-secondary, #a0b0c8);
     transition: background 120ms, color 120ms;
@@ -223,15 +222,9 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     color: var(--fs-sidebar-active, #4d8bf5);
 }
 .fs-sidebar__tab-btn svg { width: 18px; height: 18px; display: block; }
+/* Labels hidden in the tab-strip — only icons are shown */
 .fs-sidebar__tab-label {
-    font-size: 12px;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-    text-align: left;
-    line-height: 1.2;
+    display: none;
 }
 /* ── Folder slide animations (diagonal: X + Y offset) ───────────── */
 @keyframes fs-slide-from-right {
