@@ -175,11 +175,11 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     flex-shrink: 0;
 }
 /* ── Tab strip: compact pill that sticks out from the left edge ─── */
-/* Height = auto (only as tall as the icons inside it).
+/* Icon + Label side by side — pill is wide enough to show names.
    Vertically centered by the parent align-items: center.
    Rounded right corners give the "Beule" (bump) look.                */
 .fs-sidebar__tab-strip {
-    width: 44px;
+    width: 120px;
     flex-shrink: 0;
     /* height: auto — sized by content only */
     background: var(--fs-bg-surface, #162032);
@@ -189,25 +189,30 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     border-radius: 0 10px 10px 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 8px 0;
-    gap: 4px;
+    align-items: stretch;
+    padding: 8px 6px;
+    gap: 2px;
     pointer-events: all;
     box-shadow: 3px 0 12px rgba(0, 0, 0, 0.35);
 }
 .fs-sidebar__tab-btn {
-    width: 36px;
-    height: 36px;
+    width: 100%;
+    height: auto;
+    min-height: 34px;
     border: none;
-    border-radius: var(--fs-radius-md, 10px);
+    border-radius: var(--fs-radius-sm, 6px);
     background: transparent;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding: 6px 8px;
+    gap: 7px;
     cursor: pointer;
     color: var(--fs-text-secondary, #a0b0c8);
     transition: background 120ms, color 120ms;
     flex-shrink: 0;
+    overflow: hidden;
 }
 .fs-sidebar__tab-btn:hover {
     background: var(--fs-bg-hover, #243352);
@@ -217,15 +222,25 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     background: var(--fs-sidebar-active-bg, rgba(77,139,245,0.15));
     color: var(--fs-sidebar-active, #4d8bf5);
 }
-.fs-sidebar__tab-btn svg { width: 20px; height: 20px; display: block; }
-/* ── Folder slide animations ─────────────────────────────────────── */
+.fs-sidebar__tab-btn svg { width: 18px; height: 18px; display: block; }
+.fs-sidebar__tab-label {
+    font-size: 12px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    text-align: left;
+    line-height: 1.2;
+}
+/* ── Folder slide animations (diagonal: X + Y offset) ───────────── */
 @keyframes fs-slide-from-right {
-    from { transform: translateX(24px); opacity: 0; }
-    to   { transform: translateX(0);    opacity: 1; }
+    from { transform: translateX(20px) translateY(-6px); opacity: 0; }
+    to   { transform: translateX(0)    translateY(0);    opacity: 1; }
 }
 @keyframes fs-slide-from-left {
-    from { transform: translateX(-24px); opacity: 0; }
-    to   { transform: translateX(0);     opacity: 1; }
+    from { transform: translateX(-20px) translateY(6px); opacity: 0; }
+    to   { transform: translateX(0)     translateY(0);   opacity: 1; }
 }
 .fs-sidebar__level--folder { animation: fs-slide-from-right 160ms ease; }
 .fs-sidebar__level--root   { animation: fs-slide-from-left  160ms ease; }
@@ -244,6 +259,12 @@ pub const FS_SIDEBAR_CSS: &str = r#"
 
 /// Minimal inline SVG shown when an item has no icon.
 const MISSING_ICON_SVG: &str = r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><line x1="6" y1="6" x2="18" y2="18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg>"##;
+
+/// 45° diagonal left-pointing chevron — used for the back button.
+const CHEVRON_LEFT: &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5,2 4.5,7 9.5,12"/></svg>"#;
+
+/// 45° diagonal right-pointing chevron — used for folder arrows.
+const CHEVRON_RIGHT: &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4.5,2 9.5,7 4.5,12"/></svg>"#;
 
 /// Renders an icon: inline SVG markup, HTTP(S) URL as <img>, plain emoji/text, or missing-icon placeholder.
 #[component]
@@ -300,7 +321,7 @@ fn SidebarItemList(
                     },
                     FsIcon { icon: item.icon.clone() }
                     span { class: "fs-sidebar__label", "{item.label}" }
-                    span { class: "fs-sidebar__folder-arrow", "›" }
+                    span { class: "fs-sidebar__folder-arrow", dangerous_inner_html: CHEVRON_RIGHT }
                 }
             } else {
                 button {
@@ -400,7 +421,7 @@ pub fn FsSidebar(
                                     class: "fs-sidebar__item fs-sidebar__back",
                                     title: "Back",
                                     onclick: move |_| main_open_folder.set(None),
-                                    span { class: "fs-sidebar__icon", "‹" }
+                                    span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
                                     span { class: "fs-sidebar__label", "{main_back_label}" }
                                 }
                                 div { class: "fs-sidebar__divider" }
@@ -425,7 +446,7 @@ pub fn FsSidebar(
                                     class: "fs-sidebar__item fs-sidebar__back",
                                     title: "Back",
                                     onclick: move |_| pinned_open_folder.set(None),
-                                    span { class: "fs-sidebar__icon", "‹" }
+                                    span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
                                     span { class: "fs-sidebar__label", "{pinned_back_label}" }
                                 }
                                 div { class: "fs-sidebar__divider" }
@@ -443,7 +464,7 @@ pub fn FsSidebar(
             }
 
             // ── Tab strip: bookmark tabs that stick out at the left edge ─────
-            // Shows one icon per top-level item. Clicking navigates directly.
+            // Shows icon + label side by side. Pinned items (Settings) at bottom.
             div { class: "fs-sidebar__tab-strip",
                 for item in &tab_items {
                     {
@@ -463,12 +484,13 @@ pub fn FsSidebar(
                                 title:   "{label}",
                                 onclick: move |_| on_select.call(id.clone()),
                                 FsIcon { icon: icon.clone() }
+                                span { class: "fs-sidebar__tab-label", "{label}" }
                             }
                         }
                     }
                 }
-                // Spacer pushes pinned items to the bottom
-                div { style: "flex: 1;" }
+                // Spacer pushes pinned items (Settings etc.) to the bottom
+                div { style: "flex: 1; min-height: 8px;" }
                 for item in &pinned_items {
                     {
                         let is_active_item = item.id == active_id;
@@ -487,6 +509,7 @@ pub fn FsSidebar(
                                 title:   "{label}",
                                 onclick: move |_| on_select.call(id.clone()),
                                 FsIcon { icon: icon.clone() }
+                                span { class: "fs-sidebar__tab-label", "{label}" }
                             }
                         }
                     }
