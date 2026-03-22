@@ -28,6 +28,11 @@ pub use launch::{launch_desktop, spawn_window, DesktopConfig};
 
 // Dioxus-gated components.
 #[cfg(feature = "dioxus")]
+pub mod context;
+#[cfg(feature = "dioxus")]
+pub use context::AppContext;
+
+#[cfg(feature = "dioxus")]
 pub mod nav;
 #[cfg(feature = "dioxus")]
 pub mod button;

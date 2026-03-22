@@ -1,15 +1,17 @@
-// fs-render — ViewRenderer abstraction for FreeSynergy.
+// fs-render — rendering abstractions for FreeSynergy.
 //
-// Defines the `ViewRenderer` trait as a common interface for all rendering
-// backends (Desktop/Web via Dioxus, future mobile).
+// Provides two independent layers:
 //
-// Business logic that implements `ViewRenderer` stays renderer-agnostic;
-// the concrete renderer is injected at startup.
+//   1. `RenderCtx` — renderer-agnostic context (theme, locale, feature flags).
+//      Always compiled. Business logic passes this around without importing Dioxus.
+//
+//   2. `DioxusView` trait — Dioxus-specific view interface.
+//      Compiled only when the `dioxus` feature is enabled.
+//      Domain objects implement `DioxusView` in their UI crates to return
+//      a Dioxus `Element` from `fn view(&self) -> Element`.
 //
 // Feature flags:
-//   dioxus — DioxusRenderer marker type
-
-use std::time::Duration;
+//   dioxus — enables DioxusView trait
 
 pub use fs_config::FeatureFlags;
 pub use fs_theme::Theme;
@@ -51,9 +53,13 @@ impl KeyEvent {
 
 // ── RenderCtx ────────────────────────────────────────────────────────────────
 
-/// Injected render context — available to every `ViewRenderer::render` call.
+/// Renderer-agnostic context for cross-cutting concerns.
 ///
-/// Carries cross-cutting concerns that are injected, never global.
+/// Passed to business logic that needs to know the current theme or locale
+/// without depending on Dioxus directly.
+///
+/// In Dioxus apps this data is also available via `AppContext` from `fs-components`,
+/// which provides reactive `Signal<T>` versions of the same fields.
 pub struct RenderCtx {
     /// Active theme (colors, typography, shadows, glass params).
     pub theme: Theme,
@@ -73,107 +79,47 @@ impl Default for RenderCtx {
     }
 }
 
-// ── ViewRenderer trait ────────────────────────────────────────────────────────
+// ── DioxusView ────────────────────────────────────────────────────────────────
 
-/// Common rendering interface for all FreeSynergy views.
-///
-/// Implement this for any view that should work across renderers:
-/// - Desktop/Web (Dioxus): implement `render` by returning RSX elements or
-///   signalling a reactive re-render.
-/// - Tests: implement `render` as a no-op or string collector.
-///
-/// # Lifecycle
-/// ```text
-/// loop {
-///     renderer.handle_event(event)?;   // process input
-///     changed = renderer.update(dt);   // advance state
-///     if changed { renderer.render(ctx); }  // paint
-/// }
-/// ```
-pub trait ViewRenderer {
-    /// Paint the current state. Called after `update` returns `true` or on
-    /// the first frame.
-    fn render(&self, ctx: &RenderCtx);
-
-    /// Process a normalised input event. Returns `true` if the event was
-    /// consumed (prevents further propagation).
-    fn handle_event(&mut self, event: UserEvent) -> bool;
-
-    /// Advance internal animation or async state. `delta` is the time since
-    /// the last call. Returns `true` if a repaint is needed.
-    fn update(&mut self, delta: Duration) -> bool;
-}
-
-// ── DioxusRenderer ────────────────────────────────────────────────────────────
-
-/// Desktop / Web renderer backed by Dioxus.
-///
-/// Dioxus manages its own reactive graph and diffing; the `render` method
-/// is a thin hook into the Dioxus signal system.
 #[cfg(feature = "dioxus")]
-pub mod dioxus_renderer {
-    use super::{RenderCtx, UserEvent, ViewRenderer};
-    use std::time::Duration;
+pub mod dioxus_view {
+    use dioxus::prelude::Element;
 
-    /// Marker renderer for Dioxus-based views.
+    /// Dioxus view interface for domain objects.
     ///
-    /// In practice, Dioxus components are functions — not objects. This struct
-    /// acts as a bridge for business-logic objects that need to interact with
-    /// the renderer without depending on Dioxus's `#[component]` macro.
+    /// Implement this trait on a domain object in its UI crate
+    /// (where Dioxus is already a dependency) to give the object
+    /// the ability to render itself as a Dioxus `Element`.
     ///
-    /// Use `DioxusRenderer::signal_repaint()` to trigger a Dioxus re-render
-    /// via a shared signal.
-    pub struct DioxusRenderer {
-        needs_repaint: bool,
-    }
-
-    impl Default for DioxusRenderer {
-        fn default() -> Self {
-            Self { needs_repaint: true }
-        }
-    }
-
-    impl DioxusRenderer {
-        pub fn new() -> Self {
-            Self::default()
-        }
-    }
-
-    impl ViewRenderer for DioxusRenderer {
-        fn render(&self, _ctx: &RenderCtx) {
-            // Dioxus renders reactively via signals. This method is called
-            // to trigger a re-render signal from outside the reactive graph.
-        }
-
-        fn handle_event(&mut self, event: UserEvent) -> bool {
-            self.needs_repaint = true;
-            let _ = event;
-            false
-        }
-
-        fn update(&mut self, _delta: Duration) -> bool {
-            let dirty = self.needs_repaint;
-            self.needs_repaint = false;
-            dirty
-        }
+    /// # Example
+    ///
+    /// ```rust
+    /// // In fs-settings (has dioxus dep):
+    /// use fs_render::dioxus_view::DioxusView;
+    /// use dioxus::prelude::*;
+    ///
+    /// impl DioxusView for LanguageManager {
+    ///     fn view(&self) -> Element {
+    ///         rsx! { div { "Language: {self.active_locale()}" } }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// Then call `{manager.view()}` inside any `rsx!` block.
+    pub trait DioxusView {
+        /// Render the object as a Dioxus element.
+        fn view(&self) -> Element;
     }
 }
+
+#[cfg(feature = "dioxus")]
+pub use dioxus_view::DioxusView;
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    struct NoopRenderer { repaint: bool }
-
-    impl ViewRenderer for NoopRenderer {
-        fn render(&self, _ctx: &RenderCtx) {}
-        fn handle_event(&mut self, _event: UserEvent) -> bool { self.repaint = true; false }
-        fn update(&mut self, _delta: Duration) -> bool {
-            let v = self.repaint; self.repaint = false; v
-        }
-    }
 
     #[test]
     fn render_ctx_default_is_english() {
@@ -194,13 +140,6 @@ mod tests {
         flags.enable("experimental_ui");
         assert!(flags.is_enabled("experimental_ui"));
         assert!(!flags.is_enabled("other_flag"));
-    }
-
-    #[test]
-    fn view_renderer_update_clears_dirty() {
-        let mut r = NoopRenderer { repaint: true };
-        assert!(r.update(Duration::ZERO));
-        assert!(!r.update(Duration::ZERO));
     }
 
     #[test]
