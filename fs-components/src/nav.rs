@@ -23,6 +23,18 @@ pub fn TabBtn(label: String, is_active: bool, on_click: EventHandler) -> Element
 
 // ── FsSidebar ────────────────────────────────────────────────────────────────
 
+/// Which side of the window the sidebar attaches to.
+///
+/// - `Left`  → panel slides in from the left; tab-strip appears on the right edge.
+/// - `Right` → panel slides in from the right; tab-strip appears on the left edge
+///             (mirror layout — only structure is mirrored, not text).
+#[derive(Clone, PartialEq, Debug, Default)]
+pub enum SidebarSide {
+    #[default]
+    Left,
+    Right,
+}
+
 /// A sidebar item descriptor.
 ///
 /// Items with a non-empty `children` list are rendered as folders: clicking them
@@ -57,51 +69,88 @@ impl FsSidebarItem {
     }
 }
 
-/// CSS for FsSidebar — bookmark-drawer overlay pattern.
-/// Inject this once at the app root.
+/// CSS for FsSidebar — bookmark-drawer overlay pattern, supports left and right side.
+///
+/// Inject this once at the app root via `style { FS_SIDEBAR_CSS }`.
+///
+/// **Left sidebar** (default):
+///   Panel slides in from the left; parallelogram tab-strip visible at the left edge.
+///   Closed: `translateX(-panel_width)` → only the tab-strip visible.
+///
+/// **Right sidebar** (`side = SidebarSide::Right`):
+///   Mirror layout — panel slides in from the right; tab-strip at the right edge.
+///   Closed: `translateX(+panel_width)` → only the tab-strip visible.
+///   The tab-strip parallelogram is flipped horizontally.
+///   Text and icons are NOT mirrored, only the structural layout.
 pub const FS_SIDEBAR_CSS: &str = r#"
-/* ── Sidebar: bookmark-drawer overlay ───────────────────────────────── */
-/* Structure: [panel 220px] [tab-strip compact pill]
-   Closed: translateX(-220px) → only the pill visible at the left edge.
-   Open  : translateX(0)      → full sidebar + pill visible.
-   The pill is vertically centered; above/below it the wallpaper shows. */
+/* ── Sidebar: bookmark-drawer overlay ──────────────────────────────────
+   Structure: [panel] [tab-strip 44px] (left) / [tab-strip 44px] [panel] (right).
+   The panel slides behind the tab-strip when collapsed.
+   flex-direction: row         → panel on left,  tab-strip on right  (Left)
+   flex-direction: row-reverse → panel on right, tab-strip on left   (Right)  */
 .fs-sidebar {
     position: absolute;
-    left: 0;
     top: 0;
     bottom: 0;
     z-index: 200;
     display: flex;
-    flex-direction: row;
-    align-items: center;        /* pill is vertically centered         */
-    transform: translateX(-220px);
+    align-items: stretch;
     transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;       /* transparent above/below the pill    */
+    pointer-events: none;
 }
-.fs-sidebar:hover {
+
+/* ── Left variant ────────────────────────────────────────────────────── */
+.fs-sidebar--left {
+    left: 0;
+    flex-direction: row;
+    transform: translateX(calc(-1 * var(--fs-sidebar-panel-width, 220px)));
+}
+.fs-sidebar--left:hover,
+.fs-sidebar--left.fs-sidebar--open {
     transform: translateX(0);
 }
-/* ── Panel: the navigation content that slides in ─────────────────── */
+
+/* ── Right variant (mirrored) ────────────────────────────────────────── */
+.fs-sidebar--right {
+    right: 0;
+    left: auto;
+    flex-direction: row-reverse;
+    transform: translateX(var(--fs-sidebar-panel-width, 220px));
+}
+.fs-sidebar--right:hover,
+.fs-sidebar--right.fs-sidebar--open {
+    transform: translateX(0);
+}
+
+/* ── Panel: the navigation content area ─────────────────────────────── */
 .fs-sidebar__panel {
-    width: 220px;
-    min-width: 220px;
+    width: var(--fs-sidebar-panel-width, 220px);
+    min-width: var(--fs-sidebar-panel-width, 220px);
     flex-shrink: 0;
-    align-self: stretch;        /* panel fills full height when open   */
+    align-self: stretch;
     background: var(--fs-bg-sidebar, #0a0f1a);
-    border-right: 1px solid var(--fs-border, rgba(148,170,200,0.18));
     display: flex;
     flex-direction: column;
     overflow: hidden;
     pointer-events: all;
+}
+.fs-sidebar--left .fs-sidebar__panel {
+    border-right: 1px solid var(--fs-border, rgba(148,170,200,0.18));
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
 }
+.fs-sidebar--right .fs-sidebar__panel {
+    border-left: 1px solid var(--fs-border, rgba(148,170,200,0.18));
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Scrollable nav area ─────────────────────────────────────────────── */
 .fs-sidebar__scroll {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     scrollbar-width: thin;
     scrollbar-color: var(--fs-border) transparent;
 }
@@ -111,6 +160,8 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     background: var(--fs-border);
     border-radius: 2px;
 }
+
+/* ── Rail / Pinned sections ──────────────────────────────────────────── */
 .fs-sidebar__rail {
     border-top: 1px solid var(--fs-border, rgba(148,170,200,0.18));
     border-bottom: 1px solid var(--fs-border, rgba(148,170,200,0.18));
@@ -120,6 +171,8 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     flex-shrink: 0;
     border-top: 1px solid var(--fs-border, rgba(148,170,200,0.18));
 }
+
+/* ── Section label ───────────────────────────────────────────────────── */
 .fs-sidebar__section-label {
     padding: 12px 14px 4px;
     font-size: 10px;
@@ -130,6 +183,8 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     white-space: nowrap;
     overflow: hidden;
 }
+
+/* ── Nav item ────────────────────────────────────────────────────────── */
 .fs-sidebar__item {
     display: flex;
     align-items: center;
@@ -151,13 +206,33 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     background: var(--fs-sidebar-hover-bg, rgba(255,255,255,0.05));
     color: var(--fs-text-primary, #e8edf5);
 }
-.fs-sidebar__item--active {
+/* Active indicator on the left for left sidebar */
+.fs-sidebar--left .fs-sidebar__item--active {
     background: var(--fs-sidebar-active-bg, rgba(77,139,245,0.15));
     color: var(--fs-sidebar-active, #4d8bf5);
     border-left-color: var(--fs-sidebar-active, #4d8bf5);
 }
-.fs-sidebar__icon { font-size: 18px; min-width: 20px; text-align: center; flex-shrink: 0; }
-.fs-sidebar__icon svg { width: 20px; height: 20px; display: block; margin: 0 auto; }
+/* Active indicator on the right for right sidebar */
+.fs-sidebar--right .fs-sidebar__item {
+    border-left: none;
+    border-right: 2px solid transparent;
+}
+.fs-sidebar--right .fs-sidebar__item--active {
+    background: var(--fs-sidebar-active-bg, rgba(77,139,245,0.15));
+    color: var(--fs-sidebar-active, #4d8bf5);
+    border-right-color: var(--fs-sidebar-active, #4d8bf5);
+}
+
+/* ── Icon, label, back, folder arrow, divider ────────────────────────── */
+.fs-sidebar__icon {
+    font-size: 18px;
+    min-width: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fs-sidebar__icon svg { width: 20px; height: 20px; display: block; }
 .fs-sidebar__label { font-size: 13px; overflow: hidden; text-overflow: ellipsis; flex: 1; }
 .fs-sidebar__folder-arrow {
     font-size: 11px;
@@ -174,43 +249,67 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     margin: 4px 8px;
     flex-shrink: 0;
 }
-/* ── Tab strip: icons-only pill that sticks out from the left edge ─── */
-/* Only icons visible — labels are hidden. When the sidebar is open
-   (panel slides in), the panel shows icon + label side by side.
-   Left corners have 45° soft diagonal chamfers; right corners are round. */
-.fs-sidebar__tab-strip {
+
+/* ── Tab outer: full-height column holding the parallelogram bubbles ─── */
+.fs-sidebar__tab-outer {
+    align-self: stretch;
+    width: 44px;
+    min-width: 44px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+    padding: 0;
+}
+
+/* ── Tab section: one parallelogram bubble ───────────────────────────── */
+/* align-items: center ensures fixed-size buttons are horizontally centered */
+.fs-sidebar__tab-section {
     width: 44px;
     flex-shrink: 0;
     background: var(--fs-bg-surface, #162032);
-    border-radius: 0 12px 12px 0;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    padding: 8px 4px;
-    gap: 2px;
+    align-items: center;
+    padding: 16px 4px;
+    gap: 4px;
     pointer-events: all;
-    /* 45° chamfers on top-left and bottom-left, border-radius rounds top-right/bottom-right */
-    clip-path: polygon(0% 16px, 16px 0%, 100% 0%, 100% 100%, 16px 100%, 0% calc(100% - 16px));
-    /* Soft drop-shadow makes the diagonal edges appear smooth */
+}
+/* Left sidebar: right-leaning parallelogram (cuts on right side) */
+.fs-sidebar--left .fs-sidebar__tab-section {
+    clip-path: polygon(0% 0%, 100% 16px, 100% calc(100% - 16px), 0% 100%);
     filter: drop-shadow(3px 0 10px rgba(0,0,0,0.5)) drop-shadow(0 0 1px rgba(148,170,200,0.12));
 }
+/* Right sidebar: left-leaning parallelogram (mirror — cuts on left side) */
+.fs-sidebar--right .fs-sidebar__tab-section {
+    clip-path: polygon(0% 16px, 100% 0%, 100% 100%, 0% calc(100% - 16px));
+    filter: drop-shadow(-3px 0 10px rgba(0,0,0,0.5)) drop-shadow(0 0 1px rgba(148,170,200,0.12));
+}
+
+/* ── Gap between icon section and pinned section ─────────────────────── */
+.fs-sidebar__tab-gap {
+    flex: 1;
+    pointer-events: none;
+}
+
+/* ── Tab button: fixed 36×36 square for consistent icon size/alignment ─
+   Every icon in every section has identical dimensions, regardless of
+   how many items are in the bubble. This eliminates the visual offset
+   between the apps bubble (top) and the settings bubble (bottom).       */
 .fs-sidebar__tab-btn {
-    width: 100%;
-    height: auto;
-    min-height: 36px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
     border: none;
     border-radius: var(--fs-radius-sm, 6px);
     background: transparent;
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: 6px 4px;
-    gap: 0;
+    padding: 0;
     cursor: pointer;
     color: var(--fs-text-secondary, #a0b0c8);
     transition: background 120ms, color 120ms;
-    flex-shrink: 0;
     overflow: hidden;
 }
 .fs-sidebar__tab-btn:hover {
@@ -223,10 +322,9 @@ pub const FS_SIDEBAR_CSS: &str = r#"
 }
 .fs-sidebar__tab-btn svg { width: 18px; height: 18px; display: block; }
 /* Labels hidden in the tab-strip — only icons are shown */
-.fs-sidebar__tab-label {
-    display: none;
-}
-/* ── Folder slide animations (diagonal: X + Y offset) ───────────── */
+.fs-sidebar__tab-label { display: none; }
+
+/* ── Folder slide animations (diagonal: X + Y offset) ───────────────── */
 @keyframes fs-slide-from-right {
     from { transform: translateX(20px) translateY(-6px); opacity: 0; }
     to   { transform: translateX(0)    translateY(0);    opacity: 1; }
@@ -237,7 +335,8 @@ pub const FS_SIDEBAR_CSS: &str = r#"
 }
 .fs-sidebar__level--folder { animation: fs-slide-from-right 160ms ease; }
 .fs-sidebar__level--root   { animation: fs-slide-from-left  160ms ease; }
-/* ── Glass / transparent overrides ──────────────────────────────── */
+
+/* ── Glass / transparent overrides ──────────────────────────────────── */
 [data-sidebar-style="glass"] .fs-shell-sidebar,
 [data-sidebar-style="glass"] .fs-sidebar__panel {
     background: var(--fs-glass-bg, rgba(22,32,50,0.75)) !important;
@@ -337,12 +436,25 @@ fn SidebarItemList(
     }
 }
 
-/// Collapsible sidebar: 48px icons-only, expands to 220px on hover.
-/// Supports folder items: clicking a folder drills into its children;
-/// a back button at the top returns to the root level.
+/// Universal collapsible sidebar — the same component used in every window.
 ///
-/// `pinned_items` are shown in a separate bottom section with its own independent
-/// folder navigation state. Inject `FS_SIDEBAR_CSS` once at the app root.
+/// **Side** controls which edge the sidebar attaches to:
+/// - `SidebarSide::Left`  (default): panel on the left, tab-strip on the right.
+/// - `SidebarSide::Right`: mirror layout — tab-strip on the left, panel on the right.
+///   Only the structure is mirrored; text and icons keep their normal orientation.
+///
+/// **Panel content** is either the built-in nav list (default) or custom children:
+/// - No children → renders `items` as a scrollable nav list in the panel.
+/// - With children → renders the children element as the full panel body instead,
+///   while `items` are still shown as icons in the tab-strip.
+///
+/// **panel_width**: panel width in px (default 220). Controls the CSS variable
+/// `--fs-sidebar-panel-width` used by both the panel size and the collapse transform.
+///
+/// **force_open**: when `true`, adds `.fs-sidebar--open` which keeps the sidebar
+/// expanded regardless of hover state — use this while drag-resizing.
+///
+/// Inject `FS_SIDEBAR_CSS` once at the app root.
 #[component]
 pub fn FsSidebar(
     items:     Vec<FsSidebarItem>,
@@ -350,13 +462,21 @@ pub fn FsSidebar(
     pinned_items: Vec<FsSidebarItem>,
     active_id: String,
     on_select: EventHandler<String>,
+    #[props(default)]
+    side: SidebarSide,
+    #[props(default = 220.0_f64)]
+    panel_width: f64,
+    #[props(default = false)]
+    force_open: bool,
+    #[props(default)]
+    children: Element,
 ) -> Element {
     // Open-folder state for the main (scrollable) section.
-    let mut main_open_folder: Signal<Option<String>> = use_signal(|| None);
+    let mut main_open_folder:   Signal<Option<String>> = use_signal(|| None);
     // Open-folder state for the pinned section (independent).
     let mut pinned_open_folder: Signal<Option<String>> = use_signal(|| None);
 
-    // ── Main section ──────────────────────────────────────────────────────────
+    // ── Main section ──────────────────────────────────────────────────────
     let main_folder_id = main_open_folder.read().clone();
     let main_in_folder = main_folder_id.is_some();
 
@@ -369,13 +489,9 @@ pub fn FsSidebar(
         (items.clone(), String::new())
     };
 
-    let main_level_class = if main_in_folder {
-        "fs-sidebar__level--folder"
-    } else {
-        "fs-sidebar__level--root"
-    };
+    let main_level_class = if main_in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
 
-    // ── Pinned section ────────────────────────────────────────────────────────
+    // ── Pinned section ────────────────────────────────────────────────────
     let pinned_folder_id = pinned_open_folder.read().clone();
     let pinned_in_folder = pinned_folder_id.is_some();
 
@@ -388,121 +504,144 @@ pub fn FsSidebar(
         (pinned_items.clone(), String::new())
     };
 
-    let pinned_level_class = if pinned_in_folder {
-        "fs-sidebar__level--folder"
-    } else {
-        "fs-sidebar__level--root"
+    let pinned_level_class = if pinned_in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
+
+    let has_pinned      = !pinned_items.is_empty();
+    let has_custom      = children.is_ok();
+    let tab_items       = resolve_display_items(&items);
+
+    let side_class = match side {
+        SidebarSide::Left  => "fs-sidebar--left",
+        SidebarSide::Right => "fs-sidebar--right",
     };
-
-    let has_pinned = !pinned_items.is_empty();
-
-    // Collect root-level icons for the tab-strip (always shows the top-level items).
-    let tab_items = resolve_display_items(&items);
+    let open_class = if force_open { "fs-sidebar--open" } else { "" };
 
     rsx! {
-        nav { class: "fs-sidebar",
+        nav {
+            class: "fs-sidebar {side_class} {open_class}",
+            style: "--fs-sidebar-panel-width: {panel_width}px;",
 
-            // ── Panel: slides in from the left ───────────────────────────────
+            // ── Panel ────────────────────────────────────────────────────
+            // DOM order: panel first, tab-outer second.
+            // flex-direction: row         → panel on left  (Left sidebar)
+            // flex-direction: row-reverse → panel on right (Right sidebar)
             div { class: "fs-sidebar__panel",
 
-                // Scrollable main section
-                div { class: "fs-sidebar__scroll",
-                    div { class: "fs-sidebar__rail",
-                        div { class: "{main_level_class}",
-                            if main_in_folder {
-                                button {
-                                    class: "fs-sidebar__item fs-sidebar__back",
-                                    title: "Back",
-                                    onclick: move |_| main_open_folder.set(None),
-                                    span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
-                                    span { class: "fs-sidebar__label", "{main_back_label}" }
+                if has_custom {
+                    // Custom content supplied by the caller (e.g. Help panel).
+                    {children}
+                } else {
+                    // Default: scrollable nav list + optional pinned section.
+
+                    div { class: "fs-sidebar__scroll",
+                        div { class: "fs-sidebar__rail",
+                            div { class: "{main_level_class}",
+                                if main_in_folder {
+                                    button {
+                                        class: "fs-sidebar__item fs-sidebar__back",
+                                        title: "Back",
+                                        onclick: move |_| main_open_folder.set(None),
+                                        span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
+                                        span { class: "fs-sidebar__label", "{main_back_label}" }
+                                    }
+                                    div { class: "fs-sidebar__divider" }
                                 }
-                                div { class: "fs-sidebar__divider" }
-                            }
-                            SidebarItemList {
-                                items:     main_show_items,
-                                active_id: active_id.clone(),
-                                in_folder: main_in_folder,
-                                on_select: move |id| on_select.call(id),
-                                on_enter:  move |fid| main_open_folder.set(Some(fid)),
+                                SidebarItemList {
+                                    items:     main_show_items,
+                                    active_id: active_id.clone(),
+                                    in_folder: main_in_folder,
+                                    on_select: move |id| on_select.call(id),
+                                    on_enter:  move |fid| main_open_folder.set(Some(fid)),
+                                }
                             }
                         }
                     }
-                }
 
-                // Pinned section (e.g. Settings)
-                if has_pinned {
-                    div { class: "fs-sidebar__pinned",
-                        div { class: "{pinned_level_class}",
-                            if pinned_in_folder {
-                                button {
-                                    class: "fs-sidebar__item fs-sidebar__back",
-                                    title: "Back",
-                                    onclick: move |_| pinned_open_folder.set(None),
-                                    span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
-                                    span { class: "fs-sidebar__label", "{pinned_back_label}" }
+                    if has_pinned {
+                        div { class: "fs-sidebar__pinned",
+                            div { class: "{pinned_level_class}",
+                                if pinned_in_folder {
+                                    button {
+                                        class: "fs-sidebar__item fs-sidebar__back",
+                                        title: "Back",
+                                        onclick: move |_| pinned_open_folder.set(None),
+                                        span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
+                                        span { class: "fs-sidebar__label", "{pinned_back_label}" }
+                                    }
+                                    div { class: "fs-sidebar__divider" }
                                 }
-                                div { class: "fs-sidebar__divider" }
-                            }
-                            SidebarItemList {
-                                items:     pinned_show_items,
-                                active_id: active_id.clone(),
-                                in_folder: pinned_in_folder,
-                                on_select: move |id| on_select.call(id),
-                                on_enter:  move |fid| pinned_open_folder.set(Some(fid)),
+                                SidebarItemList {
+                                    items:     pinned_show_items,
+                                    active_id: active_id.clone(),
+                                    in_folder: pinned_in_folder,
+                                    on_select: move |id| on_select.call(id),
+                                    on_enter:  move |fid| pinned_open_folder.set(Some(fid)),
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // ── Tab strip: bookmark tabs that stick out at the left edge ─────
-            // Shows icon + label side by side. Pinned items (Settings) at bottom.
-            div { class: "fs-sidebar__tab-strip",
-                for item in &tab_items {
-                    {
-                        let is_active_item = item.id == active_id;
-                        let tab_class = if is_active_item {
-                            "fs-sidebar__tab-btn fs-sidebar__tab-btn--active"
-                        } else {
-                            "fs-sidebar__tab-btn"
-                        };
-                        let icon  = item.icon.clone();
-                        let label = item.label.clone();
-                        let id    = item.id.clone();
-                        rsx! {
-                            button {
-                                key:     "{id}",
-                                class:   "{tab_class}",
-                                title:   "{label}",
-                                onclick: move |_| on_select.call(id.clone()),
-                                FsIcon { icon: icon.clone() }
-                                span { class: "fs-sidebar__tab-label", "{label}" }
+            // ── Tab outer: full-height column with parallelogram bubbles ─
+            div { class: "fs-sidebar__tab-outer",
+
+                // Icons bubble — one button per top-level item.
+                if !tab_items.is_empty() {
+                    div { class: "fs-sidebar__tab-section",
+                        for item in &tab_items {
+                            {
+                                let is_active = item.id == active_id;
+                                let tab_class = if is_active {
+                                    "fs-sidebar__tab-btn fs-sidebar__tab-btn--active"
+                                } else {
+                                    "fs-sidebar__tab-btn"
+                                };
+                                let icon  = item.icon.clone();
+                                let label = item.label.clone();
+                                let id    = item.id.clone();
+                                rsx! {
+                                    button {
+                                        key:     "{id}",
+                                        class:   "{tab_class}",
+                                        title:   "{label}",
+                                        onclick: move |_| on_select.call(id.clone()),
+                                        FsIcon { icon: icon.clone() }
+                                        span { class: "fs-sidebar__tab-label", "{label}" }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                // Spacer pushes pinned items (Settings etc.) to the bottom
-                div { style: "flex: 1; min-height: 8px;" }
-                for item in &pinned_items {
-                    {
-                        let is_active_item = item.id == active_id;
-                        let tab_class = if is_active_item {
-                            "fs-sidebar__tab-btn fs-sidebar__tab-btn--active"
-                        } else {
-                            "fs-sidebar__tab-btn"
-                        };
-                        let icon  = item.icon.clone();
-                        let label = item.label.clone();
-                        let id    = item.id.clone();
-                        rsx! {
-                            button {
-                                key:     "{id}",
-                                class:   "{tab_class}",
-                                title:   "{label}",
-                                onclick: move |_| on_select.call(id.clone()),
-                                FsIcon { icon: icon.clone() }
-                                span { class: "fs-sidebar__tab-label", "{label}" }
+
+                // Spacer — pushes the pinned bubble to the bottom.
+                div { class: "fs-sidebar__tab-gap" }
+
+                // Pinned / settings bubble.
+                if has_pinned {
+                    div { class: "fs-sidebar__tab-section",
+                        for item in &pinned_items {
+                            {
+                                let is_active = item.id == active_id;
+                                let tab_class = if is_active {
+                                    "fs-sidebar__tab-btn fs-sidebar__tab-btn--active"
+                                } else {
+                                    "fs-sidebar__tab-btn"
+                                };
+                                let icon  = item.icon.clone();
+                                let label = item.label.clone();
+                                let id    = item.id.clone();
+                                rsx! {
+                                    button {
+                                        key:     "{id}",
+                                        class:   "{tab_class}",
+                                        title:   "{label}",
+                                        onclick: move |_| on_select.call(id.clone()),
+                                        FsIcon { icon: icon.clone() }
+                                        span { class: "fs-sidebar__tab-label", "{label}" }
+                                    }
+                                }
                             }
                         }
                     }
