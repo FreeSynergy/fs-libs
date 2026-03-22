@@ -30,6 +30,7 @@ pub mod tools;
 pub use i18n::{I18n, LanguageCode, Translation};
 pub use languages::{language_meta, all_languages, LanguageMeta, TextDirection};
 pub use locale::{DateFmt, Locale, TimeFmt};
+pub use tools::SnippetPlugin;
 
 use std::path::Path;
 use std::sync::{OnceLock, RwLock};
@@ -70,6 +71,40 @@ pub fn init_with_lang(dir: &Path, lang: &str) -> Result<(), FsError> {
 /// Must be called before using [`t`] or [`t_with`].
 pub fn init_with_builtins(active_lang: &str) -> Result<(), FsError> {
     let instance = snippets::builtin_i18n(active_lang)?;
+    GLOBAL_I18N
+        .set(RwLock::new(instance))
+        .map_err(|_| FsError::internal("global I18n already initialized"))
+}
+
+/// Initialize the global [`I18n`] instance with built-in snippets **plus** all
+/// provided [`SnippetPlugin`] implementations.
+///
+/// This is the recommended entry point for applications. Each crate that ships
+/// translations implements [`SnippetPlugin`] and is passed here as a trait object.
+/// All plugins are loaded into a single [`I18n`] instance before it is stored in
+/// the global `OnceLock` — no partial-initialization window, no ordering issues.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use fs_i18n::{init_with_plugins, SnippetPlugin};
+///
+/// struct MyPlugin;
+/// impl SnippetPlugin for MyPlugin {
+///     fn name(&self) -> &str { "my-app" }
+///     fn snippets(&self) -> &[(&str, &str)] {
+///         &[("en", include_str!("../assets/i18n/en.toml"))]
+///     }
+/// }
+///
+/// fs_i18n::init_with_plugins("en", &[&MyPlugin]).unwrap();
+/// assert_eq!(fs_i18n::t("my.key"), "My Value");
+/// ```
+pub fn init_with_plugins(active_lang: &str, plugins: &[&dyn SnippetPlugin]) -> Result<(), FsError> {
+    let mut instance = snippets::builtin_i18n(active_lang)?;
+    for plugin in plugins {
+        plugin.load_into(&mut instance)?;
+    }
     GLOBAL_I18N
         .set(RwLock::new(instance))
         .map_err(|_| FsError::internal("global I18n already initialized"))
