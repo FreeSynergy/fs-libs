@@ -87,7 +87,10 @@ pub const FS_SIDEBAR_CSS: &str = r#"
    Structure: [panel] [tab-strip 44px] (left) / [tab-strip 44px] [panel] (right).
    The panel slides behind the tab-strip when collapsed.
    flex-direction: row         → panel on left,  tab-strip on right  (Left)
-   flex-direction: row-reverse → panel on right, tab-strip on left   (Right)  */
+   flex-direction: row-reverse → panel on right, tab-strip on left   (Right)
+   NOTE: pointer-events must stay at default (not: none) so that CSS :hover
+   fires in WebKit-based webviews (Dioxus Desktop uses WebKit, which does NOT
+   propagate :hover from a child to a pointer-events:none parent).             */
 .fs-sidebar {
     position: absolute;
     top: 0;
@@ -96,7 +99,6 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     display: flex;
     align-items: stretch;
     transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
 }
 
 /* ── Left variant ────────────────────────────────────────────────────── */
@@ -132,7 +134,6 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    pointer-events: all;
 }
 .fs-sidebar--left .fs-sidebar__panel {
     border-right: 1px solid var(--fs-border, rgba(148,170,200,0.18));
@@ -263,7 +264,8 @@ pub const FS_SIDEBAR_CSS: &str = r#"
 }
 
 /* ── Tab section: one parallelogram bubble ───────────────────────────── */
-/* align-items: center ensures fixed-size buttons are horizontally centered */
+/* align-items: center  → buttons horizontally centered within 44px
+   justify-content: center → buttons vertically centered inside the bubble */
 .fs-sidebar__tab-section {
     width: 44px;
     flex-shrink: 0;
@@ -271,7 +273,8 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 4px;
+    justify-content: center;
+    padding: 8px 4px;
     gap: 4px;
     pointer-events: all;
 }
