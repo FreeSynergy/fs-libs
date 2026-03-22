@@ -6,25 +6,33 @@
 //   update  → remove + install (with rollback on failure)
 //
 // Design:
-//   OciRef          — Strategy: OCI image reference (registry/repo:tag@digest)
-//   ApiManifest     — TOML manifest for a FreeSynergy package
-//   PackageInstaller — Installer (Strategy pattern: local | OCI | store)
-//   InstallEvent    — Observer: install/remove events broadcast to listeners
-//   EventBus        — simple in-process event router for install hooks
+//   InstallPaths     — configurable base directories for all resource types
+//   InstallerRegistry — maps ResourceType → Installer/Uninstaller (Strategy)
+//   Updater          — atomic update orchestrator (Template Method + rollback)
+//   OciRef           — Strategy: OCI image reference (registry/repo:tag@digest)
+//   ApiManifest      — TOML manifest for a FreeSynergy package
+//   PackageInstaller — low-level file installer (Strategy: local | OCI | store)
+//   InstallEvent     — Observer: install/remove events broadcast to listeners
+//   EventBus         — simple in-process event router for install hooks
 //
-// Pattern: Strategy (PackageSource), Observer (InstallEvent + EventBus)
+// Pattern: Strategy (PackageSource, InstallerRegistry), Observer (InstallEvent + EventBus),
+//          Template Method (Updater), Registry (InstallerRegistry)
 
 pub mod capability_match;
 pub mod channel;
 pub mod dependency_resolver;
 pub mod event;
+pub mod install_paths;
 pub mod installer;
+pub mod installer_registry;
+pub mod installers;
 pub mod manageable;
 pub mod manifest;
 pub mod package;
 pub mod oci;
 pub mod scaling;
 pub mod signing;
+pub mod updater;
 pub mod variable_roles;
 pub mod variable_types;
 pub mod versioning;
@@ -54,3 +62,10 @@ pub use signing::{SignaturePolicy, SignatureVerifier, VerifyOutcome};
 pub use variable_roles::{RoleMeta, RoleRegistry, VariableRole, KNOWN_ROLES};
 pub use variable_types::{ValidationError, VariableKind, VariableSpec};
 pub use versioning::{RollbackError, VersionManager, VersionRecord};
+
+// ── Phase U exports ───────────────────────────────────────────────────────────
+
+pub use install_paths::{InstallPaths, MoveOutcome, PathMigrator};
+pub use installer_registry::InstallerRegistry;
+pub use installers::{InstallReport, Installer, UninstallOptions, Uninstaller};
+pub use updater::{BatchUpdateOutcome, UpdateOutcome, Updater, record_version};

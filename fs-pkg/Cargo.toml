@@ -9,10 +9,12 @@ repository.workspace = true
 
 [features]
 default = []
-# OCI registry pull (requires reqwest)
-oci     = ["dep:reqwest", "dep:tokio", "dep:tracing"]
+# OCI registry pull (requires reqwest + tokio)
+oci      = ["dep:reqwest", "dep:tokio", "dep:tracing"]
+# GitHub Releases download with SHA256 verification (blocking HTTP)
+download = ["dep:reqwest", "reqwest/blocking", "dep:sha2", "dep:hex"]
 # Package signature verification via Ed25519
-signing = ["dep:fs-crypto", "fs-crypto/signing"]
+signing  = ["dep:fs-crypto", "fs-crypto/signing"]
 
 [dependencies]
 fs-error  = { workspace = true }
@@ -36,6 +38,14 @@ optional  = true
 [dependencies.tracing]
 workspace = true
 optional  = true
+
+[dependencies.sha2]
+version  = "0.10"
+optional = true
+
+[dependencies.hex]
+version  = "0.4"
+optional = true
 
 [dev-dependencies]
 tempfile = "3"

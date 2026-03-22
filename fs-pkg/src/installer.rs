@@ -32,6 +32,9 @@ use fs_error::FsError;
 use crate::event::{EventBus, InstallEvent, InstallEventKind};
 use crate::manifest::{ApiManifest, PackageId, PackageSource};
 
+#[cfg(feature = "download")]
+use sha2::{Digest, Sha256};
+
 // ── FetchStrategy ─────────────────────────────────────────────────────────────
 
 /// Strategy for fetching package artifacts before installation.
@@ -71,17 +74,21 @@ pub trait FetchStrategy: Send + Sync {
 ///
 /// Used for native App packages (kanidm, tuwunel, stalwart, mistral, …).
 ///
-/// In the current version this is a **placeholder** — it validates the source
-/// fields but does not yet perform the actual HTTP download. The download will
-/// be implemented in the fs-node package manager using `reqwest` + signature
-/// verification via `fs-crypto`.
+/// Download URL: `https://github.com/{repo}/releases/download/v{version}/{artifact}`
+/// where `{version}` in the artifact name is substituted at download time.
+///
+/// Requires the `download` feature for actual HTTP download + SHA256 verification.
+/// Without that feature, dry-run mode always succeeds, live mode returns an error.
+///
+/// Artifacts are staged to `{tmp}/fs-pkg-staging/{artifact}`.
+/// The caller (PackageInstaller) moves them to their final destination.
 pub struct GithubReleaseFetch;
 
 impl FetchStrategy for GithubReleaseFetch {
     fn name(&self) -> &'static str { "github_release" }
 
     fn fetch(&self, manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
-        let Some(PackageSource::GithubRelease { repo, artifact, .. }) = &manifest.source else {
+        let Some(PackageSource::GithubRelease { repo, artifact, checksum }) = &manifest.source else {
             return Err(FsError::internal("GithubReleaseFetch: manifest has no github_release source"));
         };
 
@@ -89,15 +96,73 @@ impl FetchStrategy for GithubReleaseFetch {
             return Ok(vec![]);
         }
 
-        // TODO: implement actual download + checksum verification in fs-node.
-        // For now: emit a structured log so callers know what would be fetched.
-        let _url = format!(
-            "https://github.com/{repo}/releases/download/v{version}/{artifact}",
-            version = manifest.package.version,
+        let version = &manifest.package.version;
+        let resolved_artifact = artifact.replace("{version}", version);
+        let url = format!(
+            "https://github.com/{repo}/releases/download/v{version}/{resolved_artifact}"
         );
 
-        Ok(vec![])
+        github_download(&url, &resolved_artifact, checksum.as_deref())
     }
+}
+
+/// Download a GitHub release artifact to the local staging directory.
+///
+/// Verifies the SHA256 checksum when `checksum` is provided.
+/// Returns `[staging_path]` on success.
+#[cfg(feature = "download")]
+fn github_download(
+    url:      &str,
+    artifact: &str,
+    checksum: Option<&str>,
+) -> Result<Vec<PathBuf>, FsError> {
+    let response = reqwest::blocking::get(url)
+        .map_err(|e| FsError::internal(format!("GithubReleaseFetch: GET {url}: {e}")))?;
+
+    if !response.status().is_success() {
+        return Err(FsError::internal(format!(
+            "GithubReleaseFetch: HTTP {} for {url}",
+            response.status(),
+        )));
+    }
+
+    let bytes = response.bytes()
+        .map_err(|e| FsError::internal(format!("GithubReleaseFetch: read body: {e}")))?;
+
+    if let Some(expected) = checksum {
+        let mut hasher = Sha256::new();
+        hasher.update(&bytes);
+        let actual = hex::encode(hasher.finalize());
+        if actual != expected {
+            return Err(FsError::internal(format!(
+                "GithubReleaseFetch: checksum mismatch for `{artifact}`: \
+                 expected {expected}, got {actual}"
+            )));
+        }
+    }
+
+    let staging_dir = std::env::temp_dir().join("fs-pkg-staging");
+    fs::create_dir_all(&staging_dir).map_err(|e| {
+        FsError::internal(format!("GithubReleaseFetch: cannot create staging dir: {e}"))
+    })?;
+
+    let dest = staging_dir.join(artifact);
+    fs::write(&dest, &bytes).map_err(|e| {
+        FsError::internal(format!("GithubReleaseFetch: cannot write {}: {e}", dest.display()))
+    })?;
+
+    Ok(vec![dest])
+}
+
+#[cfg(not(feature = "download"))]
+fn github_download(
+    url:      &str,
+    _artifact: &str,
+    _checksum: Option<&str>,
+) -> Result<Vec<PathBuf>, FsError> {
+    Err(FsError::internal(format!(
+        "GithubReleaseFetch: would download {url} — compile with feature `download` to enable"
+    )))
 }
 
 // ── OciFetch ──────────────────────────────────────────────────────────────────
