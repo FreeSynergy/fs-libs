@@ -22,12 +22,14 @@
 mod bundle;
 mod i18n;
 pub mod languages;
+pub mod locale;
 pub mod macros;
 pub mod snippets;
 pub mod tools;
 
 pub use i18n::{I18n, LanguageCode, Translation};
 pub use languages::{language_meta, all_languages, LanguageMeta, TextDirection};
+pub use locale::{DateFmt, Locale, TimeFmt};
 
 use std::path::Path;
 use std::sync::{OnceLock, RwLock};
@@ -97,6 +99,29 @@ pub fn add_toml_lang(lang: &str, toml_src: &str) -> Result<(), FsError> {
         }
     }
     Ok(())
+}
+
+/// Return the [`Locale`] (formatting rules) for the active language.
+///
+/// Use this to format numbers, floats, dates, and times according to the
+/// user's language — regardless of where the data comes from.
+///
+/// Returns English/ISO rules when the global instance is not initialized yet.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let price = fs_i18n::locale().fmt_float(price_f64, 2);
+/// let date  = fs_i18n::locale().fmt_date(2026, 3, 22);
+/// ```
+pub fn locale() -> Locale {
+    match GLOBAL_I18N.get() {
+        Some(lock) => match lock.read() {
+            Ok(i18n) => i18n.locale(),
+            Err(_)   => Locale::for_lang("en"),
+        },
+        None => Locale::for_lang("en"),
+    }
 }
 
 /// Return the active language code of the global [`I18n`] instance.

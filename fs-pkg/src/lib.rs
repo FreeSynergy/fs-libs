@@ -19,7 +19,9 @@ pub mod channel;
 pub mod dependency_resolver;
 pub mod event;
 pub mod installer;
+pub mod manageable;
 pub mod manifest;
+pub mod package;
 pub mod oci;
 pub mod scaling;
 pub mod signing;
@@ -32,7 +34,12 @@ pub use channel::ReleaseChannel;
 pub use dependency_resolver::{DepGraph, PackageDep, ResolutionError};
 pub use event::{EventBus, InstallEvent, InstallHook};
 pub use installer::{InstallOptions, InstallOutcome, PackageInstaller};
+pub use manageable::{
+    ConfigField, ConfigFieldKind, ConfigValue, HealthCheck, InstanceRef,
+    Manageable, PackageHealth, RunStatus, SelectOption,
+};
 pub use manifest::{ApiManifest, BundleManifest, FileMapping, PackageFiles, PackageHooks, PackageId, PackageMeta, PackageRequires, PackageType};
+pub use package::{InstalledRecord, Package};
 pub use oci::OciRef;
 pub use scaling::{InstanceRole, ScalingDialog, ScalingManifest, WorkerMode};
 pub use signing::{SignaturePolicy, SignatureVerifier, VerifyOutcome};

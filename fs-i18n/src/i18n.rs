@@ -10,6 +10,7 @@ use std::path::Path;
 use fs_error::FsError;
 
 use crate::bundle::LocaleBundle;
+use crate::locale::Locale;
 
 // ── Translation ───────────────────────────────────────────────────────────────
 
@@ -204,6 +205,20 @@ impl I18n {
     /// Return the active language code.
     pub fn lang(&self) -> LanguageCode {
         LanguageCode::new(&self.active_lang)
+    }
+
+    /// Return the [`Locale`] (formatting rules) for the active language.
+    ///
+    /// Use this to format numbers, floats, dates, and times according to the
+    /// user's selected language without any extra state.
+    ///
+    /// ```rust,ignore
+    /// let locale = i18n.locale();
+    /// let price  = locale.fmt_float(price_f64, 2);   // "1.234,50" in German
+    /// let date   = locale.fmt_date(2026, 3, 22);      // "22.03.2026"
+    /// ```
+    pub fn locale(&self) -> Locale {
+        Locale::for_lang(&self.active_lang)
     }
 
     /// Translate a key using the active language.
