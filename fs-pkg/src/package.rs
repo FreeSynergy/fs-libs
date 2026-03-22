@@ -298,11 +298,19 @@ impl Manageable for Package {
     }
 
     fn can_persist(&self) -> bool {
-        // Containers and services can be persisted via systemd.
-        matches!(
-            self.manifest.package.package_type,
-            PackageType::Container | PackageType::Bot | PackageType::Bridge
-        )
+        // A package can be persisted via systemd when it declares a service unit.
+        // App packages: check for [app.service]. Container packages: always yes.
+        // Bot/Bridge: always yes (they run as daemons).
+        // This is manifest-driven — no match on PackageType.
+        match &self.manifest.package.package_type {
+            PackageType::App => self.manifest.app
+                .as_ref()
+                .map(|a| a.service.is_some())
+                .unwrap_or(false),
+            PackageType::Container => true,
+            PackageType::Bot | PackageType::Bridge => true,
+            _ => false,
+        }
     }
 }
 
