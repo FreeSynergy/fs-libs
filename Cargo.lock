@@ -3022,6 +3022,10 @@ dependencies = [
 [[package]]
 name = "fs-help"
 version = "0.1.0"
+dependencies = [
+ "serde",
+ "toml 1.0.7+spec-1.1.0",
+]
 
 [[package]]
 name = "fs-i18n"

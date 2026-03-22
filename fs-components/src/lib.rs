@@ -90,7 +90,11 @@ pub use layout::{
     SidebarSection, StatusBar, TabItem, Tabs,
 };
 #[cfg(feature = "dioxus")]
-pub use overlay::{ContextMenu, ContextMenuEntry, HelpPanel, NotificationItem, NotificationList};
+pub use overlay::{
+    ContextMenu, ContextMenuEntry,
+    HelpBar, HelpLinkEntry, HelpPanel, HelpTopicView,
+    NotificationItem, NotificationList,
+};
 #[cfg(feature = "dioxus")]
 pub use app::{AppEntry, AppLauncher, LangOption, LangSwitcher, ThemeOption, ThemeSwitcher};
 #[cfg(feature = "dioxus")]

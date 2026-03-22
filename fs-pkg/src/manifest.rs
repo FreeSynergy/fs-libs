@@ -202,6 +202,56 @@ impl ApiManifest {
     }
 }
 
+// ── PackageOrigin ─────────────────────────────────────────────────────────────
+
+/// Provenance metadata — where a package *comes from*.
+///
+/// Separate from [`PackageSource`] which describes *how to install* it.
+/// `PackageOrigin` is displayed in the help panel and store detail view so
+/// users can trace a package back to its upstream project.
+///
+/// # Example (TOML)
+///
+/// ```toml
+/// [package.origin]
+/// website   = "https://kanidm.com"
+/// git       = "https://github.com/kanidm/kanidm"
+/// docs      = "https://kanidm.com/documentation/stable/"
+/// search    = "kanidm identity provider tutorial"
+/// publisher = "Kanidm Project"
+/// ```
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct PackageOrigin {
+    /// Project website URL.
+    #[serde(default)]
+    pub website: Option<String>,
+
+    /// Git repository URL.
+    #[serde(default)]
+    pub git: Option<String>,
+
+    /// Documentation URL.
+    #[serde(default)]
+    pub docs: Option<String>,
+
+    /// Engine-agnostic tutorial search query
+    /// (e.g. `"kanidm identity provider tutorial"`).
+    /// Used by the help panel to open a search in the browser.
+    #[serde(default)]
+    pub search: Option<String>,
+
+    /// Publisher or vendor name (e.g. `"Kanidm Project"`).
+    #[serde(default)]
+    pub publisher: Option<String>,
+}
+
+impl PackageOrigin {
+    /// `true` if at least one link is set.
+    pub fn has_links(&self) -> bool {
+        self.website.is_some() || self.git.is_some() || self.docs.is_some()
+    }
+}
+
 // ── PackageMeta ───────────────────────────────────────────────────────────────
 
 /// Identity block (`[package]`).
@@ -247,6 +297,11 @@ pub struct PackageMeta {
     /// Release channel this manifest targets.
     #[serde(default)]
     pub channel: ReleaseChannel,
+
+    /// Provenance — where this package comes from (website, git, docs, search).
+    /// Used by the help panel and store detail view.
+    #[serde(default)]
+    pub origin: PackageOrigin,
 }
 
 // ── PackageSource ─────────────────────────────────────────────────────────────

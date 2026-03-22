@@ -1,15 +1,23 @@
 // fs-help — Context-sensitive help topic system for FreeSynergy.
 //
-// Design: Composite (HelpSystem owns a flat map of HelpTopic) + OOP (each
-// topic carries its own rendering keys and related-topic links).
+// Design:
+//   Composite  — HelpSystem owns a flat map of HelpTopic
+//   Strategy   — HelpKind trait (ExternalHelp / InternalHelp) per topic
+//   OOP        — each topic carries its own links, search query, and i18n keys
 
 use std::collections::HashMap;
 
 pub mod context;
+pub mod kind;
+pub mod link;
+pub mod loader;
 pub mod search;
 pub mod topic;
 
 pub use context::HelpContext;
+pub use kind::{external, internal, ExternalHelp, HelpKind, HelpKindArc, InternalHelp};
+pub use link::{HelpLink, HelpLinkKind};
+pub use loader::HelpLoader;
 pub use search::HelpSearch;
 pub use topic::HelpTopic;
 
