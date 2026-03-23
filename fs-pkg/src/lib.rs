@@ -6,17 +6,23 @@
 //   update  → remove + install (with rollback on failure)
 //
 // Design:
-//   InstallPaths     — configurable base directories for all resource types
-//   InstallerRegistry — maps ResourceType → Installer/Uninstaller (Strategy)
-//   Updater          — atomic update orchestrator (Template Method + rollback)
-//   OciRef           — Strategy: OCI image reference (registry/repo:tag@digest)
-//   ApiManifest      — TOML manifest for a FreeSynergy package
-//   PackageInstaller — low-level file installer (Strategy: local | OCI | store)
-//   InstallEvent     — Observer: install/remove events broadcast to listeners
-//   EventBus         — simple in-process event router for install hooks
+//   InstallPaths          — configurable base directories for all resource types
+//   InstallerRegistry     — maps ResourceType → Installer/Uninstaller (Strategy)
+//   Updater               — atomic update orchestrator (Template Method + rollback)
+//   OciRef                — Strategy: OCI image reference (registry/repo:tag@digest)
+//   ApiManifest           — TOML manifest for a FreeSynergy package
+//   PackageInstaller      — low-level file installer (Strategy: local | OCI | store)
+//   InstallEvent          — Observer: install/remove events broadcast to listeners
+//   EventBus              — simple in-process event router for install hooks
+//   SetupFlow             — Chain of Responsibility: ordered setup steps per package
+//   SetupContributor      — Visitor: cross-package setup step injection
 //
-// Pattern: Strategy (PackageSource, InstallerRegistry), Observer (InstallEvent + EventBus),
-//          Template Method (Updater), Registry (InstallerRegistry)
+// Patterns: Strategy (PackageSource, InstallerRegistry, SetupStep kinds),
+//           Observer (InstallEvent + EventBus),
+//           Template Method (Updater, SetupStep defaults),
+//           Registry (InstallerRegistry, SetupContributorRegistry),
+//           Chain of Responsibility (SetupFlow),
+//           Context (SetupContext, persisted to disk)
 
 pub mod capability_match;
 pub mod channel;
@@ -31,6 +37,9 @@ pub mod manifest;
 pub mod package;
 pub mod oci;
 pub mod scaling;
+pub mod setup_flow;
+pub mod setup_step;
+pub mod setup_contributor;
 pub mod signing;
 pub mod updater;
 pub mod variable_roles;
@@ -55,6 +64,12 @@ pub use manifest::{
     PackageFiles, PackageHooks, PackageId, PackageMeta, PackageRequires, PackageSource,
     PackageType, SetupField, SetupManifest,
 };
+pub use setup_flow::{ServiceRef, SetupContext, SetupFlow, StepExecution};
+pub use setup_step::{
+    CommandStep, DisplayOutputStep, InputField, InputStep, SetupTrigger,
+    StepOutput, StepState, WaitForServiceStep, WriteConfigStep, generate_secret,
+};
+pub use setup_contributor::{Contribution, SetupContributor, SetupContributorRegistry};
 pub use package::{InstalledRecord, Package};
 pub use oci::OciRef;
 pub use scaling::{InstanceRole, ScalingDialog, ScalingManifest, WorkerMode};

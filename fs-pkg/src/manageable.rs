@@ -19,11 +19,14 @@
 //   - Language  — language pack, minimal config
 //
 // Patterns: Strategy (config_fields), Template Method (Manageable trait),
-//           Observer (apply_config + change events)
+//           Observer (apply_config + change events),
+//           Chain of Responsibility (setup_flow — ordered steps with triggers)
 
 use fs_error::FsError;
 
 use crate::manifest::{PackageMeta, PackageType};
+use crate::setup_contributor::SetupContributor;
+use crate::setup_flow::{SetupContext, SetupFlow};
 
 // ── ConfigValue ───────────────────────────────────────────────────────────────
 
@@ -242,12 +245,19 @@ pub enum RunStatus {
     Error(String),
     /// Package is not installed — cannot be started.
     NotInstalled,
+    /// Package is installed but setup has not been completed yet.
+    ///
+    /// Required setup steps are still pending (e.g. first-time configuration
+    /// wizard not finished). The Manager shows "Setup required" and prevents
+    /// the "Start" button from activating.
+    SetupRequired,
 }
 
 impl RunStatus {
     pub fn is_running(&self)  -> bool { matches!(self, Self::Running) }
     pub fn is_stopped(&self)  -> bool { matches!(self, Self::Stopped) }
     pub fn is_error(&self)    -> bool { matches!(self, Self::Error(_)) }
+    pub fn is_setup_required(&self) -> bool { matches!(self, Self::SetupRequired) }
     pub fn in_transition(&self) -> bool {
         matches!(self, Self::Starting | Self::Stopping)
     }
@@ -255,23 +265,25 @@ impl RunStatus {
     /// Short human-readable label for display.
     pub fn label(&self) -> &str {
         match self {
-            Self::Running      => "Running",
-            Self::Stopped      => "Stopped",
-            Self::Starting     => "Starting",
-            Self::Stopping     => "Stopping",
-            Self::Error(_)     => "Error",
-            Self::NotInstalled => "Not installed",
+            Self::Running        => "Running",
+            Self::Stopped        => "Stopped",
+            Self::Starting       => "Starting",
+            Self::Stopping       => "Stopping",
+            Self::Error(_)       => "Error",
+            Self::NotInstalled   => "Not installed",
+            Self::SetupRequired  => "Setup required",
         }
     }
 
     /// CSS class for status badges in the Manager UI.
     pub fn css_class(&self) -> &str {
         match self {
-            Self::Running                  => "fs-status--running",
-            Self::Stopped                  => "fs-status--stopped",
+            Self::Running                   => "fs-status--running",
+            Self::Stopped                   => "fs-status--stopped",
             Self::Starting | Self::Stopping => "fs-status--transitioning",
-            Self::Error(_)                 => "fs-status--error",
-            Self::NotInstalled             => "fs-status--not-installed",
+            Self::Error(_)                  => "fs-status--error",
+            Self::NotInstalled              => "fs-status--not-installed",
+            Self::SetupRequired             => "fs-status--setup-required",
         }
     }
 }
@@ -396,8 +408,12 @@ pub trait Manageable {
     // ── Actions ───────────────────────────────────────────────────────────────
 
     /// Whether the package can be started right now.
+    ///
+    /// Returns `false` when setup is not complete — the Manager shows
+    /// "Setup required" instead of "Start" in that case.
     fn can_start(&self) -> bool {
         self.is_installed()
+            && !self.needs_setup()
             && !matches!(self.run_status(), RunStatus::Running | RunStatus::Starting)
     }
 
@@ -410,6 +426,50 @@ pub trait Manageable {
     ///
     /// Returns `false` by default — only container/service packages override this.
     fn can_persist(&self) -> bool { false }
+
+    // ── Setup flow ────────────────────────────────────────────────────────────
+
+    /// The setup flow for this package.
+    ///
+    /// Returns an ordered pipeline of [`SetupStep`]s that the Manager
+    /// executes to bring the package from installed → configured → running.
+    ///
+    /// # Default implementation
+    ///
+    /// Converts the manifest's `[setup]` fields into a single `InputStep`
+    /// triggered by `FirstInstall`. Packages that need richer setup
+    /// (commands, waits, cross-package steps) override this method.
+    ///
+    /// # Triggers
+    ///
+    /// - `FirstInstall` — one-time wizard, first time the package is set up.
+    /// - `OnConfigSave` — re-applied whenever the user changes config.
+    /// - `OnStart`      — checks before the service starts.
+    ///
+    /// [`SetupStep`]: crate::setup_step::SetupStep
+    fn setup_flow(&self) -> SetupFlow {
+        SetupFlow::new(SetupContext::new(self.meta().id.as_str()))
+    }
+
+    /// Steps this package contributes to OTHER packages' setup flows.
+    ///
+    /// Implement this when your package provides a role that other packages
+    /// depend on, and you want to auto-configure that integration from within
+    /// the other package's setup wizard.
+    ///
+    /// Example: Kanidm implements this to contribute OIDC client creation
+    /// steps into any package that requires the `iam.oidc-provider` role.
+    fn setup_contributors(&self) -> Vec<Box<dyn SetupContributor>> {
+        vec![]
+    }
+
+    /// Whether setup must be completed before the package can start.
+    ///
+    /// The default checks whether the setup flow has pending required steps.
+    /// The Manager uses this to gate the "Start" button.
+    fn needs_setup(&self) -> bool {
+        !self.setup_flow().is_ready_to_start()
+    }
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────

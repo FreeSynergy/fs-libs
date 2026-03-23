@@ -25,6 +25,25 @@ use crate::manageable::{
 };
 use crate::manifest::{ApiManifest, ManifestFieldType, PackageMeta, PackageType};
 
+// ── ManifestFieldType → ConfigFieldKind ──────────────────────────────────────
+
+/// Maps a manifest variable's field type to the Manager's input widget kind.
+///
+/// This is the single place that knows how manifest types translate to UI widgets.
+/// The `config_fields()` method uses `.into()` — no match block needed there.
+impl From<ManifestFieldType> for ConfigFieldKind {
+    fn from(t: ManifestFieldType) -> Self {
+        match t {
+            ManifestFieldType::Bool                                   => ConfigFieldKind::Bool,
+            ManifestFieldType::Port                                   => ConfigFieldKind::Port,
+            ManifestFieldType::Password | ManifestFieldType::Secret   => ConfigFieldKind::Password,
+            ManifestFieldType::Path                                   => ConfigFieldKind::Path,
+            ManifestFieldType::Textarea                               => ConfigFieldKind::Textarea,
+            ManifestFieldType::Text | ManifestFieldType::String       => ConfigFieldKind::Text,
+        }
+    }
+}
+
 // ── InstalledRecord ───────────────────────────────────────────────────────────
 
 /// Snapshot of the install state loaded from the inventory.
@@ -84,12 +103,13 @@ impl<'de> Deserialize<'de> for RunStatus {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         let label = String::deserialize(d)?;
         Ok(match label.as_str() {
-            "Running"       => Self::Running,
-            "Starting"      => Self::Starting,
-            "Stopping"      => Self::Stopping,
-            "Not installed" => Self::NotInstalled,
+            "Running"        => Self::Running,
+            "Starting"       => Self::Starting,
+            "Stopping"       => Self::Stopping,
+            "Not installed"  => Self::NotInstalled,
+            "Setup required" => Self::SetupRequired,
             s if s.starts_with("Error") => Self::Error(s.to_string()),
-            _               => Self::Stopped,
+            _                => Self::Stopped,
         })
     }
 }
@@ -211,25 +231,15 @@ impl Manageable for Package {
         // Build ConfigFields from the manifest's [[variables]] entries.
         // Each ManifestVariable maps to one ConfigField rendered in the Config tab.
         self.manifest.variables.iter().map(|v| {
-            let kind = match v.field_type {
-                ManifestFieldType::Bool     => ConfigFieldKind::Bool,
-                ManifestFieldType::Port     => ConfigFieldKind::Port,
-                ManifestFieldType::Password |
-                ManifestFieldType::Secret   => ConfigFieldKind::Password,
-                ManifestFieldType::Path     => ConfigFieldKind::Path,
-                ManifestFieldType::Textarea => ConfigFieldKind::Textarea,
-                ManifestFieldType::Text |
-                ManifestFieldType::String   => ConfigFieldKind::Text,
-            };
+            let kind: ConfigFieldKind = v.field_type.into();
 
-            let default_value = v.default.as_deref().map(|d| {
-                if v.field_type == ManifestFieldType::Port {
-                    d.parse::<u16>().map(ConfigValue::Port).unwrap_or_else(|_| ConfigValue::Text(d.to_string()))
-                } else if v.field_type == ManifestFieldType::Bool {
-                    ConfigValue::Bool(d == "true" || d == "1" || d == "yes")
-                } else {
-                    ConfigValue::Text(d.to_string())
+            let default_value = v.default.as_deref().map(|d| match v.field_type {
+                ManifestFieldType::Port => {
+                    d.parse::<u16>().map(ConfigValue::Port)
+                        .unwrap_or_else(|_| ConfigValue::Text(d.to_string()))
                 }
+                ManifestFieldType::Bool => ConfigValue::Bool(d == "true" || d == "1" || d == "yes"),
+                _ => ConfigValue::Text(d.to_string()),
             }).unwrap_or(ConfigValue::Empty);
 
             let mut field = ConfigField::new(
@@ -298,19 +308,7 @@ impl Manageable for Package {
     }
 
     fn can_persist(&self) -> bool {
-        // A package can be persisted via systemd when it declares a service unit.
-        // App packages: check for [app.service]. Container packages: always yes.
-        // Bot/Bridge: always yes (they run as daemons).
-        // This is manifest-driven — no match on PackageType.
-        match &self.manifest.package.package_type {
-            PackageType::App => self.manifest.app
-                .as_ref()
-                .map(|a| a.service.is_some())
-                .unwrap_or(false),
-            PackageType::Container => true,
-            PackageType::Bot | PackageType::Bridge => true,
-            _ => false,
-        }
+        self.manifest.can_persist()
     }
 }
 

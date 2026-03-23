@@ -41,21 +41,31 @@ pub enum ResourceStatus {
     Error(String),
     Updating,
     Installing,
+    /// Installed but the first-time setup wizard has not completed yet.
+    ///
+    /// Required setup steps are still pending. The UI shows an orange badge
+    /// and the "Start" button is replaced by "Open Setup".
+    SetupRequired,
 }
 
 impl ResourceStatus {
     pub fn label(&self) -> &str {
         match self {
-            ResourceStatus::Active      => "Active",
-            ResourceStatus::Stopped     => "Stopped",
-            ResourceStatus::Error(_)    => "Error",
-            ResourceStatus::Updating    => "Updating",
-            ResourceStatus::Installing  => "Installing",
+            ResourceStatus::Active         => "Active",
+            ResourceStatus::Stopped        => "Stopped",
+            ResourceStatus::Error(_)       => "Error",
+            ResourceStatus::Updating       => "Updating",
+            ResourceStatus::Installing     => "Installing",
+            ResourceStatus::SetupRequired  => "Setup required",
         }
     }
 
     pub fn needs_attention(&self) -> bool {
-        matches!(self, ResourceStatus::Error(_))
+        matches!(self, ResourceStatus::Error(_) | ResourceStatus::SetupRequired)
+    }
+
+    pub fn is_setup_required(&self) -> bool {
+        matches!(self, ResourceStatus::SetupRequired)
     }
 }
 

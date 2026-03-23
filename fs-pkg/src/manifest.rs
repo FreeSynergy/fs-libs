@@ -215,6 +215,19 @@ impl ApiManifest {
     pub fn is_container(&self) -> bool {
         self.container.is_some() || self.package.package_type == PackageType::Container
     }
+
+    /// Whether this package can be registered as a persistent systemd service.
+    ///
+    /// - `App`: only when `[app.service]` is declared
+    /// - `Container`, `Bot`, `Bridge`: always (they run as long-lived daemons)
+    /// - All other types: no
+    pub fn can_persist(&self) -> bool {
+        match self.package.package_type {
+            PackageType::App => self.app.as_ref().map(|a| a.service.is_some()).unwrap_or(false),
+            PackageType::Container | PackageType::Bot | PackageType::Bridge => true,
+            _ => false,
+        }
+    }
 }
 
 // ── PackageSource ─────────────────────────────────────────────────────────────
@@ -515,33 +528,81 @@ pub struct SetupManifest {
 }
 
 /// One field in the setup wizard (`[[setup.fields]]`).
+///
+/// Every field MUST have a non-empty `help` string — this is shown in the
+/// wizard's right-side help panel. Fields without help are marked with a
+/// warning in the Manager so package authors are notified of the gap.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SetupField {
-    /// Variable key this field writes to.
+    /// Variable key this field writes to (matches `[[variables]] name`).
     pub key: String,
 
-    /// Human-readable label shown in the wizard.
+    /// Human-readable label shown next to the input widget.
     pub label: String,
 
-    /// Explanation of what this setting controls.
+    /// Short inline description shown below the input (1–2 sentences).
     #[serde(default)]
     pub description: String,
+
+    /// Full help text shown in the right-side help panel. MANDATORY.
+    ///
+    /// Explain: what is this for, what happens if it is wrong, and what
+    /// a sensible value looks like. Non-technical users must understand this.
+    #[serde(default)]
+    pub help: String,
 
     /// Input widget type.
     #[serde(default)]
     pub field_type: ManifestFieldType,
 
-    /// Default value.
+    /// Default value shown pre-filled in the wizard.
+    ///
+    /// Non-technical users can just click OK if the default is sensible.
+    /// Mandatory fields MUST have a default or `auto_generate = true`.
     #[serde(default)]
     pub default: Option<String>,
 
-    /// Skip showing this field if the variable is already set.
+    /// When this field should be shown / re-applied.
+    ///
+    /// Serialized as a list of trigger names:
+    /// `["first_install", "on_config_save", "on_start"]`
+    ///
+    /// Defaults to `["first_install"]` when empty.
+    #[serde(default)]
+    pub triggers: Vec<String>,
+
+    /// Skip showing this field if the variable is already set in the context.
+    ///
+    /// Useful for auto-generated secrets: once generated, don't show again.
     #[serde(default)]
     pub skip_if_set: bool,
 
-    /// Auto-generate a random value (for passwords/secrets).
+    /// Auto-generate a random value for this field (passwords/secrets).
+    ///
+    /// The generated value is shown to the user (highlighted) so they can
+    /// copy it. They may replace it with their own value if desired.
     #[serde(default)]
     pub auto_generate: bool,
+}
+
+impl SetupField {
+    /// Returns true when the help text is present (non-empty).
+    ///
+    /// The Manager logs a warning for fields where this returns false.
+    pub fn has_help(&self) -> bool {
+        !self.help.is_empty()
+    }
+
+    /// Returns the effective triggers for this field.
+    ///
+    /// Falls back to `["first_install"]` when none are declared.
+    pub fn effective_triggers(&self) -> Vec<&str> {
+        if self.triggers.is_empty() {
+            vec!["first_install"]
+        } else {
+            self.triggers.iter().map(|s| s.as_str()).collect()
+        }
+    }
 }
 
 // ── ContractManifest ──────────────────────────────────────────────────────────
