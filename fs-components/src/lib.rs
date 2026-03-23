@@ -64,8 +64,13 @@ pub mod chat;
 // ── Re-exports ─────────────────────────────────────────────────────────────────
 
 #[cfg(feature = "dioxus")]
-pub use nav::{FsSidebar, FsSidebarItem, FS_SIDEBAR_CSS, SidebarNavBtn, TabBtn,
-               FsTabDef, FsTabView, FS_TAB_VIEW_CSS};
+pub use nav::{
+    Sidebar, SidebarItem, SidebarSection, SidebarMode, SidebarSide,
+    FS_SIDEBAR_CSS, SidebarNavBtn, TabBtn,
+    FsTabDef, FsTabView, FS_TAB_VIEW_CSS,
+    // Backward-compatibility alias — remove once all callers are migrated.
+    FsSidebarItem,
+};
 #[cfg(feature = "dioxus")]
 pub use button::{Button, ButtonSize, ButtonVariant, IconButton};
 #[cfg(feature = "dioxus")]
@@ -86,8 +91,7 @@ pub use controls::{MultiSelect, RadioGroup, Slider, Toggle};
 pub use display::{CodeBlock, Progress, Table, TableColumn};
 #[cfg(feature = "dioxus")]
 pub use layout::{
-    Breadcrumb, BreadcrumbItem, ScrollContainer, SearchBar, Sidebar, SidebarItem,
-    SidebarSection, StatusBar, TabItem, Tabs,
+    Breadcrumb, BreadcrumbItem, ScrollContainer, SearchBar, StatusBar, TabItem, Tabs,
 };
 #[cfg(feature = "dioxus")]
 pub use overlay::{

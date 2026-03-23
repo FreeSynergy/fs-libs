@@ -1,12 +1,22 @@
-/// Shared navigation components — tab bar buttons, sidebar nav buttons, and collapsible sidebar.
+/// nav.rs — The ONE sidebar for the entire FreeSynergy UI.
+///
+/// There is exactly ONE `Sidebar` component.  It handles two modes:
+///   - `SidebarMode::Overlay`  (default): bookmark-drawer overlay, slides on hover,
+///                              shows an icon tab-strip at the edge.  Used by the
+///                              desktop shell and window frames.
+///   - `SidebarMode::Panel`:   static, always visible, part of the flex layout,
+///                              no tab-strip.  Used by inner views (settings sections,
+///                              language manager, container app, …).
+///
+/// Callers supply items; the Sidebar knows nothing about what they represent.
+/// Each item can be a leaf or a folder (non-empty children).  Sections add
+/// optional labelled groups.  The content is always owned by the caller —
+/// the Sidebar is a pure layout/interaction concern.
 use dioxus::prelude::*;
 
+// ── TabBtn ────────────────────────────────────────────────────────────────────
+
 /// Horizontal tab-bar button with a bottom-border active indicator.
-///
-/// Usage:
-/// ```rust
-/// TabBtn { label: "Browse", is_active: tab == StoreTab::Browse, on_click: move |_| tab.set(StoreTab::Browse) }
-/// ```
 #[component]
 pub fn TabBtn(label: String, is_active: bool, on_click: EventHandler) -> Element {
     let bg     = if is_active { "var(--fs-color-bg-base)" } else { "transparent" };
@@ -21,13 +31,12 @@ pub fn TabBtn(label: String, is_active: bool, on_click: EventHandler) -> Element
     }
 }
 
-// ── FsSidebar ────────────────────────────────────────────────────────────────
+// ── SidebarSide ───────────────────────────────────────────────────────────────
 
-/// Which side of the window the sidebar attaches to.
+/// Which edge of the window the Sidebar attaches to (Overlay mode only).
 ///
-/// - `Left`  → panel slides in from the left; tab-strip appears on the right edge.
-/// - `Right` → panel slides in from the right; tab-strip appears on the left edge
-///             (mirror layout — only structure is mirrored, not text).
+/// - `Left`  → panel slides in from the left; tab-strip on the right edge.
+/// - `Right` → mirror layout — panel on the right; tab-strip on the left edge.
 #[derive(Clone, PartialEq, Debug, Default)]
 pub enum SidebarSide {
     #[default]
@@ -35,23 +44,56 @@ pub enum SidebarSide {
     Right,
 }
 
-/// A sidebar item descriptor.
-///
-/// Items with a non-empty `children` list are rendered as folders: clicking them
-/// drills into a sub-level instead of calling `on_select`.
-#[derive(Clone, PartialEq, Debug)]
-pub struct FsSidebarItem {
-    pub id:       String,
-    pub icon:     String,
-    pub label:    String,
-    /// Non-empty = folder item; clicking enters the sub-level.
-    pub children: Vec<FsSidebarItem>,
+// ── SidebarMode ───────────────────────────────────────────────────────────────
+
+/// Controls how the Sidebar is laid out and behaves.
+#[derive(Clone, PartialEq, Debug, Default)]
+pub enum SidebarMode {
+    /// Bookmark-drawer overlay: `position: absolute`, slides in on hover,
+    /// icon tab-strip always visible at the edge.
+    /// Used by the desktop shell and per-window sidebars.
+    #[default]
+    Overlay,
+    /// Static panel sidebar: part of the flex layout, always visible,
+    /// no sliding, no icon tab-strip.
+    /// Used by inner views (settings, language, container, …).
+    Panel,
 }
 
-impl FsSidebarItem {
-    /// Create a regular (leaf) sidebar item.
-    pub fn new(id: impl Into<String>, icon: impl Into<String>, label: impl Into<String>) -> Self {
-        Self { id: id.into(), icon: icon.into(), label: label.into(), children: vec![] }
+// ── SidebarItem ───────────────────────────────────────────────────────────────
+
+/// A single sidebar navigation item.
+///
+/// Items with non-empty `children` are rendered as folders: clicking them
+/// drills into a sub-level instead of calling `on_select`.
+#[derive(Clone, PartialEq, Debug)]
+pub struct SidebarItem {
+    /// Stable identifier — passed to `on_select`.
+    pub id:       String,
+    /// Icon: inline SVG markup, emoji, HTTP(S) URL, or empty string.
+    pub icon:     String,
+    /// Display label.
+    pub label:    String,
+    /// Optional badge (e.g. a count or status indicator).
+    pub badge:    Option<String>,
+    /// Non-empty = folder; clicking drills into the sub-level.
+    pub children: Vec<SidebarItem>,
+}
+
+impl SidebarItem {
+    /// Create a regular (leaf) item.
+    pub fn new(
+        id:    impl Into<String>,
+        icon:  impl Into<String>,
+        label: impl Into<String>,
+    ) -> Self {
+        Self {
+            id:       id.into(),
+            icon:     icon.into(),
+            label:    label.into(),
+            badge:    None,
+            children: vec![],
+        }
     }
 
     /// Create a folder item that drills into `children` when clicked.
@@ -59,9 +101,21 @@ impl FsSidebarItem {
         id:       impl Into<String>,
         icon:     impl Into<String>,
         label:    impl Into<String>,
-        children: Vec<FsSidebarItem>,
+        children: Vec<SidebarItem>,
     ) -> Self {
-        Self { id: id.into(), icon: icon.into(), label: label.into(), children }
+        Self {
+            id:       id.into(),
+            icon:     icon.into(),
+            label:    label.into(),
+            badge:    None,
+            children,
+        }
+    }
+
+    /// Attach a badge label (builder style).
+    pub fn with_badge(mut self, badge: impl Into<String>) -> Self {
+        self.badge = Some(badge.into());
+        self
     }
 
     pub fn is_folder(&self) -> bool {
@@ -69,28 +123,46 @@ impl FsSidebarItem {
     }
 }
 
-/// CSS for FsSidebar — bookmark-drawer overlay pattern, supports left and right side.
+// Backward-compatibility alias — callers that still use `FsSidebarItem` compile unchanged.
+pub type FsSidebarItem = SidebarItem;
+
+// ── SidebarSection ────────────────────────────────────────────────────────────
+
+/// A labelled group of `SidebarItem`s.
 ///
-/// Inject this once at the app root via `style { FS_SIDEBAR_CSS }`.
+/// In Overlay mode, section labels appear inside the scrollable panel.
+/// In Panel mode, section labels are shown as uppercase headings.
+#[derive(Clone, PartialEq, Debug)]
+pub struct SidebarSection {
+    /// Optional section heading (shown in both modes when `Some`).
+    pub label: Option<String>,
+    /// Items in this section.
+    pub items: Vec<SidebarItem>,
+}
+
+impl SidebarSection {
+    /// Construct a section with a heading.
+    pub fn new(label: impl Into<String>, items: Vec<SidebarItem>) -> Self {
+        Self { label: Some(label.into()), items }
+    }
+
+    /// Construct an untitled section (no heading).
+    pub fn untitled(items: Vec<SidebarItem>) -> Self {
+        Self { label: None, items }
+    }
+}
+
+// ── CSS ───────────────────────────────────────────────────────────────────────
+
+/// CSS for `Sidebar` — inject once at the app root via `style { FS_SIDEBAR_CSS }`.
 ///
-/// **Left sidebar** (default):
-///   Panel slides in from the left; pill tab-strip visible at the left edge.
-///   Closed: `translateX(-panel_width)` → only the tab-strip visible.
-///
-/// **Right sidebar** (`side = SidebarSide::Right`):
-///   Mirror layout — panel slides in from the right; tab-strip at the right edge.
-///   Closed: `translateX(+panel_width)` → only the tab-strip visible.
-///   The tab-strip is flipped horizontally (rounded left corners).
-///   Text and icons are NOT mirrored, only the structural layout.
+/// Covers both Overlay (bookmark-drawer with icon tab-strip) and Panel (static)
+/// rendering modes.
 pub const FS_SIDEBAR_CSS: &str = r#"
-/* ── Sidebar: bookmark-drawer overlay ──────────────────────────────────
-   Structure: [panel] [tab-strip 44px] (left) / [tab-strip 44px] [panel] (right).
-   The panel slides behind the tab-strip when collapsed.
-   flex-direction: row         → panel on left,  tab-strip on right  (Left)
-   flex-direction: row-reverse → panel on right, tab-strip on left   (Right)
-   NOTE: pointer-events must stay at default (not: none) so that CSS :hover
-   fires in WebKit-based webviews (Dioxus Desktop uses WebKit, which does NOT
-   propagate :hover from a child to a pointer-events:none parent).             */
+/* ── Overlay sidebar: bookmark-drawer ──────────────────────────────────
+   Structure: [panel] [tab-strip 44px]  (Left)
+            / [tab-strip 44px] [panel]  (Right)
+   The panel slides behind the tab-strip when collapsed.              */
 .fs-sidebar {
     position: absolute;
     top: 0;
@@ -101,7 +173,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Left variant ────────────────────────────────────────────────────── */
+/* ── Left variant ─────────────────────────────────────────────────── */
 .fs-sidebar--left {
     left: 0;
     flex-direction: row;
@@ -112,7 +184,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     transform: translateX(0);
 }
 
-/* ── Right variant (mirrored) ────────────────────────────────────────── */
+/* ── Right variant ────────────────────────────────────────────────── */
 .fs-sidebar--right {
     right: 0;
     left: auto;
@@ -124,7 +196,31 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     transform: translateX(0);
 }
 
-/* ── Panel: the navigation content area ─────────────────────────────── */
+/* ── Panel mode: static, always visible, no tab-strip ─────────────── */
+.fs-sidebar--panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: var(--fs-sidebar-panel-width, 220px);
+    min-width: var(--fs-sidebar-panel-width, 220px);
+    flex-shrink: 0;
+    background: var(--fs-bg-sidebar, #0a0f1a);
+    border-right: 1px solid var(--fs-border, rgba(148,170,200,0.18));
+    overflow: hidden;
+    /* Override the overlay positioning */
+    transform: none !important;
+    top: auto;
+    bottom: auto;
+    z-index: auto;
+}
+.fs-sidebar--panel .fs-sidebar__scroll {
+    flex: 1;
+}
+.fs-sidebar--panel .fs-sidebar__section-label {
+    padding: 10px 14px 4px;
+}
+
+/* ── Panel (the sliding content area in Overlay mode) ─────────────── */
 .fs-sidebar__panel {
     width: var(--fs-sidebar-panel-width, 220px);
     min-width: var(--fs-sidebar-panel-width, 220px);
@@ -144,7 +240,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
 }
 
-/* ── Scrollable nav area ─────────────────────────────────────────────── */
+/* ── Scrollable nav area ──────────────────────────────────────────── */
 .fs-sidebar__scroll {
     flex: 1;
     overflow-y: auto;
@@ -162,7 +258,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     border-radius: 2px;
 }
 
-/* ── Rail / Pinned sections ──────────────────────────────────────────── */
+/* ── Rail / Pinned sections ───────────────────────────────────────── */
 .fs-sidebar__rail {
     border-top: 1px solid var(--fs-border, rgba(148,170,200,0.18));
     border-bottom: 1px solid var(--fs-border, rgba(148,170,200,0.18));
@@ -173,7 +269,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     border-top: 1px solid var(--fs-border, rgba(148,170,200,0.18));
 }
 
-/* ── Section label ───────────────────────────────────────────────────── */
+/* ── Section label ────────────────────────────────────────────────── */
 .fs-sidebar__section-label {
     padding: 12px 14px 4px;
     font-size: 10px;
@@ -185,7 +281,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     overflow: hidden;
 }
 
-/* ── Nav item ────────────────────────────────────────────────────────── */
+/* ── Nav item ─────────────────────────────────────────────────────── */
 .fs-sidebar__item {
     display: flex;
     align-items: center;
@@ -202,18 +298,18 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     transition: background 120ms, color 120ms, border-color 120ms;
     text-align: left;
     font-size: 13px;
+    font-family: inherit;
 }
 .fs-sidebar__item:hover {
     background: var(--fs-sidebar-hover-bg, rgba(255,255,255,0.05));
     color: var(--fs-text-primary, #e8edf5);
 }
-/* Active indicator on the left for left sidebar */
-.fs-sidebar--left .fs-sidebar__item--active {
+.fs-sidebar--left .fs-sidebar__item--active,
+.fs-sidebar--panel .fs-sidebar__item--active {
     background: var(--fs-sidebar-active-bg, rgba(77,139,245,0.15));
     color: var(--fs-sidebar-active, #4d8bf5);
     border-left-color: var(--fs-sidebar-active, #4d8bf5);
 }
-/* Active indicator on the right for right sidebar */
 .fs-sidebar--right .fs-sidebar__item {
     border-left: none;
     border-right: 2px solid transparent;
@@ -224,7 +320,19 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     border-right-color: var(--fs-sidebar-active, #4d8bf5);
 }
 
-/* ── Icon, label, back, folder arrow, divider ────────────────────────── */
+/* ── Badge ────────────────────────────────────────────────────────── */
+.fs-sidebar__badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--fs-color-primary, #06b6d4);
+    color: #000;
+    flex-shrink: 0;
+}
+
+/* ── Icon, label, back, folder arrow, divider ─────────────────────── */
 .fs-sidebar__icon {
     font-size: 18px;
     min-width: 20px;
@@ -251,7 +359,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     flex-shrink: 0;
 }
 
-/* ── Tab outer: full-height column holding the pill bubbles ─── */
+/* ── Tab outer: full-height column holding the pill bubbles ────────── */
 .fs-sidebar__tab-outer {
     align-self: stretch;
     width: 44px;
@@ -263,9 +371,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     padding: 0;
 }
 
-/* ── Tab section: one pill bubble ───────────────────────────── */
-/* align-items: center  → buttons horizontally centered within 44px
-   justify-content: center → buttons vertically centered inside the bubble */
+/* ── Tab section: one pill bubble ──────────────────────────────────── */
 .fs-sidebar__tab-section {
     width: 44px;
     flex-shrink: 0;
@@ -278,27 +384,22 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     gap: 4px;
     pointer-events: all;
 }
-/* Left sidebar: rounded right corners */
 .fs-sidebar--left .fs-sidebar__tab-section {
     border-radius: 0 12px 12px 0;
     box-shadow: 3px 0 10px rgba(0,0,0,0.5), 0 0 1px rgba(148,170,200,0.12);
 }
-/* Right sidebar: rounded left corners */
 .fs-sidebar--right .fs-sidebar__tab-section {
     border-radius: 12px 0 0 12px;
     box-shadow: -3px 0 10px rgba(0,0,0,0.5), 0 0 1px rgba(148,170,200,0.12);
 }
 
-/* ── Gap between icon section and pinned section ─────────────────────── */
+/* ── Gap between icon section and pinned section ─────────────────── */
 .fs-sidebar__tab-gap {
     flex: 1;
     pointer-events: none;
 }
 
-/* ── Tab button: fixed 36×36 square for consistent icon size/alignment ─
-   Every icon in every section has identical dimensions, regardless of
-   how many items are in the bubble. This eliminates the visual offset
-   between the apps bubble (top) and the settings bubble (bottom).       */
+/* ── Tab button ────────────────────────────────────────────────────── */
 .fs-sidebar__tab-btn {
     width: 36px;
     height: 36px;
@@ -324,10 +425,9 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     color: var(--fs-sidebar-active, #4d8bf5);
 }
 .fs-sidebar__tab-btn svg { width: 18px; height: 18px; display: block; }
-/* Labels hidden in the tab-strip — only icons are shown */
 .fs-sidebar__tab-label { display: none; }
 
-/* ── Folder slide animations (diagonal: X + Y offset) ───────────────── */
+/* ── Folder slide animations ────────────────────────────────────────── */
 @keyframes fs-slide-from-right {
     from { transform: translateX(20px) translateY(-6px); opacity: 0; }
     to   { transform: translateX(0)    translateY(0);    opacity: 1; }
@@ -339,7 +439,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
 .fs-sidebar__level--folder { animation: fs-slide-from-right 160ms ease; }
 .fs-sidebar__level--root   { animation: fs-slide-from-left  160ms ease; }
 
-/* ── Glass / transparent overrides ──────────────────────────────────── */
+/* ── Glass / transparent overrides ─────────────────────────────────── */
 [data-sidebar-style="glass"] .fs-shell-sidebar,
 [data-sidebar-style="glass"] .fs-sidebar__panel {
     background: var(--fs-glass-bg, rgba(22,32,50,0.75)) !important;
@@ -352,18 +452,15 @@ pub const FS_SIDEBAR_CSS: &str = r#"
 }
 "#;
 
-/// Minimal inline SVG shown when an item has no icon.
+// ── Icon renderer ─────────────────────────────────────────────────────────────
+
 const MISSING_ICON_SVG: &str = r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><line x1="6" y1="6" x2="18" y2="18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg>"##;
-
-/// 45° diagonal left-pointing chevron — used for the back button.
-const CHEVRON_LEFT: &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5,2 4.5,7 9.5,12"/></svg>"#;
-
-/// 45° diagonal right-pointing chevron — used for folder arrows.
+const CHEVRON_LEFT:  &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5,2 4.5,7 9.5,12"/></svg>"#;
 const CHEVRON_RIGHT: &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4.5,2 9.5,7 4.5,12"/></svg>"#;
 
-/// Renders an icon: inline SVG markup, HTTP(S) URL as <img>, plain emoji/text, or missing-icon placeholder.
+/// Renders an icon: inline SVG markup, URL as `<img>`, plain emoji/text, or placeholder.
 #[component]
-fn FsIcon(icon: String) -> Element {
+fn SidebarIcon(icon: String) -> Element {
     if icon.trim_start().starts_with("<svg") {
         rsx! { span { class: "fs-sidebar__icon", dangerous_inner_html: "{icon}" } }
     } else if icon.is_empty() {
@@ -371,7 +468,8 @@ fn FsIcon(icon: String) -> Element {
     } else if icon.starts_with("http://") || icon.starts_with("https://") || icon.starts_with('/') {
         rsx! {
             span { class: "fs-sidebar__icon",
-                img { src: "{icon}", width: "20", height: "20", style: "object-fit: contain; display: block;" }
+                img { src: "{icon}", width: "20", height: "20",
+                      style: "object-fit: contain; display: block;" }
             }
         }
     } else {
@@ -379,11 +477,10 @@ fn FsIcon(icon: String) -> Element {
     }
 }
 
-/// Resolve the items to actually display for a section.
-///
-/// Single-item folder rule: if a folder has exactly 1 child, render the child
-/// directly instead of the folder itself.
-fn resolve_display_items(items: &[FsSidebarItem]) -> Vec<FsSidebarItem> {
+// ── Item list helper ──────────────────────────────────────────────────────────
+
+/// Single-item folder rule: if a folder has exactly one child, render the child directly.
+fn resolve_display_items(items: &[SidebarItem]) -> Vec<SidebarItem> {
     items.iter().map(|item| {
         if item.is_folder() && item.children.len() == 1 {
             item.children[0].clone()
@@ -393,36 +490,40 @@ fn resolve_display_items(items: &[FsSidebarItem]) -> Vec<FsSidebarItem> {
     }).collect()
 }
 
-/// Renders a list of sidebar items (leaf + folder) using the given signals.
+/// Renders a flat list of sidebar items (leaf + folder) for one level.
 #[component]
 fn SidebarItemList(
-    items:      Vec<FsSidebarItem>,
-    active_id:  String,
-    in_folder:  bool,
-    on_select:  EventHandler<String>,
-    on_enter:   EventHandler<String>,
+    items:     Vec<SidebarItem>,
+    active_id: String,
+    in_folder: bool,
+    on_select: EventHandler<String>,
+    on_enter:  EventHandler<String>,
     #[props(default)]
     on_context_menu: Option<EventHandler<String>>,
 ) -> Element {
-    let display_items = resolve_display_items(&items);
+    let display = resolve_display_items(&items);
     rsx! {
-        for item in display_items {
+        for item in display {
             if item.is_folder() {
                 button {
-                    key: "{item.id}",
+                    key:   "{item.id}",
                     class: "fs-sidebar__item",
                     title: "{item.label}",
                     onclick: {
                         let fid = item.id.clone();
                         move |_| on_enter.call(fid.clone())
                     },
-                    FsIcon { icon: item.icon.clone() }
+                    SidebarIcon { icon: item.icon.clone() }
                     span { class: "fs-sidebar__label", "{item.label}" }
-                    span { class: "fs-sidebar__folder-arrow", dangerous_inner_html: CHEVRON_RIGHT }
+                    if let Some(b) = &item.badge {
+                        span { class: "fs-sidebar__badge", "{b}" }
+                    }
+                    span { class: "fs-sidebar__folder-arrow",
+                           dangerous_inner_html: CHEVRON_RIGHT }
                 }
             } else {
                 button {
-                    key: "{item.id}",
+                    key:   "{item.id}",
                     class: if item.id == active_id && !in_folder {
                         "fs-sidebar__item fs-sidebar__item--active"
                     } else {
@@ -437,75 +538,248 @@ fn SidebarItemList(
                         let id = item.id.clone();
                         move |evt: MouseEvent| {
                             evt.prevent_default();
-                            if let Some(ref handler) = on_context_menu {
-                                handler.call(id.clone());
+                            if let Some(ref h) = on_context_menu {
+                                h.call(id.clone());
                             }
                         }
                     },
-                    FsIcon { icon: item.icon.clone() }
+                    SidebarIcon { icon: item.icon.clone() }
                     span { class: "fs-sidebar__label", "{item.label}" }
+                    if let Some(b) = &item.badge {
+                        span { class: "fs-sidebar__badge", "{b}" }
+                    }
                 }
             }
         }
     }
 }
 
-/// Universal collapsible sidebar — the same component used in every window.
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+
+/// The ONE sidebar component for FreeSynergy.
 ///
-/// **Side** controls which edge the sidebar attaches to:
-/// - `SidebarSide::Left`  (default): panel on the left, tab-strip on the right.
-/// - `SidebarSide::Right`: mirror layout — tab-strip on the left, panel on the right.
-///   Only the structure is mirrored; text and icons keep their normal orientation.
+/// # Content
 ///
-/// **Panel content** is either the built-in nav list (default) or custom children:
-/// - No children → renders `items` as a scrollable nav list in the panel.
-/// - With children → renders the children element as the full panel body instead,
-///   while `items` are still shown as icons in the tab-strip.
+/// Pass `items` for a simple flat list (treated as one untitled section) or
+/// `sections` for multiple labelled groups.  If both are provided, `sections`
+/// wins.  `pinned_items` are always shown at the bottom.
 ///
-/// **panel_width**: panel width in px (default 220). Controls the CSS variable
-/// `--fs-sidebar-panel-width` used by both the panel size and the collapse transform.
+/// # Modes
 ///
-/// **force_open**: when `true`, adds `.fs-sidebar--open` which keeps the sidebar
-/// expanded regardless of hover state — use this while drag-resizing.
+/// - `SidebarMode::Overlay` (default) — bookmark-drawer with icon tab-strip.
+///   Inject `FS_SIDEBAR_CSS` once at the app root.
+/// - `SidebarMode::Panel` — static, always visible, part of the flex layout.
+///   No additional CSS needed beyond what `FS_SIDEBAR_CSS` already covers.
 ///
-/// Inject `FS_SIDEBAR_CSS` once at the app root.
+/// # Examples
+///
+/// ```rust
+/// // Shell (overlay)
+/// Sidebar {
+///     sections: default_sidebar_sections(),
+///     pinned_items: pinned_items(),
+///     active_id,
+///     on_select,
+///     on_context_menu: toggle_pin,
+/// }
+///
+/// // Inner panel (static)
+/// Sidebar {
+///     mode: SidebarMode::Panel,
+///     sections: vec![
+///         SidebarSection::new("Installed", lang_items),
+///     ],
+///     active_id,
+///     on_select,
+/// }
+/// ```
 #[component]
-pub fn FsSidebar(
-    items:     Vec<FsSidebarItem>,
+pub fn Sidebar(
+    // ── Content ───────────────────────────────────────────────────────────
+    /// Flat item list — shorthand when no section grouping is needed.
     #[props(default)]
-    pinned_items: Vec<FsSidebarItem>,
+    items: Vec<SidebarItem>,
+    /// Grouped sections with optional labels.  Overrides `items` when non-empty.
+    #[props(default)]
+    sections: Vec<SidebarSection>,
+    /// Items pinned at the bottom of the sidebar.
+    #[props(default)]
+    pinned_items: Vec<SidebarItem>,
+
+    // ── Selection ─────────────────────────────────────────────────────────
     active_id: String,
-    on_select: EventHandler<String>,
+    on_select:  EventHandler<String>,
+
+    // ── Layout & behaviour ────────────────────────────────────────────────
+    /// Rendering mode — Overlay (default) or Panel.
+    #[props(default)]
+    mode: SidebarMode,
+    /// Which edge the sidebar attaches to (Overlay mode only).
     #[props(default)]
     side: SidebarSide,
+    /// Panel width in pixels (default 220).
     #[props(default = 220.0_f64)]
     panel_width: f64,
+    /// When `true`, adds `.fs-sidebar--open` to keep the overlay expanded
+    /// regardless of hover state (use during drag-resize).
     #[props(default = false)]
     force_open: bool,
-    /// Optional custom panel content. When provided, replaces the built-in nav list.
-    /// Use `custom_panel: rsx! { ... }` at the call site (e.g. HelpSidebarPanel).
+
+    // ── Custom content ────────────────────────────────────────────────────
+    /// Optional custom panel body.  When provided, replaces the built-in item
+    /// list while the sidebar frame (position, slide, tab-strip) stays intact.
     #[props(default)]
     custom_panel: Option<Element>,
+
+    // ── Interaction ───────────────────────────────────────────────────────
     /// Called with the item ID when the user right-clicks a leaf item.
     #[props(default)]
     on_context_menu: Option<EventHandler<String>>,
 ) -> Element {
-    // Open-folder state for the main (scrollable) section.
+    // ── Resolve effective sections ────────────────────────────────────────
+    let effective_sections: Vec<SidebarSection> = if !sections.is_empty() {
+        sections.clone()
+    } else if !items.is_empty() {
+        vec![SidebarSection::untitled(items.clone())]
+    } else {
+        vec![]
+    };
+
+    match mode {
+        SidebarMode::Panel  => render_panel(effective_sections, pinned_items, active_id, on_select, on_context_menu, panel_width),
+        SidebarMode::Overlay => render_overlay(effective_sections, pinned_items, active_id, on_select, on_context_menu, side, panel_width, force_open, custom_panel),
+    }
+}
+
+// ── Panel renderer ────────────────────────────────────────────────────────────
+
+fn render_panel(
+    sections:        Vec<SidebarSection>,
+    pinned_items:    Vec<SidebarItem>,
+    active_id:       String,
+    on_select:       EventHandler<String>,
+    on_context_menu: Option<EventHandler<String>>,
+    panel_width:     f64,
+) -> Element {
+    let has_pinned = !pinned_items.is_empty();
+
+    // Folder state for the main area (single shared state across all sections).
+    let mut open_folder: Signal<Option<String>> = use_signal(|| None);
+    let folder_id  = open_folder.read().clone();
+    let in_folder  = folder_id.is_some();
+
+    // In folder mode: find and show the open folder's children.
+    let (show_sections, back_label) = if let Some(ref fid) = folder_id {
+        // Find the folder across all sections.
+        let mut found: Option<(Vec<SidebarItem>, String)> = None;
+        'outer: for s in &sections {
+            for item in &s.items {
+                if item.is_folder() && &item.id == fid {
+                    found = Some((item.children.clone(), item.label.clone()));
+                    break 'outer;
+                }
+            }
+        }
+        if let Some((children, label)) = found {
+            // Drill-in: show children as one untitled section.
+            (vec![SidebarSection::untitled(children)], label)
+        } else {
+            (sections.clone(), String::new())
+        }
+    } else {
+        (sections.clone(), String::new())
+    };
+
+    let level_class = if in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
+
+    rsx! {
+        nav {
+            class: "fs-sidebar fs-sidebar--panel",
+            style: "--fs-sidebar-panel-width: {panel_width}px;",
+
+            div { class: "fs-sidebar__scroll",
+                div { class: "{level_class}",
+                    if in_folder {
+                        button {
+                            class: "fs-sidebar__item fs-sidebar__back",
+                            title: "Back",
+                            onclick: move |_| open_folder.set(None),
+                            span { class: "fs-sidebar__icon",
+                                   dangerous_inner_html: CHEVRON_LEFT }
+                            span { class: "fs-sidebar__label", "{back_label}" }
+                        }
+                        div { class: "fs-sidebar__divider" }
+                    }
+
+                    for section in &show_sections {
+                        if let Some(label) = &section.label {
+                            div { class: "fs-sidebar__section-label", "{label}" }
+                        }
+                        SidebarItemList {
+                            items:           section.items.clone(),
+                            active_id:       active_id.clone(),
+                            in_folder,
+                            on_select:       move |id| on_select.call(id),
+                            on_enter:        move |fid| open_folder.set(Some(fid)),
+                            on_context_menu: on_context_menu.clone(),
+                        }
+                    }
+                }
+            }
+
+            if has_pinned {
+                div { class: "fs-sidebar__pinned",
+                    SidebarItemList {
+                        items:           pinned_items,
+                        active_id:       active_id.clone(),
+                        in_folder:       false,
+                        on_select:       move |id| on_select.call(id),
+                        on_enter:        move |_| {},
+                        on_context_menu: None,
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── Overlay renderer ──────────────────────────────────────────────────────────
+
+fn render_overlay(
+    sections:        Vec<SidebarSection>,
+    pinned_items:    Vec<SidebarItem>,
+    active_id:       String,
+    on_select:       EventHandler<String>,
+    on_context_menu: Option<EventHandler<String>>,
+    side:            SidebarSide,
+    panel_width:     f64,
+    force_open:      bool,
+    custom_panel:    Option<Element>,
+) -> Element {
+    // Folder state — main section.
     let mut main_open_folder:   Signal<Option<String>> = use_signal(|| None);
-    // Open-folder state for the pinned section (independent).
+    // Folder state — pinned section (independent).
     let mut pinned_open_folder: Signal<Option<String>> = use_signal(|| None);
 
     // ── Main section ──────────────────────────────────────────────────────
+    // Flatten all items across sections for folder lookup and tab-strip.
+    let all_items: Vec<SidebarItem> = sections.iter()
+        .flat_map(|s| s.items.iter().cloned())
+        .collect();
+
     let main_folder_id = main_open_folder.read().clone();
     let main_in_folder = main_folder_id.is_some();
 
-    let (main_show_items, main_back_label) = if let Some(ref fid) = main_folder_id {
-        match items.iter().find(|i| &i.id == fid) {
-            Some(folder) => (folder.children.clone(), folder.label.clone()),
-            None         => (items.clone(), String::new()),
+    let (main_show_sections, main_back_label) = if let Some(ref fid) = main_folder_id {
+        match all_items.iter().find(|i| &i.id == fid) {
+            Some(folder) => (
+                vec![SidebarSection::untitled(folder.children.clone())],
+                folder.label.clone(),
+            ),
+            None => (sections.clone(), String::new()),
         }
     } else {
-        (items.clone(), String::new())
+        (sections.clone(), String::new())
     };
 
     let main_level_class = if main_in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
@@ -525,33 +799,24 @@ pub fn FsSidebar(
 
     let pinned_level_class = if pinned_in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
 
-    let has_pinned      = !pinned_items.is_empty();
-    let has_custom      = custom_panel.is_some();
-    let tab_items       = resolve_display_items(&items);
+    let has_pinned  = !pinned_items.is_empty();
+    let has_custom  = custom_panel.is_some();
+    let tab_items   = resolve_display_items(&all_items);
 
-    let side_class = match side {
-        SidebarSide::Left  => "fs-sidebar--left",
-        SidebarSide::Right => "fs-sidebar--right",
-    };
-    let open_class = if force_open { "fs-sidebar--open" } else { "" };
+    let side_class  = match side { SidebarSide::Left => "fs-sidebar--left", SidebarSide::Right => "fs-sidebar--right" };
+    let open_class  = if force_open { "fs-sidebar--open" } else { "" };
 
     rsx! {
         nav {
             class: "fs-sidebar {side_class} {open_class}",
             style: "--fs-sidebar-panel-width: {panel_width}px;",
 
-            // ── Panel ────────────────────────────────────────────────────
-            // DOM order: panel first, tab-outer second.
-            // flex-direction: row         → panel on left  (Left sidebar)
-            // flex-direction: row-reverse → panel on right (Right sidebar)
+            // ── Panel ─────────────────────────────────────────────────────
             div { class: "fs-sidebar__panel",
 
                 if has_custom {
-                    // Custom content supplied by the caller (e.g. HelpSidebarPanel).
                     {custom_panel}
                 } else {
-                    // Default: scrollable nav list + optional pinned section.
-
                     div { class: "fs-sidebar__scroll",
                         div { class: "fs-sidebar__rail",
                             div { class: "{main_level_class}",
@@ -560,18 +825,25 @@ pub fn FsSidebar(
                                         class: "fs-sidebar__item fs-sidebar__back",
                                         title: "Back",
                                         onclick: move |_| main_open_folder.set(None),
-                                        span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
+                                        span { class: "fs-sidebar__icon",
+                                               dangerous_inner_html: CHEVRON_LEFT }
                                         span { class: "fs-sidebar__label", "{main_back_label}" }
                                     }
                                     div { class: "fs-sidebar__divider" }
                                 }
-                                SidebarItemList {
-                                    items:     main_show_items,
-                                    active_id: active_id.clone(),
-                                    in_folder: main_in_folder,
-                                    on_select: move |id| on_select.call(id),
-                                    on_enter:  move |fid| main_open_folder.set(Some(fid)),
-                                    on_context_menu: on_context_menu.clone(),
+
+                                for section in &main_show_sections {
+                                    if let Some(label) = &section.label {
+                                        div { class: "fs-sidebar__section-label", "{label}" }
+                                    }
+                                    SidebarItemList {
+                                        items:           section.items.clone(),
+                                        active_id:       active_id.clone(),
+                                        in_folder:       main_in_folder,
+                                        on_select:       move |id| on_select.call(id),
+                                        on_enter:        move |fid| main_open_folder.set(Some(fid)),
+                                        on_context_menu: on_context_menu.clone(),
+                                    }
                                 }
                             }
                         }
@@ -585,17 +857,18 @@ pub fn FsSidebar(
                                         class: "fs-sidebar__item fs-sidebar__back",
                                         title: "Back",
                                         onclick: move |_| pinned_open_folder.set(None),
-                                        span { class: "fs-sidebar__icon", dangerous_inner_html: CHEVRON_LEFT }
+                                        span { class: "fs-sidebar__icon",
+                                               dangerous_inner_html: CHEVRON_LEFT }
                                         span { class: "fs-sidebar__label", "{pinned_back_label}" }
                                     }
                                     div { class: "fs-sidebar__divider" }
                                 }
                                 SidebarItemList {
-                                    items:     pinned_show_items,
-                                    active_id: active_id.clone(),
-                                    in_folder: pinned_in_folder,
-                                    on_select: move |id| on_select.call(id),
-                                    on_enter:  move |fid| pinned_open_folder.set(Some(fid)),
+                                    items:           pinned_show_items,
+                                    active_id:       active_id.clone(),
+                                    in_folder:       pinned_in_folder,
+                                    on_select:       move |id| on_select.call(id),
+                                    on_enter:        move |fid| pinned_open_folder.set(Some(fid)),
                                     on_context_menu: on_context_menu.clone(),
                                 }
                             }
@@ -604,10 +877,9 @@ pub fn FsSidebar(
                 }
             }
 
-            // ── Tab outer: full-height column with pill bubbles ─
+            // ── Tab outer: icon pill bubbles ───────────────────────────────
             div { class: "fs-sidebar__tab-outer",
 
-                // Icons bubble — one button per top-level item.
                 if !tab_items.is_empty() {
                     div { class: "fs-sidebar__tab-section",
                         for item in &tab_items {
@@ -627,7 +899,7 @@ pub fn FsSidebar(
                                         class:   "{tab_class}",
                                         title:   "{label}",
                                         onclick: move |_| on_select.call(id.clone()),
-                                        FsIcon { icon: icon.clone() }
+                                        SidebarIcon { icon: icon.clone() }
                                         span { class: "fs-sidebar__tab-label", "{label}" }
                                     }
                                 }
@@ -636,10 +908,8 @@ pub fn FsSidebar(
                     }
                 }
 
-                // Spacer — pushes the pinned bubble to the bottom.
                 div { class: "fs-sidebar__tab-gap" }
 
-                // Pinned / settings bubble.
                 if has_pinned {
                     div { class: "fs-sidebar__tab-section",
                         for item in &pinned_items {
@@ -659,7 +929,7 @@ pub fn FsSidebar(
                                         class:   "{tab_class}",
                                         title:   "{label}",
                                         onclick: move |_| on_select.call(id.clone()),
-                                        FsIcon { icon: icon.clone() }
+                                        SidebarIcon { icon: icon.clone() }
                                         span { class: "fs-sidebar__tab-label", "{label}" }
                                     }
                                 }
@@ -674,16 +944,15 @@ pub fn FsSidebar(
 
 // ── SidebarNavBtn ─────────────────────────────────────────────────────────────
 
-/// Sidebar navigation button with icon + label and optional left-border active indicator.
-///
-/// Set `left_border = true` for conductor-style active left border;
-/// leave it `false` for settings-style background highlight.
+/// Standalone sidebar navigation button with icon + label and optional active
+/// left-border indicator.  Use inside custom `custom_panel` content or wherever
+/// a single styled button is needed without the full Sidebar frame.
 #[component]
 pub fn SidebarNavBtn(
-    label: String,
-    icon: String,
+    label:    String,
+    icon:     String,
     is_active: bool,
-    on_click: EventHandler,
+    on_click:  EventHandler,
     #[props(default = false)]
     left_border: bool,
 ) -> Element {
@@ -701,7 +970,8 @@ pub fn SidebarNavBtn(
                     padding: 8px 12px; border: none; border-left: {border_left}; \
                     border-radius: var(--fs-radius-md, 6px); cursor: pointer; \
                     font-size: 14px; text-align: left; background: {bg}; \
-                    color: {color}; font-weight: {weight}; margin-bottom: 2px;",
+                    color: {color}; font-weight: {weight}; margin-bottom: 2px; \
+                    font-family: inherit;",
             onclick: move |_| on_click.call(()),
             span { style: "font-size: 16px;", "{icon}" }
             span { "{label}" }
@@ -709,9 +979,9 @@ pub fn SidebarNavBtn(
     }
 }
 
-// ── FsTabView ────────────────────────────────────────────────────────────────
+// ── FsTabView ─────────────────────────────────────────────────────────────────
 
-/// A tab definition for FsTabView.
+/// A tab definition for `FsTabView`.
 #[derive(Clone, PartialEq, Debug)]
 pub struct FsTabDef {
     pub id:    String,
@@ -730,7 +1000,7 @@ impl FsTabDef {
     }
 }
 
-/// CSS for FsTabView — inject once at the app root via `style { FS_TAB_VIEW_CSS }`.
+/// CSS for `FsTabView` — inject once at the app root via `style { FS_TAB_VIEW_CSS }`.
 pub const FS_TAB_VIEW_CSS: &str = r#"
 .fs-tab-view {
     display: flex;
@@ -762,6 +1032,7 @@ pub const FS_TAB_VIEW_CSS: &str = r#"
     font-weight: 500;
     white-space: nowrap;
     transition: color 120ms, border-color 120ms, background 120ms;
+    font-family: inherit;
 }
 .fs-tab-view__tab:hover {
     color: var(--fs-text-primary, #e8edf5);
@@ -776,7 +1047,6 @@ pub const FS_TAB_VIEW_CSS: &str = r#"
     flex: 1;
     overflow: hidden;
 }
-/* Slide + blur animations — trigger on tab switch */
 @keyframes fs-tab-in-right {
     from { transform: translateX(40px); opacity: 0; filter: blur(6px); }
     to   { transform: translateX(0);    opacity: 1; filter: blur(0);   }
@@ -800,21 +1070,8 @@ pub const FS_TAB_VIEW_CSS: &str = r#"
 /// Universal tab-switching component with slide+blur animation.
 ///
 /// When the user navigates to the right (higher tab index), the new content
-/// slides in from the right with a blur-to-sharp effect. Navigating left
-/// reverses the direction — exactly like iOS/Android tab switching.
-///
-/// Works for ANY set of tabs in the application — store sections, settings
-/// pages, etc. Inject `FS_TAB_VIEW_CSS` once at the app root.
-///
-/// # Example
-/// ```rust
-/// let tabs = vec![
-///     FsTabDef::new("server", "Server").with_icon(ICON_SVG),
-///     FsTabDef::new("apps",   "Apps"),
-///     FsTabDef::new("desktop","Desktop"),
-/// ];
-/// FsTabView { tabs, active_id, on_change: move |id| section.set(id), children }
-/// ```
+/// slides in from the right with a blur-to-sharp effect.  Navigating left
+/// reverses the direction.  Inject `FS_TAB_VIEW_CSS` once at the app root.
 #[component]
 pub fn FsTabView(
     tabs:      Vec<FsTabDef>,
@@ -822,15 +1079,10 @@ pub fn FsTabView(
     on_change: EventHandler<String>,
     children:  Element,
 ) -> Element {
-    // Tracks which tab was shown before the current one (for direction detection).
-    let mut prev_id:     Signal<String>        = use_signal(|| active_id.clone());
-    // Incremented each time the active tab changes — used as the content `key`
-    // so that Dioxus remounts the content div and restarts the CSS animation.
-    let mut content_key: Signal<u32>           = use_signal(|| 0);
-    // The CSS class for the slide animation ("" = no animation on first render).
-    let mut anim_class:  Signal<&'static str>  = use_signal(|| "");
+    let mut prev_id:     Signal<String>       = use_signal(|| active_id.clone());
+    let mut content_key: Signal<u32>          = use_signal(|| 0);
+    let mut anim_class:  Signal<&'static str> = use_signal(|| "");
 
-    // After each render: if active_id changed, compute direction and trigger remount.
     {
         let new_id  = active_id.clone();
         let t_clone = tabs.clone();
@@ -856,12 +1108,11 @@ pub fn FsTabView(
 
     rsx! {
         div { class: "fs-tab-view",
-            // ── Tab bar ───────────────────────────────────────────────────────
             div { class: "fs-tab-view__bar",
                 for tab in &tabs {
                     {
                         let is_active = tab.id == active_id;
-                        let tid       = tab.id.clone();
+                        let tid = tab.id.clone();
                         rsx! {
                             button {
                                 key:   "{tab.id}",
@@ -886,7 +1137,6 @@ pub fn FsTabView(
                     }
                 }
             }
-            // ── Content area (keyed so it remounts on tab change) ─────────────
             div {
                 key:   "{ck}",
                 class: "fs-tab-view__content {cls}",
