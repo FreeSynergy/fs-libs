@@ -229,7 +229,7 @@ impl StoreClient {
     /// URL: `https://raw.githubusercontent.com/FreeSynergy/Store/main`
     pub fn node_store() -> Self {
         Self::new(StoreSource::http(
-            "https://raw.githubusercontent.com/FreeSynergy/Store/main",
+            "https://raw.githubusercontent.com/FreeSynergy/fs-store/main",
         ))
     }
 
