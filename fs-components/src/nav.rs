@@ -74,13 +74,13 @@ impl FsSidebarItem {
 /// Inject this once at the app root via `style { FS_SIDEBAR_CSS }`.
 ///
 /// **Left sidebar** (default):
-///   Panel slides in from the left; parallelogram tab-strip visible at the left edge.
+///   Panel slides in from the left; pill tab-strip visible at the left edge.
 ///   Closed: `translateX(-panel_width)` → only the tab-strip visible.
 ///
 /// **Right sidebar** (`side = SidebarSide::Right`):
 ///   Mirror layout — panel slides in from the right; tab-strip at the right edge.
 ///   Closed: `translateX(+panel_width)` → only the tab-strip visible.
-///   The tab-strip parallelogram is flipped horizontally.
+///   The tab-strip is flipped horizontally (rounded left corners).
 ///   Text and icons are NOT mirrored, only the structural layout.
 pub const FS_SIDEBAR_CSS: &str = r#"
 /* ── Sidebar: bookmark-drawer overlay ──────────────────────────────────
@@ -251,7 +251,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     flex-shrink: 0;
 }
 
-/* ── Tab outer: full-height column holding the parallelogram bubbles ─── */
+/* ── Tab outer: full-height column holding the pill bubbles ─── */
 .fs-sidebar__tab-outer {
     align-self: stretch;
     width: 44px;
@@ -263,7 +263,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     padding: 0;
 }
 
-/* ── Tab section: one parallelogram bubble ───────────────────────────── */
+/* ── Tab section: one pill bubble ───────────────────────────── */
 /* align-items: center  → buttons horizontally centered within 44px
    justify-content: center → buttons vertically centered inside the bubble */
 .fs-sidebar__tab-section {
@@ -278,15 +278,15 @@ pub const FS_SIDEBAR_CSS: &str = r#"
     gap: 4px;
     pointer-events: all;
 }
-/* Left sidebar: right-leaning parallelogram (cuts on right side) */
+/* Left sidebar: rounded right corners */
 .fs-sidebar--left .fs-sidebar__tab-section {
-    clip-path: polygon(0% 0%, 100% 16px, 100% calc(100% - 16px), 0% 100%);
-    filter: drop-shadow(3px 0 10px rgba(0,0,0,0.5)) drop-shadow(0 0 1px rgba(148,170,200,0.12));
+    border-radius: 0 12px 12px 0;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.5), 0 0 1px rgba(148,170,200,0.12);
 }
-/* Right sidebar: left-leaning parallelogram (mirror — cuts on left side) */
+/* Right sidebar: rounded left corners */
 .fs-sidebar--right .fs-sidebar__tab-section {
-    clip-path: polygon(0% 16px, 100% 0%, 100% 100%, 0% calc(100% - 16px));
-    filter: drop-shadow(-3px 0 10px rgba(0,0,0,0.5)) drop-shadow(0 0 1px rgba(148,170,200,0.12));
+    border-radius: 12px 0 0 12px;
+    box-shadow: -3px 0 10px rgba(0,0,0,0.5), 0 0 1px rgba(148,170,200,0.12);
 }
 
 /* ── Gap between icon section and pinned section ─────────────────────── */
@@ -401,6 +401,8 @@ fn SidebarItemList(
     in_folder:  bool,
     on_select:  EventHandler<String>,
     on_enter:   EventHandler<String>,
+    #[props(default)]
+    on_context_menu: Option<EventHandler<String>>,
 ) -> Element {
     let display_items = resolve_display_items(&items);
     rsx! {
@@ -430,6 +432,15 @@ fn SidebarItemList(
                     onclick: {
                         let id = item.id.clone();
                         move |_| on_select.call(id.clone())
+                    },
+                    oncontextmenu: {
+                        let id = item.id.clone();
+                        move |evt: MouseEvent| {
+                            evt.prevent_default();
+                            if let Some(ref handler) = on_context_menu {
+                                handler.call(id.clone());
+                            }
+                        }
                     },
                     FsIcon { icon: item.icon.clone() }
                     span { class: "fs-sidebar__label", "{item.label}" }
@@ -471,8 +482,13 @@ pub fn FsSidebar(
     panel_width: f64,
     #[props(default = false)]
     force_open: bool,
+    /// Optional custom panel content. When provided, replaces the built-in nav list.
+    /// Use `custom_panel: rsx! { ... }` at the call site (e.g. HelpSidebarPanel).
     #[props(default)]
-    children: Element,
+    custom_panel: Option<Element>,
+    /// Called with the item ID when the user right-clicks a leaf item.
+    #[props(default)]
+    on_context_menu: Option<EventHandler<String>>,
 ) -> Element {
     // Open-folder state for the main (scrollable) section.
     let mut main_open_folder:   Signal<Option<String>> = use_signal(|| None);
@@ -510,7 +526,7 @@ pub fn FsSidebar(
     let pinned_level_class = if pinned_in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
 
     let has_pinned      = !pinned_items.is_empty();
-    let has_custom      = children.is_ok();
+    let has_custom      = custom_panel.is_some();
     let tab_items       = resolve_display_items(&items);
 
     let side_class = match side {
@@ -531,8 +547,8 @@ pub fn FsSidebar(
             div { class: "fs-sidebar__panel",
 
                 if has_custom {
-                    // Custom content supplied by the caller (e.g. Help panel).
-                    {children}
+                    // Custom content supplied by the caller (e.g. HelpSidebarPanel).
+                    {custom_panel}
                 } else {
                     // Default: scrollable nav list + optional pinned section.
 
@@ -555,6 +571,7 @@ pub fn FsSidebar(
                                     in_folder: main_in_folder,
                                     on_select: move |id| on_select.call(id),
                                     on_enter:  move |fid| main_open_folder.set(Some(fid)),
+                                    on_context_menu: on_context_menu.clone(),
                                 }
                             }
                         }
@@ -579,6 +596,7 @@ pub fn FsSidebar(
                                     in_folder: pinned_in_folder,
                                     on_select: move |id| on_select.call(id),
                                     on_enter:  move |fid| pinned_open_folder.set(Some(fid)),
+                                    on_context_menu: on_context_menu.clone(),
                                 }
                             }
                         }
@@ -586,7 +604,7 @@ pub fn FsSidebar(
                 }
             }
 
-            // ── Tab outer: full-height column with parallelogram bubbles ─
+            // ── Tab outer: full-height column with pill bubbles ─
             div { class: "fs-sidebar__tab-outer",
 
                 // Icons bubble — one button per top-level item.
