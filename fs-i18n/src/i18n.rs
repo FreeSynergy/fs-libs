@@ -178,12 +178,12 @@ impl I18n {
     ///
     /// Existing entries for `lang` are merged; conflicting keys are overwritten.
     pub fn add_toml_str(&mut self, lang: &str, toml_src: &str) -> Result<(), FsError> {
-        let value: toml::Value = toml_src
+        let table: toml::Table = toml_src
             .parse()
             .map_err(|e| FsError::config(format!("invalid TOML for lang `{lang}`: {e}")))?;
 
         let map = self.toml_maps.entry(lang.to_string()).or_default();
-        flatten_toml("", &value, map);
+        flatten_toml("", &toml::Value::Table(table), map);
         Ok(())
     }
 
