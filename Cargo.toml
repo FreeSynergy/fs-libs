@@ -78,16 +78,16 @@ futures-util = { version = "0.3" }
 reqwest = { version = "0.13", features = ["json", "rustls", "form", "query"], default-features = false }
 
 # WebSocket
-tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+tokio-tungstenite = { version = "0.29", features = ["native-tls"] }
 
 # Database
 sea-orm = { version = "=2.0.0-rc.37", default-features = false, features = ["macros"] }
 
 # UI (Dioxus)
-dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals", "hooks", "launch"] }
+dioxus = { version = "0.7", default-features = false, features = ["macro", "html", "signals", "hooks", "launch"] }
 
 # i18n
-fluent-bundle = { version = "0.15" }
+fluent-bundle = { version = "0.16" }
 unic-langid   = { version = "0.9", features = ["macros"] }
 
 # CRDT
@@ -98,22 +98,22 @@ tera     = { version = "1" }
 indexmap = { version = "2" }
 
 # Container API
-bollard = { version = "0.18" }
+bollard = { version = "0.20" }
 
 # WASM runtime
-wasmtime      = { version = "28", features = ["cranelift"] }
-wasmtime-wasi = { version = "28" }
+wasmtime      = { version = "43", features = ["cranelift"] }
+wasmtime-wasi = { version = "43" }
 
 # ActivityPub
 activitypub_federation = { version = "0.6", default-features = false }
 
 # JWT + OAuth2
-jsonwebtoken = { version = "9" }
-oauth2       = { version = "4" }
+jsonwebtoken = { version = "10" }
+oauth2       = { version = "5" }
 
 # Messaging SDKs
-matrix-sdk = { version = "0.10", default-features = false, features = ["rustls-tls", "sqlite"] }
-teloxide   = { version = "0.13", default-features = false, features = ["macros"] }
+matrix-sdk = { version = "0.16", default-features = false, features = ["rustls-tls", "sqlite"] }
+teloxide   = { version = "0.17", default-features = false, features = ["macros"] }
 
 # Crypto
 ed25519-dalek = { version = "2", features = ["serde", "rand_core"] }

@@ -81,8 +81,8 @@ impl Channel for MatrixAdapter {
             // Restore existing session
             client
                 .restore_session(matrix_sdk::AuthSession::Matrix(
-                    matrix_sdk::authentication::MatrixSession {
-                        credentials: matrix_sdk::authentication::MatrixSessionTokens {
+                    matrix_sdk::authentication::matrix::MatrixSession {
+                        tokens: matrix_sdk::authentication::SessionTokens {
                             access_token: token.clone(),
                             refresh_token: None,
                         },

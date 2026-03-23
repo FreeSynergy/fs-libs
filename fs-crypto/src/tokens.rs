@@ -151,7 +151,7 @@ impl fmt::Display for JoinToken {
 /// one-time node recovery flows.
 pub fn generate_recovery_token() -> String {
     let mut buf = [0u8; 32];
-    rand::thread_rng().fill_bytes(&mut buf);
+    rand::rng().fill_bytes(&mut buf);
     hex::encode(buf)
 }
 
@@ -166,7 +166,7 @@ fn unix_now() -> u64 {
 
 fn random_nonce() -> String {
     let mut buf = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut buf);
+    rand::rng().fill_bytes(&mut buf);
     hex::encode(buf)
 }
 

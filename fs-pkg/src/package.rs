@@ -344,6 +344,8 @@ mod tests {
             bundle:    None,
             variables: vec![],
             setup:     None,
+            provides:  Default::default(),
+            messages:  Default::default(),
             contract:  None,
         }
     }

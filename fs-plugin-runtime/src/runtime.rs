@@ -15,7 +15,7 @@ use std::path::{Path, PathBuf};
 use fs_error::FsError;
 use fs_plugin_sdk::PluginManifest;
 use wasmtime::{Engine, Instance, Linker, Module, Store, Val};
-use wasmtime_wasi::preview1::WasiP1Ctx;
+use wasmtime_wasi::p1::WasiP1Ctx;
 use wasmtime_wasi::WasiCtxBuilder;
 
 use crate::handle::{PluginHandle, PluginInstanceState};
@@ -143,7 +143,7 @@ impl PluginRuntime {
         let mut linker: Linker<WasiP1Ctx> = Linker::new(&self.engine);
 
         // Add WASI preview1 host functions (compatible with wasm32-wasi target)
-        wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |cx: &mut WasiP1Ctx| cx)
+        wasmtime_wasi::p1::add_to_linker_sync(&mut linker, |cx: &mut WasiP1Ctx| cx)
             .map_err(|e| FsError::Plugin(format!("failed to add WASI to linker: {e}")))?;
 
         let instance = linker

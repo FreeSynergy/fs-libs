@@ -176,6 +176,15 @@ pub struct ApiManifest {
     #[serde(default)]
     pub setup: Option<SetupManifest>,
 
+    /// Capabilities this package provides — advertised to the Bus and Store.
+    /// Other packages can depend on these by name instead of by package ID.
+    #[serde(default)]
+    pub provides: PackageProvides,
+
+    /// Bus messages this package emits and listens to.
+    #[serde(default)]
+    pub messages: BusMessages,
+
     /// Reverse proxy contract — how Zentinel routes traffic to this package.
     #[serde(default)]
     pub contract: Option<ContractManifest>,
@@ -655,33 +664,114 @@ pub struct ContractRoute {
 
 // ── BundleManifest ────────────────────────────────────────────────────────────
 
-/// Bundle metadata (`[bundle]`) — only for `PackageType::Bundle`.
+/// A concrete package reference inside a bundle.
 ///
-/// A bundle is a meta-package that groups other packages together, similar to
-/// `dnf group install`. The store resolves all `packages` automatically;
-/// `optional` packages are presented to the user as choices.
+/// Bundles can pin a specific version — the Store will refuse to delete
+/// that version while at least one active bundle holds a pin on it.
 ///
 /// # Example (TOML)
 ///
-/// ```toml
-/// [package]
-/// id   = "server-minimal"
-/// name = "Server Minimal"
-/// type = "bundle"
+///     [[bundle.packages]]
+///     id      = "zentinel"
+///     version = "1.2.3"
+///     pin     = true
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BundlePackageRef {
+    /// Package ID (e.g. `"proxy/zentinel"`).
+    pub id: String,
+
+    /// Optional version constraint (e.g. `">=1.0.0"`, `"1.2.3"`).
+    /// When absent, the Store installs the latest version.
+    #[serde(default)]
+    pub version: Option<String>,
+
+    /// Pin this exact version.  Pinned versions cannot be deleted while
+    /// this bundle is active.
+    #[serde(default)]
+    pub pin: bool,
+}
+
+/// A capability reference inside a bundle.
 ///
-/// [bundle]
-/// packages = ["node", "conductor", "zentinel", "kanidm"]
-/// optional  = ["forgejo", "outline", "stalwart"]
-/// ```
+/// Instead of naming a specific package, the bundle says "I need something
+/// that provides this capability". The Store resolves it at install time.
+///
+/// # Example (TOML)
+///
+///     [[bundle.capabilities]]
+///     name = "iam.oidc-provider"
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BundleCapabilityRef {
+    /// Capability name (e.g. `"iam"`, `"iam.oidc-provider"`).
+    pub name: String,
+}
+
+/// Bundle metadata (`[bundle]`) — only for `PackageType::Bundle`.
+///
+/// Bundles are **recursive** — they can reference packages, capabilities, and
+/// other bundles.  This makes them composable "distributions":
+///
+///   - `packages`     — concrete packages (optionally pinned)
+///   - `capabilities` — abstract requirements (resolved at install time)
+///   - `bundles`      — other bundles (recursive composition)
+///   - `optional`     — packages offered as user choices
+///
+/// # Example (TOML)
+///
+///     [package]
+///     id   = "server"
+///     name = "Server"
+///     type = "bundle"
+///
+///     [[bundle.packages]]
+///     id      = "fs-node"
+///     version = ">=0.5.0"
+///
+///     [[bundle.packages]]
+///     id  = "zentinel"
+///     pin = true
+///
+///     [[bundle.capabilities]]
+///     name = "iam"
+///
+///     [[bundle.bundles]]
+///     name = "management-tools"
+///
+///     [[bundle.optional]]
+///     id = "forgejo"
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct BundleManifest {
-    /// Package IDs that are always installed as part of this bundle.
+    /// Concrete packages always installed as part of this bundle.
     #[serde(default)]
-    pub packages: Vec<String>,
+    pub packages: Vec<BundlePackageRef>,
 
-    /// Package IDs that are offered to the user as optional additions.
+    /// Abstract capability requirements resolved at install time.
     #[serde(default)]
-    pub optional: Vec<String>,
+    pub capabilities: Vec<BundleCapabilityRef>,
+
+    /// Other bundles this bundle composes (recursive).
+    #[serde(default)]
+    pub bundles: Vec<String>,
+
+    /// Packages offered to the user as optional additions.
+    #[serde(default)]
+    pub optional: Vec<BundlePackageRef>,
+}
+
+impl BundleManifest {
+    /// All pinned package IDs in this bundle.
+    pub fn pinned_packages(&self) -> Vec<&str> {
+        self.packages
+            .iter()
+            .filter(|p| p.pin)
+            .map(|p| p.id.as_str())
+            .collect()
+    }
+
+    /// `true` if any package in this bundle is pinned to a specific version.
+    pub fn has_pins(&self) -> bool {
+        self.packages.iter().any(|p| p.pin)
+    }
 }
 
 // ── PackageOrigin ─────────────────────────────────────────────────────────────
@@ -867,6 +957,83 @@ pub struct PackageHooks {
     pub post_upgrade: Vec<String>,
 }
 
+// ── PackageProvides ───────────────────────────────────────────────────────────
+
+/// Capabilities this package advertises (`[provides]`).
+///
+/// These strings are registered in the Store's capability registry at install
+/// time.  Other packages and bundles can reference them by name instead of
+/// depending on a specific package ID, enabling hot-swappable implementations.
+///
+/// Capabilities follow the dot-notation hierarchy from [rollen.md]:
+///   "iam", "iam.oidc-provider", "i18n", "i18n.de", "widget", ...
+///
+/// # Example (TOML)
+///
+///     [provides]
+///     capabilities = ["iam", "iam.oidc-provider", "iam.scim-server", "iam.webauthn"]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct PackageProvides {
+    /// Capability names this package provides.
+    #[serde(default)]
+    pub capabilities: Vec<String>,
+}
+
+impl PackageProvides {
+    /// Returns `true` if this package provides the given capability.
+    pub fn has(&self, cap: &str) -> bool {
+        self.capabilities.iter().any(|c| c == cap)
+    }
+
+    /// Returns all capabilities that start with the given prefix
+    /// (e.g. `"iam"` matches `"iam"`, `"iam.oidc-provider"`, ...).
+    pub fn matching_prefix(&self, prefix: &str) -> Vec<&str> {
+        self.capabilities
+            .iter()
+            .filter(|c| c.as_str() == prefix || c.starts_with(&format!("{prefix}.")))
+            .map(String::as_str)
+            .collect()
+    }
+}
+
+// ── BusMessages ───────────────────────────────────────────────────────────────
+
+/// Bus message declarations (`[messages]`).
+///
+/// Packages advertise which messages they emit and which they consume.
+/// The Bus uses this at runtime for routing and for static analysis
+/// (e.g. warn if a required listener is missing).
+///
+/// Message names follow dot-notation: `"{noun}.{verb}"` — e.g. `"user.created"`,
+/// `"auth.request"`, `"page.updated"`.
+///
+/// # Example (TOML)
+///
+///     [messages]
+///     emits   = ["user.created", "user.deleted", "auth.success"]
+///     listens = ["auth.request", "user.query"]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct BusMessages {
+    /// Messages this package publishes onto the Bus.
+    #[serde(default)]
+    pub emits: Vec<String>,
+
+    /// Messages this package subscribes to on the Bus.
+    #[serde(default)]
+    pub listens: Vec<String>,
+}
+
+impl BusMessages {
+    /// `true` if the package emits at least one message.
+    pub fn has_emits(&self) -> bool { !self.emits.is_empty() }
+
+    /// `true` if the package listens to at least one message.
+    pub fn has_listens(&self) -> bool { !self.listens.is_empty() }
+
+    /// `true` if neither emits nor listens are declared.
+    pub fn is_empty(&self) -> bool { self.emits.is_empty() && self.listens.is_empty() }
+}
+
 // ── PackageRequires ───────────────────────────────────────────────────────────
 
 /// Runtime requirements (`[requires]`).
@@ -876,13 +1043,32 @@ pub struct PackageRequires {
     #[serde(default)]
     pub packages: Vec<String>,
 
-    /// System capabilities required (e.g. `"podman"`, `"systemd"`).
+    /// Capabilities that must be provided by some installed package.
+    /// The Store resolves which package fulfils each capability at install time.
+    /// Example: `["iam.oidc-provider", "database.postgres"]`
     #[serde(default)]
     pub capabilities: Vec<String>,
+
+    /// Capabilities that improve functionality but are not mandatory.
+    /// Example: `["cache.redis", "smtp.sender"]`
+    #[serde(default)]
+    pub optional: Vec<String>,
 
     /// Minimum FreeSynergy version.
     #[serde(default)]
     pub min_fs_version: Option<String>,
+}
+
+impl PackageRequires {
+    /// `true` if this package has no hard requirements.
+    pub fn is_empty(&self) -> bool {
+        self.packages.is_empty() && self.capabilities.is_empty()
+    }
+
+    /// All required capability names (packages converted to capability form).
+    pub fn all_capabilities(&self) -> impl Iterator<Item = &str> {
+        self.capabilities.iter().map(String::as_str)
+    }
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -995,9 +1181,13 @@ name = "Zentinel Bundle"
 type = "bundle"
 version = "0.1.0"
 
-[bundle]
-packages = ["proxy/zentinel", "proxy/zentinel-plane"]
-optional  = []
+[[bundle.packages]]
+id = "proxy/zentinel"
+
+[[bundle.packages]]
+id      = "proxy/zentinel-plane"
+version = ">=0.1.0"
+pin     = true
 "#;
 
     const FULL_TOML: &str = r#"
@@ -1083,8 +1273,8 @@ capabilities  = ["podman", "systemd"]
         let m = ApiManifest::from_toml(BUNDLE_TOML).unwrap();
         assert_eq!(m.package.package_type, PackageType::Bundle);
         let b = m.bundle.as_ref().unwrap();
-        assert!(b.packages.contains(&"proxy/zentinel".to_string()));
-        assert!(b.packages.contains(&"proxy/zentinel-plane".to_string()));
+        assert!(b.packages.iter().any(|p| p.id == "proxy/zentinel"));
+        assert!(b.packages.iter().any(|p| p.id == "proxy/zentinel-plane"));
     }
 
     #[test]
