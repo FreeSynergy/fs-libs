@@ -62,14 +62,16 @@ impl From<&str> for Role {
 
 // ── ResourceType ──────────────────────────────────────────────────────────────
 
-/// Discriminant for the 16 resource kinds a FreeSynergy store can contain.
+/// Discriminant for all resource kinds a FreeSynergy store can contain.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ResourceType {
     // ── Programs ──────────────────────────────────────────────────────────────
-    /// A native FreeSynergy binary app (Node, Desktop, Conductor, …).
+    /// A native FreeSynergy binary (Node, Desktop, Kanidm, Stalwart, Zentinel, Mistral, …).
+    /// Binaries are not stored here — only metadata + references to GitHub Releases.
     App,
-    /// A containerized application bundled with its Compose YAML (Kanidm, Forgejo, …).
+    /// A containerised application (Forgejo, Postgres, Outline, …).
+    /// Runtime-agnostic: runs with Podman or Docker.
     Container,
 
     // ── Collections ───────────────────────────────────────────────────────────
@@ -85,7 +87,8 @@ pub enum ResourceType {
     Bridge,
     /// An automation pipeline (Data Offer / Data Accept pair).
     Task,
-    /// A language package (Mozilla Fluent snippets).
+    /// Shared Mozilla Fluent snippets (save, cancel, error, …) used by all programs.
+    /// Program-specific translations are bundled inside each program's own package.
     Language,
 
     // ── Theme resources (individually loadable) ───────────────────────────────
@@ -97,7 +100,7 @@ pub enum ResourceType {
     FontSet,
     /// Mouse cursor files.
     CursorSet,
-    /// SVG icon collection.
+    /// SVG icon collection — can override the default FreeSynergy icon set.
     IconSet,
     /// Button appearance (shape, border, padding, hover effect).
     ButtonStyle,
@@ -107,52 +110,64 @@ pub enum ResourceType {
     AnimationSet,
     /// A messenger platform adapter — implements the `Channel` trait for one platform.
     MessengerAdapter,
+
+    // ── Store infrastructure ───────────────────────────────────────────────────
+    /// Bootstrap binary — not installable, only downloadable.
+    /// Used for fs-init: the binary that bootstraps the Store on a new machine.
+    Bootstrap,
+    /// An additional package repository source.
+    /// Installing a `Repo` package registers a new catalog URL as a trusted source.
+    Repo,
 }
 
 impl ResourceType {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            ResourceType::App          => "App",
-            ResourceType::Container => "Container",
-            ResourceType::Bundle       => "Bundle",
-            ResourceType::Widget       => "Widget",
-            ResourceType::Bot          => "Bot",
-            ResourceType::Bridge       => "Bridge",
-            ResourceType::Task         => "Task",
-            ResourceType::Language     => "Language",
-            ResourceType::ColorScheme  => "Color Scheme",
-            ResourceType::Style        => "Style",
-            ResourceType::FontSet      => "Font Set",
-            ResourceType::CursorSet    => "Cursor Set",
-            ResourceType::IconSet      => "Icon Set",
-            ResourceType::ButtonStyle  => "Button Style",
-            ResourceType::WindowChrome => "Window Chrome",
+            ResourceType::App             => "App",
+            ResourceType::Container       => "Container",
+            ResourceType::Bundle          => "Bundle",
+            ResourceType::Widget          => "Widget",
+            ResourceType::Bot             => "Bot",
+            ResourceType::Bridge          => "Bridge",
+            ResourceType::Task            => "Task",
+            ResourceType::Language        => "Language",
+            ResourceType::ColorScheme     => "Color Scheme",
+            ResourceType::Style           => "Style",
+            ResourceType::FontSet         => "Font Set",
+            ResourceType::CursorSet       => "Cursor Set",
+            ResourceType::IconSet         => "Icon Set",
+            ResourceType::ButtonStyle     => "Button Style",
+            ResourceType::WindowChrome    => "Window Chrome",
             ResourceType::AnimationSet    => "Animation Set",
             ResourceType::MessengerAdapter => "Messenger Adapter",
+            ResourceType::Bootstrap       => "Bootstrap",
+            ResourceType::Repo            => "Repository",
         }
     }
 
     /// i18n key for translations.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ResourceType::App          => "resource.type.app",
-            ResourceType::Container => "resource.type.container",
-            ResourceType::Bundle       => "resource.type.bundle",
-            ResourceType::Widget       => "resource.type.widget",
-            ResourceType::Bot          => "resource.type.bot",
-            ResourceType::Bridge       => "resource.type.bridge",
-            ResourceType::Task         => "resource.type.task",
-            ResourceType::Language     => "resource.type.language",
-            ResourceType::ColorScheme  => "resource.type.color_scheme",
-            ResourceType::Style        => "resource.type.style",
-            ResourceType::FontSet      => "resource.type.font_set",
-            ResourceType::CursorSet    => "resource.type.cursor_set",
-            ResourceType::IconSet      => "resource.type.icon_set",
-            ResourceType::ButtonStyle  => "resource.type.button_style",
-            ResourceType::WindowChrome => "resource.type.window_chrome",
+            ResourceType::App             => "resource.type.app",
+            ResourceType::Container       => "resource.type.container",
+            ResourceType::Bundle          => "resource.type.bundle",
+            ResourceType::Widget          => "resource.type.widget",
+            ResourceType::Bot             => "resource.type.bot",
+            ResourceType::Bridge          => "resource.type.bridge",
+            ResourceType::Task            => "resource.type.task",
+            ResourceType::Language        => "resource.type.language",
+            ResourceType::ColorScheme     => "resource.type.color_scheme",
+            ResourceType::Style           => "resource.type.style",
+            ResourceType::FontSet         => "resource.type.font_set",
+            ResourceType::CursorSet       => "resource.type.cursor_set",
+            ResourceType::IconSet         => "resource.type.icon_set",
+            ResourceType::ButtonStyle     => "resource.type.button_style",
+            ResourceType::WindowChrome    => "resource.type.window_chrome",
             ResourceType::AnimationSet    => "resource.type.animation_set",
             ResourceType::MessengerAdapter => "resource.type.messenger_adapter",
+            ResourceType::Bootstrap       => "resource.type.bootstrap",
+            ResourceType::Repo            => "resource.type.repo",
         }
     }
 
@@ -263,14 +278,31 @@ pub struct PackageSource {
 ///
 /// This struct is always embedded as `pub meta: ResourceMeta` in every
 /// resource-specific struct (`AppResource`, `WidgetResource`, …).
+///
+/// ## Description levels
+///
+/// Every resource has three levels of description:
+///
+/// | Field              | Max length | Where used                                      |
+/// |--------------------|------------|-------------------------------------------------|
+/// | `summary`          | 255 chars  | Store card, search results, sidebar             |
+/// | `description`      | free text  | Store detail view (inline in catalog)           |
+/// | `description_file` | path       | Long `.ftl` file — documentation, help pages   |
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResourceMeta {
     /// Unique slug identifier (URL-safe, lowercase, hyphens), e.g. `"kanidm"`.
     pub id: String,
     /// Human-readable display name, e.g. `"Kanidm"`.
     pub name: String,
-    /// Short description shown in store listings (≥ 10 characters, mandatory).
+    /// One-line summary shown in store listings and search results (mandatory, max 255 chars).
+    pub summary: String,
+    /// Medium-length description shown in the store detail view. Inline in the catalog.
+    /// Mandatory — if missing, the validator reports `ValidationStatus::Broken`.
     pub description: String,
+    /// Path to the `.ftl` file containing the long-form description.
+    /// Internationalised: `help/en/description.ftl`, `help/de/description.ftl`, …
+    /// Mandatory — every package must ship a translatable long description.
+    pub description_file: PathBuf,
     /// SemVer version string, e.g. `"1.5.0"`.
     pub version: String,
     /// Author or organisation name.
@@ -306,9 +338,21 @@ impl ResourceMeta {
         self
     }
 
-    /// Builder: set `description`.
+    /// Builder: set `summary` (shown in store listings, max 255 chars).
+    pub fn with_summary(mut self, summary: impl Into<String>) -> Self {
+        self.summary = summary.into();
+        self
+    }
+
+    /// Builder: set `description` (medium, shown in detail view).
     pub fn with_description(mut self, description: impl Into<String>) -> Self {
         self.description = description.into();
+        self
+    }
+
+    /// Builder: set `description_file` (path to long `.ftl` description).
+    pub fn with_description_file(mut self, path: impl Into<PathBuf>) -> Self {
+        self.description_file = path.into();
         self
     }
 
@@ -331,14 +375,17 @@ impl ResourceMeta {
     pub fn validate(&mut self) {
         let broken = self.id.trim().is_empty()
             || self.name.trim().is_empty()
-            || !self.icon.extension().is_some_and(|e| e.eq_ignore_ascii_case("svg"));
+            || !self.icon.extension().is_some_and(|e| e.eq_ignore_ascii_case("svg"))
+            || self.description.trim().is_empty()
+            || self.description_file.as_os_str().is_empty();
 
         if broken {
             self.status = ValidationStatus::Broken;
             return;
         }
 
-        let incomplete = self.description.trim().len() < 10
+        let incomplete = self.summary.trim().len() < 10
+            || self.summary.len() > 255
             || self.tags.is_empty()
             || self.author.trim().is_empty()
             || self.license.trim().is_empty();
@@ -361,7 +408,9 @@ mod tests {
         ResourceMeta {
             id: id.into(),
             name: "Test Resource".into(),
-            description: "A sufficiently long description.".into(),
+            summary: "A sufficiently long summary for store listings.".into(),
+            description: "A medium-length description shown in the store detail view.".into(),
+            description_file: PathBuf::from("help/en/description.ftl"),
             version: "1.0.0".into(),
             author: "FreeSynergy".into(),
             license: "MIT".into(),
@@ -399,11 +448,25 @@ mod tests {
     }
 
     #[test]
-    fn validate_short_description_is_incomplete() {
+    fn validate_short_summary_is_incomplete() {
         let mut m = base_meta("app");
-        m.description = "Short".into();
+        m.summary = "Short".into();
         m.validate();
         assert_eq!(m.status, ValidationStatus::Incomplete);
+    }
+
+    #[test]
+    fn validate_summary_over_255_is_incomplete() {
+        let mut m = base_meta("app");
+        m.summary = "x".repeat(256);
+        m.validate();
+        assert_eq!(m.status, ValidationStatus::Incomplete);
+    }
+
+    #[test]
+    fn resource_type_bootstrap_and_repo_labels() {
+        assert_eq!(ResourceType::Bootstrap.label(), "Bootstrap");
+        assert_eq!(ResourceType::Repo.label(), "Repository");
     }
 
     #[test]

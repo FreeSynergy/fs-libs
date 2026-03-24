@@ -280,7 +280,9 @@ mod tests {
         ResourceMeta {
             id: "test".into(),
             name: "Test".into(),
-            description: "A sufficiently long description.".into(),
+            summary: "A sufficiently long summary for store listings.".into(),
+            description: "A medium-length description shown in the store detail view.".into(),
+            description_file: PathBuf::from("help/en/description.ftl"),
             version: "1.0.0".into(),
             author: "FreeSynergy".into(),
             license: "MIT".into(),
