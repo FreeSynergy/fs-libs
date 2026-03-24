@@ -5,11 +5,14 @@
 use std::fmt;
 
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait,
-    Order, QueryFilter, QueryOrder, QuerySelect,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, Order,
+    QueryFilter, QueryOrder, QuerySelect,
 };
 
-use crate::entities::{audit_log, host, installed_package, module, permission, plugin, project, resource, service_registry};
+use crate::entities::{
+    audit_log, host, installed_package, module, permission, plugin, project, resource,
+    service_registry,
+};
 use fs_error::FsError;
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -66,9 +69,9 @@ pub enum HostStatus {
 impl HostStatus {
     pub fn as_str(self) -> &'static str {
         match self {
-            Self::Unknown  => "unknown",
-            Self::Online   => "online",
-            Self::Offline  => "offline",
+            Self::Unknown => "unknown",
+            Self::Online => "online",
+            Self::Offline => "offline",
             Self::Degraded => "degraded",
         }
     }
@@ -99,11 +102,11 @@ pub enum ModuleStatus {
 impl ModuleStatus {
     pub fn as_str(self) -> &'static str {
         match self {
-            Self::Stopped  => "stopped",
+            Self::Stopped => "stopped",
             Self::Starting => "starting",
-            Self::Running  => "running",
+            Self::Running => "running",
             Self::Stopping => "stopping",
-            Self::Failed   => "failed",
+            Self::Failed => "failed",
         }
     }
 }
@@ -129,8 +132,8 @@ pub enum ProjectStatus {
 impl ProjectStatus {
     pub fn as_str(self) -> &'static str {
         match self {
-            Self::Draft    => "draft",
-            Self::Active   => "active",
+            Self::Draft => "draft",
+            Self::Active => "active",
             Self::Archived => "archived",
         }
     }
@@ -179,6 +182,23 @@ impl<'a> ResourceRepo<'a> {
             .insert(self.conn)
             .await
             .map_err(|e| FsError::internal(format!("ResourceRepo::insert: {e}")))
+    }
+
+    /// Find a resource by its primary key.
+    pub async fn find_by_id(&self, id: i64) -> Result<Option<resource::Model>, FsError> {
+        resource::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("ResourceRepo::find_by_id: {e}")))
+    }
+
+    /// Delete a resource by its primary key.
+    pub async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+        resource::Entity::delete_by_id(id)
+            .exec(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("ResourceRepo::delete_by_id: {e}")))?;
+        Ok(())
     }
 
     /// List all resources of a given kind.
@@ -365,7 +385,10 @@ impl<'a> AuditRepo<'a> {
     }
 
     /// Return all audit entries for a specific resource.
-    pub async fn find_for_resource(&self, resource_id: i64) -> Result<Vec<audit_log::Model>, FsError> {
+    pub async fn find_for_resource(
+        &self,
+        resource_id: i64,
+    ) -> Result<Vec<audit_log::Model>, FsError> {
         audit_log::Entity::find()
             .filter(audit_log::Column::ResourceId.eq(resource_id))
             .order_by(audit_log::Column::CreatedAt, Order::Desc)
@@ -550,6 +573,23 @@ impl<'a> HostRepo<'a> {
             .insert(self.conn)
             .await
             .map_err(|e| FsError::internal(format!("HostRepo::insert: {e}")))
+    }
+
+    /// Find a host by its primary key.
+    pub async fn find_by_id(&self, id: i64) -> Result<Option<host::Model>, FsError> {
+        host::Entity::find_by_id(id)
+            .one(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("HostRepo::find_by_id: {e}")))
+    }
+
+    /// Delete a host by its primary key.
+    pub async fn delete_by_id(&self, id: i64) -> Result<(), FsError> {
+        host::Entity::delete_by_id(id)
+            .exec(self.conn)
+            .await
+            .map_err(|e| FsError::internal(format!("HostRepo::delete_by_id: {e}")))?;
+        Ok(())
     }
 
     /// List all hosts.
@@ -809,15 +849,15 @@ impl<'a> InstalledPackageRepo<'a> {
     ) -> Result<i64, FsError> {
         let now = unix_now();
         let active = installed_package::ActiveModel {
-            package_id:    Set(package_id.into()),
-            version:       Set(version.into()),
-            channel:       Set(channel.into()),
-            package_type:  Set(package_type.into()),
-            active:        Set(true),
-            signature:     Set(signature),
+            package_id: Set(package_id.into()),
+            version: Set(version.into()),
+            channel: Set(channel.into()),
+            package_type: Set(package_type.into()),
+            active: Set(true),
+            signature: Set(signature),
             trust_unsigned: Set(trust_unsigned),
-            installed_at:  Set(now),
-            updated_at:    Set(now),
+            installed_at: Set(now),
+            updated_at: Set(now),
             ..Default::default()
         };
         active
@@ -851,8 +891,8 @@ impl<'a> InstalledPackageRepo<'a> {
     /// Set the `active` flag for a specific record by `id`.
     pub async fn set_active(&self, id: i64, active: bool) -> Result<(), FsError> {
         let model = installed_package::ActiveModel {
-            id:         Set(id),
-            active:     Set(active),
+            id: Set(id),
+            active: Set(active),
             updated_at: Set(unix_now()),
             ..Default::default()
         };
@@ -965,9 +1005,7 @@ impl<'a> ServiceRegistryRepo<'a> {
             .filter(service_registry::Column::Capabilities.contains(capability))
             .all(self.conn)
             .await
-            .map_err(|e| {
-                FsError::internal(format!("ServiceRegistryRepo::find_by_capability: {e}"))
-            })
+            .map_err(|e| FsError::internal(format!("ServiceRegistryRepo::find_by_capability: {e}")))
     }
 
     /// Mark a registry entry as healthy or unhealthy, updating `last_check`.

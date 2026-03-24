@@ -41,8 +41,16 @@ impl KeyGen {
         let mut output = String::with_capacity((input.len() * 4 + 2) / 3);
         for chunk in input.chunks(3) {
             let b0 = chunk[0] as usize;
-            let b1 = if chunk.len() > 1 { chunk[1] as usize } else { 0 };
-            let b2 = if chunk.len() > 2 { chunk[2] as usize } else { 0 };
+            let b1 = if chunk.len() > 1 {
+                chunk[1] as usize
+            } else {
+                0
+            };
+            let b2 = if chunk.len() > 2 {
+                chunk[2] as usize
+            } else {
+                0
+            };
 
             output.push(ALPHABET[b0 >> 2] as char);
             output.push(ALPHABET[((b0 & 0x3) << 4) | (b1 >> 4)] as char);
@@ -59,9 +67,15 @@ impl KeyGen {
 
 // ── Public shims ──────────────────────────────────────────────────────────────
 
-pub fn random_bytes(n: usize) -> Vec<u8>  { KeyGen::random_bytes(n) }
-pub fn random_secret(len: usize) -> String { KeyGen::random_secret(len) }
-pub fn random_hex(len: usize) -> String    { KeyGen::random_hex(len) }
+pub fn random_bytes(n: usize) -> Vec<u8> {
+    KeyGen::random_bytes(n)
+}
+pub fn random_secret(len: usize) -> String {
+    KeyGen::random_secret(len)
+}
+pub fn random_hex(len: usize) -> String {
+    KeyGen::random_hex(len)
+}
 
 pub fn derive_key(password: &[u8], salt: &[u8], iterations: u32) -> [u8; 32] {
     KeyGen::derive_key(password, salt, iterations)
@@ -90,7 +104,9 @@ mod tests {
     fn random_secret_is_base64url() {
         let s = random_secret(32);
         assert!(s.len() >= 40);
-        assert!(s.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_'));
+        assert!(s
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_'));
     }
 
     #[test]

@@ -45,7 +45,8 @@ impl PublishedEvent {
 
     /// Collect all handler errors.
     pub fn errors(&self) -> Vec<&BusError> {
-        self.handler_results.iter()
+        self.handler_results
+            .iter()
             .filter_map(|r| r.as_ref().err())
             .collect()
     }
@@ -72,10 +73,10 @@ impl PublishedEvent {
 /// ```
 #[derive(Default)]
 pub struct MessageBus {
-    router:         Router,
-    subscriptions:  SubscriptionManager,
+    router: Router,
+    subscriptions: SubscriptionManager,
     standing_orders: StandingOrdersEngine,
-    config:         RoutingConfig,
+    config: RoutingConfig,
 }
 
 impl MessageBus {
@@ -86,7 +87,10 @@ impl MessageBus {
 
     /// Create a bus pre-loaded with routing config.
     pub fn with_config(config: RoutingConfig) -> Self {
-        Self { config, ..Default::default() }
+        Self {
+            config,
+            ..Default::default()
+        }
     }
 
     // ── Configuration ──────────────────────────────────────────────────────────
@@ -162,13 +166,14 @@ impl MessageBus {
 
         // Resolve final delivery + storage from config (config wins over message default).
         let resolved_delivery = self.config.delivery_for(&topic, Some(&source_role));
-        let resolved_storage  = self.config.storage_for(&topic, Some(&source_role));
+        let resolved_storage = self.config.storage_for(&topic, Some(&source_role));
 
         // Dispatch to router (handles, bridges, etc.).
         let handler_results = self.router.dispatch(&msg.event).await;
 
         // Collect which roles receive this event (matching subscriptions).
-        let delivered_to: Vec<String> = self.subscriptions
+        let delivered_to: Vec<String> = self
+            .subscriptions
             .matching(&topic, None)
             .into_iter()
             .map(|s| s.subscriber_role.clone())
@@ -176,7 +181,7 @@ impl MessageBus {
 
         PublishedEvent {
             delivery: resolved_delivery,
-            storage:  resolved_storage,
+            storage: resolved_storage,
             delivered_to,
             handler_results,
             message: msg,

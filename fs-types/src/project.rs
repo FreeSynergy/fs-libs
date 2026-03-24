@@ -23,20 +23,20 @@ impl ProjectStatus {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            ProjectStatus::Active   => "Active",
+            ProjectStatus::Active => "Active",
             ProjectStatus::Archived => "Archived",
-            ProjectStatus::Pending  => "Pending",
-            ProjectStatus::Error    => "Error",
+            ProjectStatus::Pending => "Pending",
+            ProjectStatus::Error => "Error",
         }
     }
 
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ProjectStatus::Active   => "project.status.active",
+            ProjectStatus::Active => "project.status.active",
             ProjectStatus::Archived => "project.status.archived",
-            ProjectStatus::Pending  => "project.status.pending",
-            ProjectStatus::Error    => "project.status.error",
+            ProjectStatus::Pending => "project.status.pending",
+            ProjectStatus::Error => "project.status.error",
         }
     }
 
@@ -70,18 +70,18 @@ impl ProjectVisibility {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            ProjectVisibility::Private  => "Private",
+            ProjectVisibility::Private => "Private",
             ProjectVisibility::Internal => "Internal",
-            ProjectVisibility::Public   => "Public",
+            ProjectVisibility::Public => "Public",
         }
     }
 
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ProjectVisibility::Private  => "project.visibility.private",
+            ProjectVisibility::Private => "project.visibility.private",
             ProjectVisibility::Internal => "project.visibility.internal",
-            ProjectVisibility::Public   => "project.visibility.public",
+            ProjectVisibility::Public => "project.visibility.public",
         }
     }
 

@@ -41,7 +41,7 @@ pub trait HelpKind: Send + Sync + std::fmt::Debug {
 /// file (`help/{lang}/overview.ftl`).
 #[derive(Debug, Clone, Default)]
 pub struct ExternalHelp {
-    pub links:        Vec<HelpLink>,
+    pub links: Vec<HelpLink>,
     pub search_query: Option<String>,
 }
 
@@ -67,9 +67,15 @@ impl ExternalHelp {
 }
 
 impl HelpKind for ExternalHelp {
-    fn links(&self) -> &[HelpLink]        { &self.links }
-    fn search_query(&self) -> Option<&str> { self.search_query.as_deref() }
-    fn kind_name(&self) -> &'static str    { "external" }
+    fn links(&self) -> &[HelpLink] {
+        &self.links
+    }
+    fn search_query(&self) -> Option<&str> {
+        self.search_query.as_deref()
+    }
+    fn kind_name(&self) -> &'static str {
+        "external"
+    }
 }
 
 // ── InternalHelp ──────────────────────────────────────────────────────────────
@@ -95,9 +101,15 @@ impl InternalHelp {
 }
 
 impl HelpKind for InternalHelp {
-    fn links(&self) -> &[HelpLink]        { &self.links }
-    fn search_query(&self) -> Option<&str> { None }
-    fn kind_name(&self) -> &'static str    { "internal" }
+    fn links(&self) -> &[HelpLink] {
+        &self.links
+    }
+    fn search_query(&self) -> Option<&str> {
+        None
+    }
+    fn kind_name(&self) -> &'static str {
+        "internal"
+    }
 }
 
 // ── HelpKindArc ───────────────────────────────────────────────────────────────

@@ -30,5 +30,7 @@ pub mod models;
 pub mod repo;
 
 pub use error::InventoryError;
-pub use models::{BridgeInstance, BridgeStatus, InstalledResource, ResourceStatus, ServiceInstance, ServiceStatus};
+pub use models::{
+    BridgeInstance, BridgeStatus, InstalledResource, ResourceStatus, ServiceInstance, ServiceStatus,
+};
 pub use repo::Inventory;

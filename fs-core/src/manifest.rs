@@ -18,11 +18,11 @@
 /// parsing to [`SetBase::apply_field`].
 #[derive(Debug, Default, Clone)]
 pub struct SetBase {
-    pub id:             String,
-    pub name:           String,
-    pub description:    String,
+    pub id: String,
+    pub name: String,
+    pub description: String,
     pub source_repo_id: String,
-    pub builtin:        bool,
+    pub builtin: bool,
 }
 
 impl SetBase {
@@ -33,12 +33,12 @@ impl SetBase {
     /// concrete builder must handle itself.
     pub fn apply_field(&mut self, key: &str, val: String) -> bool {
         match key {
-            "id"                        => self.id = val,
-            "name"                      => self.name = val,
-            "description"               => self.description = val,
+            "id" => self.id = val,
+            "name" => self.name = val,
+            "description" => self.description = val,
             "source_repo_id" | "source" => self.source_repo_id = val,
-            "builtin"                   => self.builtin = val == "true",
-            _                           => return false,
+            "builtin" => self.builtin = val == "true",
+            _ => return false,
         }
         true
     }

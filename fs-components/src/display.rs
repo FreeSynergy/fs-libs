@@ -20,7 +20,11 @@ pub struct TableColumn {
 impl TableColumn {
     /// Shorthand constructor.
     pub fn new(key: impl Into<String>, label: impl Into<String>) -> Self {
-        Self { key: key.into(), label: label.into(), width: None }
+        Self {
+            key: key.into(),
+            label: label.into(),
+            width: None,
+        }
     }
 
     /// Attach a CSS width.

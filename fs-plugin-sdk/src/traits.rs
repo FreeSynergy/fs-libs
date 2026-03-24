@@ -28,7 +28,10 @@ pub struct LifecycleEvent {
 impl LifecycleEvent {
     /// Create a new lifecycle event for `instance` with no extra params.
     pub fn new(instance: InstanceInfo) -> Self {
-        Self { instance, params: Default::default() }
+        Self {
+            instance,
+            params: Default::default(),
+        }
     }
 
     /// Add an extra parameter.
@@ -181,7 +184,11 @@ mod tests {
 
     impl PluginUpgrade for DummyPlugin {
         fn on_upgrade(&self, event: &LifecycleEvent) -> Result<PluginResponse, String> {
-            let from = event.params.get("upgrade_from").map(|s| s.as_str()).unwrap_or("unknown");
+            let from = event
+                .params
+                .get("upgrade_from")
+                .map(|s| s.as_str())
+                .unwrap_or("unknown");
             let mut resp = PluginResponse::default();
             resp.logs.push(LogLine {
                 level: LogLevel::Info,
@@ -211,16 +218,14 @@ mod tests {
     #[test]
     fn upgrade_hook_logs_version() {
         let plugin = DummyPlugin;
-        let event = LifecycleEvent::new(dummy_instance())
-            .with_param("upgrade_from", "0.3.1");
+        let event = LifecycleEvent::new(dummy_instance()).with_param("upgrade_from", "0.3.1");
         let resp = plugin.on_upgrade(&event).unwrap();
         assert!(resp.logs[0].message.contains("0.3.1"));
     }
 
     #[test]
     fn lifecycle_event_params() {
-        let event = LifecycleEvent::new(dummy_instance())
-            .with_param("key", "value");
+        let event = LifecycleEvent::new(dummy_instance()).with_param("key", "value");
         assert_eq!(event.params.get("key").unwrap(), "value");
     }
 }

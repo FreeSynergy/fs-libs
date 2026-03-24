@@ -18,39 +18,42 @@ pub enum ChatRole {
 impl ChatRole {
     fn label(self) -> &'static str {
         match self {
-            Self::User      => "You",
+            Self::User => "You",
             Self::Assistant => "Assistant",
-            Self::System    => "System",
+            Self::System => "System",
         }
     }
 
     fn wrapper_align(self) -> &'static str {
         match self {
-            Self::User      => "align-self: flex-end;",
-            Self::System    => "align-self: center; max-width: 100%;",
+            Self::User => "align-self: flex-end;",
+            Self::System => "align-self: center; max-width: 100%;",
             Self::Assistant => "align-self: flex-start;",
         }
     }
 
     fn bubble_style(self) -> &'static str {
         match self {
-            Self::User =>
+            Self::User => {
                 "background: var(--fs-color-primary, #06b6d4); \
                  color: #000; \
                  border-radius: 14px 14px 4px 14px; \
-                 align-self: flex-end;",
-            Self::Assistant =>
+                 align-self: flex-end;"
+            }
+            Self::Assistant => {
                 "background: var(--fs-color-bg-surface, #1e293b); \
                  color: var(--fs-color-text-primary, #e2e8f0); \
                  border: 1px solid var(--fs-color-border-default, #334155); \
                  border-radius: 14px 14px 14px 4px; \
-                 align-self: flex-start;",
-            Self::System =>
+                 align-self: flex-start;"
+            }
+            Self::System => {
                 "background: rgba(100,116,139,0.15); \
                  color: var(--fs-color-text-secondary, #94a3b8); \
                  border-radius: 8px; \
                  align-self: center; \
-                 font-style: italic; font-size: 11px;",
+                 font-style: italic; font-size: 11px;"
+            }
         }
     }
 }
@@ -71,17 +74,29 @@ pub struct ChatMessage {
 impl ChatMessage {
     /// Construct a user message.
     pub fn user(content: impl Into<String>) -> Self {
-        Self { role: ChatRole::User, content: content.into(), timestamp: None }
+        Self {
+            role: ChatRole::User,
+            content: content.into(),
+            timestamp: None,
+        }
     }
 
     /// Construct an assistant message.
     pub fn assistant(content: impl Into<String>) -> Self {
-        Self { role: ChatRole::Assistant, content: content.into(), timestamp: None }
+        Self {
+            role: ChatRole::Assistant,
+            content: content.into(),
+            timestamp: None,
+        }
     }
 
     /// Construct a system message.
     pub fn system(content: impl Into<String>) -> Self {
-        Self { role: ChatRole::System, content: content.into(), timestamp: None }
+        Self {
+            role: ChatRole::System,
+            content: content.into(),
+            timestamp: None,
+        }
     }
 }
 

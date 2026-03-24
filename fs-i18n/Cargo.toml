@@ -13,3 +13,10 @@ fluent-bundle = { workspace = true }
 unic-langid   = { workspace = true }
 toml          = { workspace = true }
 serde         = { workspace = true }
+
+[features]
+dioxus = ["dep:dioxus-core"]
+
+[dependencies.dioxus-core]
+version = "0.7"
+optional = true

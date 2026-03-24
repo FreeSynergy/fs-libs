@@ -1,7 +1,7 @@
 // fs-auth/src/permission.rs — Permission, PermissionSet, Role, AccessControl
 
-use std::fmt;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 // ── Permission ────────────────────────────────────────────────────────────────
 
@@ -38,7 +38,9 @@ pub struct PermissionSet {
 impl PermissionSet {
     /// Build a `PermissionSet` from an iterator of [`Permission`] values.
     pub fn new(grants: impl IntoIterator<Item = Permission>) -> Self {
-        Self { grants: grants.into_iter().collect() }
+        Self {
+            grants: grants.into_iter().collect(),
+        }
     }
 
     /// `true` when the set contains `permission`.
@@ -126,7 +128,10 @@ pub struct Role {
 impl Role {
     /// Create a new role with the given name and permission set.
     pub fn new(name: impl Into<String>, permissions: PermissionSet) -> Self {
-        Self { name: name.into(), permissions }
+        Self {
+            name: name.into(),
+            permissions,
+        }
     }
 }
 

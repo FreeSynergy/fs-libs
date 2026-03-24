@@ -64,8 +64,8 @@ pub use scim::{ScimClient, ScimEmail, ScimGroup, ScimMember, ScimUser};
 
 #[cfg(feature = "activitypub")]
 pub use activitypub::{
-    ActorKind, FsActor, FsFederationConfig, ObjectId, PublicKeyInfo, WithContext,
-    FederationConfig, FederationMiddleware,
+    ActorKind, FederationConfig, FederationMiddleware, FsActor, FsFederationConfig, ObjectId,
+    PublicKeyInfo, WithContext,
 };
 
 pub use well_known::{HostMeta, HostMetaLink, NodeInfoLink, NodeInfoPointer, WellKnownPath};

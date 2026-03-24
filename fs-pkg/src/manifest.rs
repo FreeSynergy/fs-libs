@@ -38,10 +38,14 @@ pub struct PackageId(String);
 
 impl PackageId {
     /// Construct a `PackageId` from any string-like value.
-    pub fn new(s: impl Into<String>) -> Self { Self(s.into()) }
+    pub fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
 
     /// Borrows the identifier as a `&str`.
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl std::fmt::Display for PackageId {
@@ -52,31 +56,45 @@ impl std::fmt::Display for PackageId {
 
 impl std::ops::Deref for PackageId {
     type Target = str;
-    fn deref(&self) -> &str { &self.0 }
+    fn deref(&self) -> &str {
+        &self.0
+    }
 }
 
 impl AsRef<str> for PackageId {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 impl From<String> for PackageId {
-    fn from(s: String) -> Self { Self(s) }
+    fn from(s: String) -> Self {
+        Self(s)
+    }
 }
 
 impl From<&str> for PackageId {
-    fn from(s: &str) -> Self { Self(s.to_owned()) }
+    fn from(s: &str) -> Self {
+        Self(s.to_owned())
+    }
 }
 
 impl PartialEq<str> for PackageId {
-    fn eq(&self, other: &str) -> bool { self.0 == other }
+    fn eq(&self, other: &str) -> bool {
+        self.0 == other
+    }
 }
 
 impl PartialEq<&str> for PackageId {
-    fn eq(&self, other: &&str) -> bool { self.0 == *other }
+    fn eq(&self, other: &&str) -> bool {
+        self.0 == *other
+    }
 }
 
 impl<'a> From<&'a PackageId> for PackageId {
-    fn from(id: &'a PackageId) -> Self { id.clone() }
+    fn from(id: &'a PackageId) -> Self {
+        id.clone()
+    }
 }
 
 // ── PackageType ───────────────────────────────────────────────────────────────
@@ -109,15 +127,15 @@ pub enum PackageType {
 impl StrLabel for PackageType {
     fn label(&self) -> &'static str {
         match self {
-            Self::App       => "app",
+            Self::App => "app",
             Self::Container => "container",
-            Self::Bundle    => "bundle",
-            Self::Language  => "language",
-            Self::Theme     => "theme",
-            Self::Widget    => "widget",
-            Self::Bot       => "bot",
-            Self::Bridge    => "bridge",
-            Self::Task      => "task",
+            Self::Bundle => "bundle",
+            Self::Language => "language",
+            Self::Theme => "theme",
+            Self::Widget => "widget",
+            Self::Bot => "bot",
+            Self::Bridge => "bridge",
+            Self::Task => "task",
         }
     }
 }
@@ -193,8 +211,7 @@ pub struct ApiManifest {
 impl ApiManifest {
     /// Parse a manifest from a TOML string.
     pub fn from_toml(s: &str) -> Result<Self, FsError> {
-        toml::from_str(s)
-            .map_err(|e| FsError::parse(format!("manifest parse error: {e}")))
+        toml::from_str(s).map_err(|e| FsError::parse(format!("manifest parse error: {e}")))
     }
 
     /// Parse a manifest from a file.
@@ -232,7 +249,11 @@ impl ApiManifest {
     /// - All other types: no
     pub fn can_persist(&self) -> bool {
         match self.package.package_type {
-            PackageType::App => self.app.as_ref().map(|a| a.service.is_some()).unwrap_or(false),
+            PackageType::App => self
+                .app
+                .as_ref()
+                .map(|a| a.service.is_some())
+                .unwrap_or(false),
             PackageType::Container | PackageType::Bot | PackageType::Bridge => true,
             _ => false,
         }
@@ -401,7 +422,9 @@ pub struct ContainerManifest {
     pub environment: std::collections::HashMap<String, String>,
 }
 
-fn default_image_tag() -> String { "latest".into() }
+fn default_image_tag() -> String {
+    "latest".into()
+}
 
 /// Container health check configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -426,10 +449,18 @@ pub struct ContainerHealthCheck {
     pub start_period: String,
 }
 
-fn default_interval()     -> String { "30s".into() }
-fn default_timeout()      -> String { "5s".into() }
-fn default_retries()      -> u32    { 3 }
-fn default_start_period() -> String { "30s".into() }
+fn default_interval() -> String {
+    "30s".into()
+}
+fn default_timeout() -> String {
+    "5s".into()
+}
+fn default_retries() -> u32 {
+    3
+}
+fn default_start_period() -> String {
+    "30s".into()
+}
 
 // ── ManifestVariable ──────────────────────────────────────────────────────────
 
@@ -490,7 +521,11 @@ pub struct ManifestVariable {
 impl ManifestVariable {
     /// Returns the display label — `label` if set, otherwise `name`.
     pub fn display_label(&self) -> &str {
-        if self.label.is_empty() { &self.name } else { &self.label }
+        if self.label.is_empty() {
+            &self.name
+        } else {
+            &self.label
+        }
     }
 
     /// Returns `true` when the description is non-empty.
@@ -671,10 +706,12 @@ pub struct ContractRoute {
 ///
 /// # Example (TOML)
 ///
-///     [[bundle.packages]]
-///     id      = "zentinel"
-///     version = "1.2.3"
-///     pin     = true
+/// ```toml
+/// [[bundle.packages]]
+/// id      = "zentinel"
+/// version = "1.2.3"
+/// pin     = true
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BundlePackageRef {
     /// Package ID (e.g. `"proxy/zentinel"`).
@@ -698,8 +735,10 @@ pub struct BundlePackageRef {
 ///
 /// # Example (TOML)
 ///
-///     [[bundle.capabilities]]
-///     name = "iam.oidc-provider"
+/// ```toml
+/// [[bundle.capabilities]]
+/// name = "iam.oidc-provider"
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BundleCapabilityRef {
     /// Capability name (e.g. `"iam"`, `"iam.oidc-provider"`).
@@ -718,27 +757,29 @@ pub struct BundleCapabilityRef {
 ///
 /// # Example (TOML)
 ///
-///     [package]
-///     id   = "server"
-///     name = "Server"
-///     type = "bundle"
+/// ```toml
+/// [package]
+/// id   = "server"
+/// name = "Server"
+/// type = "bundle"
 ///
-///     [[bundle.packages]]
-///     id      = "fs-node"
-///     version = ">=0.5.0"
+/// [[bundle.packages]]
+/// id      = "fs-node"
+/// version = ">=0.5.0"
 ///
-///     [[bundle.packages]]
-///     id  = "zentinel"
-///     pin = true
+/// [[bundle.packages]]
+/// id  = "zentinel"
+/// pin = true
 ///
-///     [[bundle.capabilities]]
-///     name = "iam"
+/// [[bundle.capabilities]]
+/// name = "iam"
 ///
-///     [[bundle.bundles]]
-///     name = "management-tools"
+/// [[bundle.bundles]]
+/// name = "management-tools"
 ///
-///     [[bundle.optional]]
-///     id = "forgejo"
+/// [[bundle.optional]]
+/// id = "forgejo"
+/// ```
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct BundleManifest {
     /// Concrete packages always installed as part of this bundle.
@@ -915,7 +956,10 @@ pub struct PackageFiles {
 impl PackageFiles {
     /// Iterator over **all** file mappings across config, units, and data (in that order).
     pub fn all(&self) -> impl Iterator<Item = &FileMapping> {
-        self.config.iter().chain(self.units.iter()).chain(self.data.iter())
+        self.config
+            .iter()
+            .chain(self.units.iter())
+            .chain(self.data.iter())
     }
 
     /// Iterator over all **destination** paths (may contain placeholders).
@@ -970,8 +1014,10 @@ pub struct PackageHooks {
 ///
 /// # Example (TOML)
 ///
-///     [provides]
-///     capabilities = ["iam", "iam.oidc-provider", "iam.scim-server", "iam.webauthn"]
+/// ```toml
+/// [provides]
+/// capabilities = ["iam", "iam.oidc-provider", "iam.scim-server", "iam.webauthn"]
+/// ```
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct PackageProvides {
     /// Capability names this package provides.
@@ -1009,9 +1055,11 @@ impl PackageProvides {
 ///
 /// # Example (TOML)
 ///
-///     [messages]
-///     emits   = ["user.created", "user.deleted", "auth.success"]
-///     listens = ["auth.request", "user.query"]
+/// ```toml
+/// [messages]
+/// emits   = ["user.created", "user.deleted", "auth.success"]
+/// listens = ["auth.request", "user.query"]
+/// ```
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct BusMessages {
     /// Messages this package publishes onto the Bus.
@@ -1025,13 +1073,19 @@ pub struct BusMessages {
 
 impl BusMessages {
     /// `true` if the package emits at least one message.
-    pub fn has_emits(&self) -> bool { !self.emits.is_empty() }
+    pub fn has_emits(&self) -> bool {
+        !self.emits.is_empty()
+    }
 
     /// `true` if the package listens to at least one message.
-    pub fn has_listens(&self) -> bool { !self.listens.is_empty() }
+    pub fn has_listens(&self) -> bool {
+        !self.listens.is_empty()
+    }
 
     /// `true` if neither emits nor listens are declared.
-    pub fn is_empty(&self) -> bool { self.emits.is_empty() && self.listens.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.emits.is_empty() && self.listens.is_empty()
+    }
 }
 
 // ── PackageRequires ───────────────────────────────────────────────────────────
@@ -1288,7 +1342,11 @@ capabilities  = ["podman", "systemd"]
         assert_eq!(oci.tag(), Some("0.1.0"));
 
         assert!(m.files.config.iter().any(|f| f.source == "zentinel.kdl.j2"));
-        assert!(m.files.units.iter().any(|f| f.source == "zentinel.container"));
+        assert!(m
+            .files
+            .units
+            .iter()
+            .any(|f| f.source == "zentinel.container"));
 
         assert_eq!(m.hooks.pre_install, vec!["mkdir -p /srv/data/zentinel"]);
         assert_eq!(m.hooks.post_install, vec!["systemctl daemon-reload"]);
@@ -1329,11 +1387,11 @@ capabilities  = ["podman", "systemd"]
     #[test]
     fn github_release_source() {
         let src = PackageSource::GithubRelease {
-            repo:     "FreeSynergy/fs-kanidm".into(),
+            repo: "FreeSynergy/fs-kanidm".into(),
             artifact: "kanidmd-x86_64-linux.tar.gz".into(),
             checksum: Some("abc123".into()),
         };
-        assert_eq!(src.github_repo(),     Some("FreeSynergy/fs-kanidm"));
+        assert_eq!(src.github_repo(), Some("FreeSynergy/fs-kanidm"));
         assert_eq!(src.github_artifact(), Some("kanidmd-x86_64-linux.tar.gz"));
         assert!(src.oci_ref().is_none());
     }

@@ -37,8 +37,8 @@ pub struct FormFieldProps {
 #[component]
 pub fn FormField(props: FormFieldProps) -> Element {
     let has_error = !props.error.is_empty();
-    let hint_id   = format!("{}-hint", props.field_id);
-    let error_id  = format!("{}-error", props.field_id);
+    let hint_id = format!("{}-hint", props.field_id);
+    let error_id = format!("{}-error", props.field_id);
 
     rsx! {
         div {

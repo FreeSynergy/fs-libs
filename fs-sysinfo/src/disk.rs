@@ -24,7 +24,9 @@ impl Partition {
 
     /// Used space as a percentage (0–100).
     pub fn used_percent(&self) -> f64 {
-        if self.total_bytes == 0 { return 0.0; }
+        if self.total_bytes == 0 {
+            return 0.0;
+        }
         (self.used_bytes() as f64 / self.total_bytes as f64) * 100.0
     }
 }
@@ -43,9 +45,9 @@ impl DiskInfo {
         let partitions = disks
             .iter()
             .map(|d| Partition {
-                mount_point:     d.mount_point().to_string_lossy().into_owned(),
-                fs_type:         d.file_system().to_string_lossy().into_owned(),
-                total_bytes:     d.total_space(),
+                mount_point: d.mount_point().to_string_lossy().into_owned(),
+                fs_type: d.file_system().to_string_lossy().into_owned(),
+                total_bytes: d.total_space(),
                 available_bytes: d.available_space(),
             })
             .collect();
@@ -54,8 +56,10 @@ impl DiskInfo {
 
     /// The partition with the highest usage percentage.
     pub fn most_used(&self) -> Option<&Partition> {
-        self.partitions
-            .iter()
-            .max_by(|a, b| a.used_percent().partial_cmp(&b.used_percent()).unwrap_or(std::cmp::Ordering::Equal))
+        self.partitions.iter().max_by(|a, b| {
+            a.used_percent()
+                .partial_cmp(&b.used_percent())
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
     }
 }

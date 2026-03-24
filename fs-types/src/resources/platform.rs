@@ -16,6 +16,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::tags::FsTag;
+
 // ── OsFamily ─────────────────────────────────────────────────────────────────
 
 /// Required operating system family.
@@ -34,21 +36,21 @@ impl OsFamily {
     /// Badge shown in the store UI, e.g. `"Linux only"`.
     pub fn badge(self) -> &'static str {
         match self {
-            OsFamily::Linux   => "Linux only",
-            OsFamily::MacOs   => "macOS only",
+            OsFamily::Linux => "Linux only",
+            OsFamily::MacOs => "macOS only",
             OsFamily::Windows => "Windows only",
-            OsFamily::Any     => "",
+            OsFamily::Any => "",
         }
     }
 
     /// Parse from a tag value like `"linux"`, `"macos"`, `"windows"`.
     pub fn from_tag(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
-            "linux"   => Some(OsFamily::Linux),
+            "linux" => Some(OsFamily::Linux),
             "macos" | "mac_os" | "darwin" => Some(OsFamily::MacOs),
             "windows" => Some(OsFamily::Windows),
-            "any"     => Some(OsFamily::Any),
-            _         => None,
+            "any" => Some(OsFamily::Any),
+            _ => None,
         }
     }
 }
@@ -77,31 +79,31 @@ impl RequiredFeature {
     /// Human-readable name shown in the store badge.
     pub fn label(self) -> &'static str {
         match self {
-            RequiredFeature::Systemd         => "systemd",
-            RequiredFeature::Pam             => "PAM",
-            RequiredFeature::Launchd         => "launchd",
+            RequiredFeature::Systemd => "systemd",
+            RequiredFeature::Pam => "PAM",
+            RequiredFeature::Launchd => "launchd",
             RequiredFeature::WindowsServices => "Windows Services",
-            RequiredFeature::Podman          => "Podman",
-            RequiredFeature::Docker          => "Docker",
-            RequiredFeature::Git             => "Git",
-            RequiredFeature::Ssh             => "SSH",
-            RequiredFeature::Smartctl        => "smartmontools",
+            RequiredFeature::Podman => "Podman",
+            RequiredFeature::Docker => "Docker",
+            RequiredFeature::Git => "Git",
+            RequiredFeature::Ssh => "SSH",
+            RequiredFeature::Smartctl => "smartmontools",
         }
     }
 
     /// Parse from a tag value like `"systemd"`, `"podman"`.
     pub fn from_tag(s: &str) -> Option<Self> {
         match s.to_lowercase().replace('-', "_").as_str() {
-            "systemd"          => Some(RequiredFeature::Systemd),
-            "pam"              => Some(RequiredFeature::Pam),
-            "launchd"          => Some(RequiredFeature::Launchd),
+            "systemd" => Some(RequiredFeature::Systemd),
+            "pam" => Some(RequiredFeature::Pam),
+            "launchd" => Some(RequiredFeature::Launchd),
             "windows_services" => Some(RequiredFeature::WindowsServices),
-            "podman"           => Some(RequiredFeature::Podman),
-            "docker"           => Some(RequiredFeature::Docker),
-            "git"              => Some(RequiredFeature::Git),
-            "ssh"              => Some(RequiredFeature::Ssh),
+            "podman" => Some(RequiredFeature::Podman),
+            "docker" => Some(RequiredFeature::Docker),
+            "git" => Some(RequiredFeature::Git),
+            "ssh" => Some(RequiredFeature::Ssh),
             "smartctl" | "smart" => Some(RequiredFeature::Smartctl),
-            _                  => None,
+            _ => None,
         }
     }
 }
@@ -126,21 +128,34 @@ pub struct PlatformFilter {
 impl PlatformFilter {
     /// A filter that matches every platform.
     pub fn any() -> Self {
-        PlatformFilter { os: OsFamily::Any, requires: vec![] }
+        PlatformFilter {
+            os: OsFamily::Any,
+            requires: vec![],
+        }
     }
 
     /// Linux-only, no additional feature requirements.
     pub fn linux_only() -> Self {
-        PlatformFilter { os: OsFamily::Linux, requires: vec![] }
+        PlatformFilter {
+            os: OsFamily::Linux,
+            requires: vec![],
+        }
     }
 
     /// Returns `true` when the given platform satisfies all constraints.
     ///
     /// - `current_os`         — the host OS family
     /// - `available_features` — features detected by `fs-sysinfo`
-    pub fn is_satisfied_by(&self, current_os: OsFamily, available_features: &[RequiredFeature]) -> bool {
+    pub fn is_satisfied_by(
+        &self,
+        current_os: OsFamily,
+        available_features: &[RequiredFeature],
+    ) -> bool {
         let os_ok = self.os == OsFamily::Any || self.os == current_os;
-        let features_ok = self.requires.iter().all(|req| available_features.contains(req));
+        let features_ok = self
+            .requires
+            .iter()
+            .all(|req| available_features.contains(req));
         os_ok && features_ok
     }
 
@@ -173,16 +188,17 @@ impl PlatformFilter {
 /// - … (all `RequiredFeature` variants)
 ///
 /// Returns `None` if no platform or requires tags are present.
-pub fn platform_filter_from_tags(tags: &[String]) -> Option<PlatformFilter> {
+pub fn platform_filter_from_tags(tags: &[FsTag]) -> Option<PlatformFilter> {
     let mut os = OsFamily::Any;
     let mut requires = Vec::new();
 
     for tag in tags {
-        if let Some(val) = tag.strip_prefix("platform:") {
+        let key = tag.key();
+        if let Some(val) = key.strip_prefix("platform.") {
             if let Some(family) = OsFamily::from_tag(val) {
                 os = family;
             }
-        } else if let Some(val) = tag.strip_prefix("requires:") {
+        } else if let Some(val) = key.strip_prefix("requires.") {
             if let Some(feat) = RequiredFeature::from_tag(val) {
                 requires.push(feat);
             }

@@ -142,9 +142,8 @@ impl EventBus {
     /// If any hook returns `Err`, dispatch stops and the error is returned.
     pub fn emit(&self, event: &InstallEvent) -> Result<(), FsError> {
         for (name, hook) in &self.hooks {
-            hook(event).map_err(|e| {
-                FsError::internal(format!("install hook '{name}' failed: {e}"))
-            })?;
+            hook(event)
+                .map_err(|e| FsError::internal(format!("install hook '{name}' failed: {e}")))?;
         }
         Ok(())
     }
@@ -174,7 +173,11 @@ mod tests {
     use std::sync::{Arc, Mutex};
 
     fn completed_event() -> InstallEvent {
-        InstallEvent::new("proxy/zentinel", "0.1.0", InstallEventKind::InstallCompleted)
+        InstallEvent::new(
+            "proxy/zentinel",
+            "0.1.0",
+            InstallEventKind::InstallCompleted,
+        )
     }
 
     #[test]
@@ -199,8 +202,14 @@ mod tests {
         let c2 = count.clone();
 
         let mut bus = EventBus::new();
-        bus.register("hook1", move |_| { *c1.lock().unwrap() += 1; Ok(()) });
-        bus.register("hook2", move |_| { *c2.lock().unwrap() += 1; Ok(()) });
+        bus.register("hook1", move |_| {
+            *c1.lock().unwrap() += 1;
+            Ok(())
+        });
+        bus.register("hook2", move |_| {
+            *c2.lock().unwrap() += 1;
+            Ok(())
+        });
 
         bus.emit(&completed_event()).unwrap();
         assert_eq!(*count.lock().unwrap(), 2);
@@ -213,10 +222,16 @@ mod tests {
 
         let mut bus = EventBus::new();
         bus.register("fail", |_| Err(FsError::internal("boom")));
-        bus.register("second", move |_| { *sc.lock().unwrap() = true; Ok(()) });
+        bus.register("second", move |_| {
+            *sc.lock().unwrap() = true;
+            Ok(())
+        });
 
         assert!(bus.emit(&completed_event()).is_err());
-        assert!(!*second_called.lock().unwrap(), "second hook must not run after failure");
+        assert!(
+            !*second_called.lock().unwrap(),
+            "second hook must not run after failure"
+        );
     }
 
     #[test]
@@ -225,7 +240,10 @@ mod tests {
         let c = called.clone();
 
         let mut bus = EventBus::new();
-        bus.register("removable", move |_| { *c.lock().unwrap() = true; Ok(()) });
+        bus.register("removable", move |_| {
+            *c.lock().unwrap() = true;
+            Ok(())
+        });
         bus.unregister("removable");
 
         bus.emit(&completed_event()).unwrap();
@@ -239,8 +257,14 @@ mod tests {
         let v2 = value.clone();
 
         let mut bus = EventBus::new();
-        bus.register("counter", move |_| { *v1.lock().unwrap() = 1; Ok(()) });
-        bus.register("counter", move |_| { *v2.lock().unwrap() = 2; Ok(()) });
+        bus.register("counter", move |_| {
+            *v1.lock().unwrap() = 1;
+            Ok(())
+        });
+        bus.register("counter", move |_| {
+            *v2.lock().unwrap() = 2;
+            Ok(())
+        });
 
         assert_eq!(bus.len(), 1, "duplicate name should replace, not add");
         bus.emit(&completed_event()).unwrap();

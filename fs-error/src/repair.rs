@@ -44,16 +44,13 @@ pub enum RepairAction {
 impl std::fmt::Display for RepairAction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RepairAction::SetDefault { field, value } =>
-                write!(f, "set `{field}` to default `{value}`"),
-            RepairAction::Remove { field } =>
-                write!(f, "removed unknown field `{field}`"),
-            RepairAction::Rename { from, to } =>
-                write!(f, "renamed `{from}` → `{to}`"),
-            RepairAction::Trim { field } =>
-                write!(f, "trimmed whitespace in `{field}`"),
-            RepairAction::Insert { field, value } =>
-                write!(f, "inserted `{field}` = `{value}`"),
+            RepairAction::SetDefault { field, value } => {
+                write!(f, "set `{field}` to default `{value}`")
+            }
+            RepairAction::Remove { field } => write!(f, "removed unknown field `{field}`"),
+            RepairAction::Rename { from, to } => write!(f, "renamed `{from}` → `{to}`"),
+            RepairAction::Trim { field } => write!(f, "trimmed whitespace in `{field}`"),
+            RepairAction::Insert { field, value } => write!(f, "inserted `{field}` = `{value}`"),
         }
     }
 }
@@ -73,7 +70,10 @@ pub struct RepairOption {
 impl RepairOption {
     /// Construct a repair option.
     pub fn new(label: impl Into<String>, description: impl Into<String>) -> Self {
-        Self { label: label.into(), description: description.into() }
+        Self {
+            label: label.into(),
+            description: description.into(),
+        }
     }
 }
 
@@ -96,7 +96,10 @@ pub enum RepairOutcome {
 impl RepairOutcome {
     /// `true` when the config can be used as-is after this repair attempt.
     pub fn is_usable(&self) -> bool {
-        matches!(self, RepairOutcome::AutoRepaired(_) | RepairOutcome::AlreadyValid)
+        matches!(
+            self,
+            RepairOutcome::AutoRepaired(_) | RepairOutcome::AlreadyValid
+        )
     }
 
     /// Returns the applied repair actions for `AutoRepaired`, otherwise `&[]`.
@@ -129,13 +132,18 @@ pub trait Repairable {
     /// Convenience: `true` when `validate()` returns no Error-level issues.
     fn is_valid(&self) -> bool {
         use crate::validation::IssueSeverity;
-        self.validate().iter().all(|i| i.severity < IssueSeverity::Error)
+        self.validate()
+            .iter()
+            .all(|i| i.severity < IssueSeverity::Error)
     }
 
     /// Convenience: collect only Error-level issues.
     fn errors(&self) -> Vec<ValidationIssue> {
         use crate::validation::IssueSeverity;
-        self.validate().into_iter().filter(|i| i.severity == IssueSeverity::Error).collect()
+        self.validate()
+            .into_iter()
+            .filter(|i| i.severity == IssueSeverity::Error)
+            .collect()
     }
 }
 
@@ -148,11 +156,17 @@ mod tests {
 
     #[test]
     fn repair_action_display() {
-        let a = RepairAction::SetDefault { field: "x".into(), value: "42".into() };
+        let a = RepairAction::SetDefault {
+            field: "x".into(),
+            value: "42".into(),
+        };
         assert!(a.to_string().contains("x"));
         assert!(a.to_string().contains("42"));
 
-        let b = RepairAction::Rename { from: "old".into(), to: "new".into() };
+        let b = RepairAction::Rename {
+            from: "old".into(),
+            to: "new".into(),
+        };
         assert!(b.to_string().contains("old"));
         assert!(b.to_string().contains("new"));
     }
@@ -168,8 +182,12 @@ mod tests {
     #[test]
     fn actions_from_auto_repaired() {
         let actions = vec![
-            RepairAction::Trim { field: "name".into() },
-            RepairAction::Remove { field: "junk".into() },
+            RepairAction::Trim {
+                field: "name".into(),
+            },
+            RepairAction::Remove {
+                field: "junk".into(),
+            },
         ];
         let outcome = RepairOutcome::AutoRepaired(actions);
         assert_eq!(outcome.actions().len(), 2);
@@ -178,10 +196,14 @@ mod tests {
     #[test]
     fn actions_empty_for_other_variants() {
         assert!(RepairOutcome::AlreadyValid.actions().is_empty());
-        assert!(RepairOutcome::Unrecoverable("x".into()).actions().is_empty());
+        assert!(RepairOutcome::Unrecoverable("x".into())
+            .actions()
+            .is_empty());
     }
 
-    struct TrivialConfig { name: String }
+    struct TrivialConfig {
+        name: String,
+    }
 
     impl Repairable for TrivialConfig {
         fn validate(&self) -> Vec<ValidationIssue> {
@@ -195,9 +217,10 @@ mod tests {
         fn repair(&mut self) -> RepairOutcome {
             if self.name.is_empty() {
                 self.name = "default".into();
-                RepairOutcome::AutoRepaired(vec![
-                    RepairAction::SetDefault { field: "name".into(), value: "default".into() }
-                ])
+                RepairOutcome::AutoRepaired(vec![RepairAction::SetDefault {
+                    field: "name".into(),
+                    value: "default".into(),
+                }])
             } else {
                 RepairOutcome::AlreadyValid
             }

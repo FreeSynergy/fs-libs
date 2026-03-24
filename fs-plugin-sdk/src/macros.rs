@@ -73,11 +73,10 @@ macro_rules! plugin_main {
             };
 
             let context: $crate::PluginContext = match serde_json::from_str(&context_json) {
-                Ok(c)  => c,
+                Ok(c) => c,
                 Err(e) => {
-                    let response = $crate::PluginResponse::err(
-                        format!("invalid context JSON: {e}")
-                    );
+                    let response =
+                        $crate::PluginResponse::err(format!("invalid context JSON: {e}"));
                     let json = serde_json::to_string(&response).unwrap_or_default();
                     let mut buf = json.into_bytes();
                     buf.push(0);
@@ -89,7 +88,7 @@ macro_rules! plugin_main {
 
             let result = $crate::PluginImpl::execute(get_plugin(), &command, &context);
             let response = match result {
-                Ok(r)    => r,
+                Ok(r) => r,
                 Err(msg) => $crate::PluginResponse::err(msg),
             };
 

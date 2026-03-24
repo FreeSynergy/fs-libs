@@ -19,9 +19,7 @@ use fs_error::FsError;
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpStream;
-use tokio_tungstenite::{
-    connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream,
-};
+use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
 use tracing::{debug, warn};
 
 use crate::{SyncDoc, SyncPeer};
@@ -40,9 +38,9 @@ impl WsTransport {
     /// Connect to a WebSocket server at `url` (e.g. `"ws://peer.example.com/sync"`).
     pub async fn connect(url: &str) -> Result<Self, FsError> {
         debug!(url, "WsTransport: connecting");
-        let (ws, _response) = connect_async(url).await.map_err(|e| {
-            FsError::network(format!("WebSocket connect failed ({url}): {e}"))
-        })?;
+        let (ws, _response) = connect_async(url)
+            .await
+            .map_err(|e| FsError::network(format!("WebSocket connect failed ({url}): {e}")))?;
         debug!(url, "WsTransport: connected");
         Ok(Self { ws })
     }
@@ -120,7 +118,11 @@ pub struct SyncSession<T: Serialize + for<'de> Deserialize<'de>> {
 impl<T: Serialize + for<'de> Deserialize<'de>> SyncSession<T> {
     /// Create a new session from an existing doc, peer tracker, and transport.
     pub fn new(doc: SyncDoc<T>, peer: SyncPeer, transport: WsTransport) -> Self {
-        Self { doc, peer, transport }
+        Self {
+            doc,
+            peer,
+            transport,
+        }
     }
 
     /// Exchange sync messages until both sides have converged.

@@ -3,8 +3,8 @@
 //! `TypeRegistry` is loaded from the store catalog on startup and used by the TUI,
 //! health checker, and dependency resolver.
 
-use serde::{Deserialize, Serialize};
 use crate::StrLabel;
+use serde::{Deserialize, Serialize};
 
 // ── ServiceType ───────────────────────────────────────────────────────────────
 
@@ -100,20 +100,20 @@ pub enum ContainerPurpose {
 impl StrLabel for ContainerPurpose {
     fn label(&self) -> &'static str {
         match self {
-            Self::Proxy      => "Proxy",
-            Self::Iam        => "IAM",
-            Self::Mail       => "Mail",
-            Self::Git        => "Git",
-            Self::Wiki       => "Wiki",
-            Self::Chat       => "Chat",
-            Self::Collab     => "Collab",
-            Self::Tasks      => "Tasks",
-            Self::Tickets    => "Tickets",
-            Self::Maps       => "Maps",
+            Self::Proxy => "Proxy",
+            Self::Iam => "IAM",
+            Self::Mail => "Mail",
+            Self::Git => "Git",
+            Self::Wiki => "Wiki",
+            Self::Chat => "Chat",
+            Self::Collab => "Collab",
+            Self::Tasks => "Tasks",
+            Self::Tickets => "Tickets",
+            Self::Maps => "Maps",
             Self::Monitoring => "Monitoring",
-            Self::Database   => "Database",
-            Self::Cache      => "Cache",
-            Self::Custom     => "Custom",
+            Self::Database => "Database",
+            Self::Cache => "Cache",
+            Self::Custom => "Custom",
         }
     }
 }
@@ -124,20 +124,20 @@ impl ContainerPurpose {
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ContainerPurpose::Proxy      => "purpose.proxy",
-            ContainerPurpose::Iam        => "purpose.iam",
-            ContainerPurpose::Mail       => "purpose.mail",
-            ContainerPurpose::Git        => "purpose.git",
-            ContainerPurpose::Wiki       => "purpose.wiki",
-            ContainerPurpose::Chat       => "purpose.chat",
-            ContainerPurpose::Collab     => "purpose.collab",
-            ContainerPurpose::Tasks      => "purpose.tasks",
-            ContainerPurpose::Tickets    => "purpose.tickets",
-            ContainerPurpose::Maps       => "purpose.maps",
+            ContainerPurpose::Proxy => "purpose.proxy",
+            ContainerPurpose::Iam => "purpose.iam",
+            ContainerPurpose::Mail => "purpose.mail",
+            ContainerPurpose::Git => "purpose.git",
+            ContainerPurpose::Wiki => "purpose.wiki",
+            ContainerPurpose::Chat => "purpose.chat",
+            ContainerPurpose::Collab => "purpose.collab",
+            ContainerPurpose::Tasks => "purpose.tasks",
+            ContainerPurpose::Tickets => "purpose.tickets",
+            ContainerPurpose::Maps => "purpose.maps",
             ContainerPurpose::Monitoring => "purpose.monitoring",
-            ContainerPurpose::Database   => "purpose.database",
-            ContainerPurpose::Cache      => "purpose.cache",
-            ContainerPurpose::Custom     => "purpose.custom",
+            ContainerPurpose::Database => "purpose.database",
+            ContainerPurpose::Cache => "purpose.cache",
+            ContainerPurpose::Custom => "purpose.custom",
         }
     }
 
@@ -202,7 +202,10 @@ impl TypeRegistry {
 
     /// All entries matching a category prefix (e.g. `"mail"`).
     pub fn by_category(&self, category: &str) -> Vec<&TypeEntry> {
-        self.entries.iter().filter(|e| e.category == category).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.category == category)
+            .collect()
     }
 
     /// All registered category names, deduplicated in insertion order.

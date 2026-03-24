@@ -22,11 +22,11 @@ impl ChannelType {
     pub fn label(self) -> &'static str {
         match self {
             ChannelType::Telegram => "Telegram",
-            ChannelType::Matrix   => "Matrix",
-            ChannelType::Discord  => "Discord",
-            ChannelType::Slack    => "Slack",
-            ChannelType::Signal   => "Signal",
-            ChannelType::Webhook  => "Webhook",
+            ChannelType::Matrix => "Matrix",
+            ChannelType::Discord => "Discord",
+            ChannelType::Slack => "Slack",
+            ChannelType::Signal => "Signal",
+            ChannelType::Webhook => "Webhook",
         }
     }
 }

@@ -34,5 +34,7 @@ pub trait VariantStyle {
     ///
     /// Returns an empty string by default; override when the component uses
     /// BEM-style class names for theming or test selection.
-    fn class_suffix(&self) -> &'static str { "" }
+    fn class_suffix(&self) -> &'static str {
+        ""
+    }
 }

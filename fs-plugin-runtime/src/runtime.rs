@@ -158,7 +158,10 @@ impl PluginRuntime {
             "loaded WASM plugin (WASI sandbox)"
         );
 
-        Ok(PluginHandle::new(manifest, PluginInstanceState { store, instance }))
+        Ok(PluginHandle::new(
+            manifest,
+            PluginInstanceState { store, instance },
+        ))
     }
 }
 

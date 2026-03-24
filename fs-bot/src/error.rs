@@ -34,12 +34,18 @@ impl BotError {
 
     /// Convenience constructor for permission denied errors.
     pub fn permission_denied(command: impl Into<String>, required: impl Into<String>) -> Self {
-        Self::PermissionDenied { command: command.into(), required: required.into() }
+        Self::PermissionDenied {
+            command: command.into(),
+            required: required.into(),
+        }
     }
 
     /// Convenience constructor for invalid argument errors.
     pub fn invalid_args(command: impl Into<String>, message: impl Into<String>) -> Self {
-        Self::InvalidArgs { command: command.into(), message: message.into() }
+        Self::InvalidArgs {
+            command: command.into(),
+            message: message.into(),
+        }
     }
 
     /// Convenience constructor for internal errors.

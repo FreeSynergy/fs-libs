@@ -13,7 +13,7 @@ use serde_json::Value;
 #[derive(Debug, Clone)]
 pub struct TriggerEvent {
     /// Bus topic, e.g. `"chat.message"` or `"calendar.event.upcoming"`.
-    pub topic:   String,
+    pub topic: String,
     /// Parsed JSON payload.
     pub payload: Value,
 }
@@ -26,14 +26,14 @@ pub enum TriggerAction {
     /// Send a text message to a room.
     SendToRoom {
         platform: String,
-        room_id:  String,
-        text:     String,
+        room_id: String,
+        text: String,
     },
     /// Send a direct message to a user.
     SendDm {
         platform: String,
-        user_id:  String,
-        text:     String,
+        user_id: String,
+        text: String,
     },
 }
 

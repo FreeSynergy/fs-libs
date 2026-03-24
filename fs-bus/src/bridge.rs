@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::BusError;
 use crate::event::Event;
-use crate::topic::{TopicHandler, topic_matches};
+use crate::topic::{topic_matches, TopicHandler};
 
 // ── BusBridgeConfig ───────────────────────────────────────────────────────────
 
@@ -64,7 +64,9 @@ impl BusBridge {
 
     /// Returns `true` if the bridge should forward an event on `topic`.
     fn should_forward(&self, topic: &str) -> bool {
-        self.config.allowed_topics.iter()
+        self.config
+            .allowed_topics
+            .iter()
             .any(|pattern| topic_matches(pattern, topic))
     }
 
@@ -80,9 +82,13 @@ impl BusBridge {
 
         req.send()
             .await
-            .map_err(|e| BusError::internal(format!("bridge '{}' HTTP error: {e}", self.config.name)))?
+            .map_err(|e| {
+                BusError::internal(format!("bridge '{}' HTTP error: {e}", self.config.name))
+            })?
             .error_for_status()
-            .map_err(|e| BusError::internal(format!("bridge '{}' remote error: {e}", self.config.name)))?;
+            .map_err(|e| {
+                BusError::internal(format!("bridge '{}' remote error: {e}", self.config.name))
+            })?;
 
         Ok(())
     }

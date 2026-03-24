@@ -24,7 +24,11 @@ pub struct RetryPolicy {
 
 impl Default for RetryPolicy {
     fn default() -> Self {
-        Self { max_attempts: 3, base_delay_ms: 100, max_delay_ms: 5_000 }
+        Self {
+            max_attempts: 3,
+            base_delay_ms: 100,
+            max_delay_ms: 5_000,
+        }
     }
 }
 
@@ -54,7 +58,10 @@ pub struct EventBuffer {
 impl EventBuffer {
     /// Create a new buffer with the given retry policy.
     pub fn new(policy: RetryPolicy) -> Self {
-        Self { queue: VecDeque::new(), policy }
+        Self {
+            queue: VecDeque::new(),
+            policy,
+        }
     }
 
     /// Create a buffer with the default retry policy.
@@ -126,7 +133,11 @@ impl EventBuffer {
             } else {
                 Err(BusError::handler(
                     event.topic(),
-                    errors.iter().map(|e| e.to_string()).collect::<Vec<_>>().join("; "),
+                    errors
+                        .iter()
+                        .map(|e| e.to_string())
+                        .collect::<Vec<_>>()
+                        .join("; "),
                 ))
             }
         };
@@ -143,13 +154,18 @@ mod tests {
     use crate::event::Event;
     use crate::topic::TopicHandler;
     use async_trait::async_trait;
-    use std::sync::{Arc, atomic::{AtomicU32, Ordering}};
+    use std::sync::{
+        atomic::{AtomicU32, Ordering},
+        Arc,
+    };
 
     struct OkHandler(Arc<AtomicU32>);
 
     #[async_trait]
     impl TopicHandler for OkHandler {
-        fn topic_pattern(&self) -> &str { "#" }
+        fn topic_pattern(&self) -> &str {
+            "#"
+        }
         async fn handle(&self, _: &Event) -> Result<(), BusError> {
             self.0.fetch_add(1, Ordering::SeqCst);
             Ok(())

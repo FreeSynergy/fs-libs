@@ -48,7 +48,7 @@ pub fn Input(props: InputProps) -> Element {
     let mut focused = use_signal(|| false);
 
     let style = format!(
-        "{}{}" ,
+        "{}{}",
         base_input_style(),
         if *focused.read() { focus_style() } else { "" }
     );
@@ -84,7 +84,10 @@ pub struct SelectOption {
 
 impl SelectOption {
     pub fn new(value: impl Into<String>, label: impl Into<String>) -> Self {
-        Self { value: value.into(), label: label.into() }
+        Self {
+            value: value.into(),
+            label: label.into(),
+        }
     }
 }
 
@@ -217,7 +220,11 @@ pub struct CheckboxProps {
 /// Labeled checkbox with aria support.
 #[component]
 pub fn Checkbox(props: CheckboxProps) -> Element {
-    let cursor = if props.disabled { "not-allowed" } else { "pointer" };
+    let cursor = if props.disabled {
+        "not-allowed"
+    } else {
+        "pointer"
+    };
     let label_style = format!(
         "display: inline-flex; align-items: center; gap: 8px; cursor: {cursor}; \
          font-size: 13px; color: var(--fs-color-text-primary, #e2e8f0);"

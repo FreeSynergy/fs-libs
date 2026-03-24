@@ -48,10 +48,23 @@ pub struct ColorTokens {
 impl TokenSet for ColorTokens {
     fn is_complete(&self) -> bool {
         ![
-            &self.bg_base, &self.bg_surface, &self.bg_elevated, &self.bg_card,
-            &self.bg_input, &self.text_primary, &self.text_secondary, &self.text_muted,
-            &self.primary, &self.primary_hover, &self.primary_text, &self.accent,
-            &self.success, &self.warning, &self.error, &self.border, &self.border_focus,
+            &self.bg_base,
+            &self.bg_surface,
+            &self.bg_elevated,
+            &self.bg_card,
+            &self.bg_input,
+            &self.text_primary,
+            &self.text_secondary,
+            &self.text_muted,
+            &self.primary,
+            &self.primary_hover,
+            &self.primary_text,
+            &self.accent,
+            &self.success,
+            &self.warning,
+            &self.error,
+            &self.border,
+            &self.border_focus,
         ]
         .iter()
         .any(|v| v.trim().is_empty())
@@ -103,13 +116,25 @@ pub struct StyleTokens {
 impl TokenSet for StyleTokens {
     fn is_complete(&self) -> bool {
         ![
-            &self.radius_sm, &self.radius, &self.radius_lg,
-            &self.spacing_xs, &self.spacing_sm, &self.spacing_md,
-            &self.spacing_lg, &self.spacing_xl,
-            &self.shadow_sm, &self.shadow, &self.shadow_lg, &self.shadow_glow,
-            &self.border_width, &self.scrollbar_width,
-            &self.sidebar_width_collapsed, &self.sidebar_width_expanded,
-            &self.transition_fast, &self.transition, &self.transition_slow,
+            &self.radius_sm,
+            &self.radius,
+            &self.radius_lg,
+            &self.spacing_xs,
+            &self.spacing_sm,
+            &self.spacing_md,
+            &self.spacing_lg,
+            &self.spacing_xl,
+            &self.shadow_sm,
+            &self.shadow,
+            &self.shadow_lg,
+            &self.shadow_glow,
+            &self.border_width,
+            &self.scrollbar_width,
+            &self.sidebar_width_collapsed,
+            &self.sidebar_width_expanded,
+            &self.transition_fast,
+            &self.transition,
+            &self.transition_slow,
         ]
         .iter()
         .any(|v| v.trim().is_empty())
@@ -120,25 +145,25 @@ impl StyleTokens {
     /// Return the default style tokens (matching the FreeSynergy base theme).
     pub fn default_tokens() -> Self {
         Self {
-            radius_sm:               "4px".into(),
-            radius:                  "8px".into(),
-            radius_lg:               "16px".into(),
-            spacing_xs:              "4px".into(),
-            spacing_sm:              "8px".into(),
-            spacing_md:              "16px".into(),
-            spacing_lg:              "24px".into(),
-            spacing_xl:              "32px".into(),
-            shadow_sm:               "0 1px 2px rgba(0,0,0,0.1)".into(),
-            shadow:                  "0 2px 4px rgba(0,0,0,0.1)".into(),
-            shadow_lg:               "0 4px 12px rgba(0,0,0,0.15)".into(),
-            shadow_glow:             "0 0 20px rgba(77,139,245,0.15)".into(),
-            border_width:            "1px".into(),
-            scrollbar_width:         "6px".into(),
+            radius_sm: "4px".into(),
+            radius: "8px".into(),
+            radius_lg: "16px".into(),
+            spacing_xs: "4px".into(),
+            spacing_sm: "8px".into(),
+            spacing_md: "16px".into(),
+            spacing_lg: "24px".into(),
+            spacing_xl: "32px".into(),
+            shadow_sm: "0 1px 2px rgba(0,0,0,0.1)".into(),
+            shadow: "0 2px 4px rgba(0,0,0,0.1)".into(),
+            shadow_lg: "0 4px 12px rgba(0,0,0,0.15)".into(),
+            shadow_glow: "0 0 20px rgba(77,139,245,0.15)".into(),
+            border_width: "1px".into(),
+            scrollbar_width: "6px".into(),
             sidebar_width_collapsed: "48px".into(),
-            sidebar_width_expanded:  "220px".into(),
-            transition_fast:         "150ms ease".into(),
-            transition:              "200ms ease".into(),
-            transition_slow:         "300ms ease".into(),
+            sidebar_width_expanded: "220px".into(),
+            transition_fast: "150ms ease".into(),
+            transition: "200ms ease".into(),
+            transition_slow: "300ms ease".into(),
         }
     }
 }
@@ -230,8 +255,12 @@ pub struct ButtonStyleTokens {
 impl TokenSet for ButtonStyleTokens {
     fn is_complete(&self) -> bool {
         ![
-            &self.border_radius, &self.padding_x, &self.padding_y,
-            &self.font_weight, &self.border_width, &self.hover_transform,
+            &self.border_radius,
+            &self.padding_x,
+            &self.padding_y,
+            &self.font_weight,
+            &self.border_width,
+            &self.hover_transform,
         ]
         .iter()
         .any(|v| v.trim().is_empty())
@@ -261,8 +290,12 @@ pub struct WindowChromeTokens {
 impl TokenSet for WindowChromeTokens {
     fn is_complete(&self) -> bool {
         ![
-            &self.titlebar_height, &self.titlebar_bg, &self.titlebar_text,
-            &self.resize_handle_size, &self.button_close_color, &self.button_minimize_color,
+            &self.titlebar_height,
+            &self.titlebar_bg,
+            &self.titlebar_text,
+            &self.resize_handle_size,
+            &self.button_close_color,
+            &self.button_minimize_color,
         ]
         .iter()
         .any(|v| v.trim().is_empty())
@@ -290,9 +323,13 @@ pub struct AnimationTokens {
 
 impl TokenSet for AnimationTokens {
     fn is_complete(&self) -> bool {
-        ![&self.transition_fast, &self.transition, &self.transition_slow]
-            .iter()
-            .any(|v| v.trim().is_empty())
+        ![
+            &self.transition_fast,
+            &self.transition,
+            &self.transition_slow,
+        ]
+        .iter()
+        .any(|v| v.trim().is_empty())
     }
 }
 
@@ -319,11 +356,11 @@ mod tests {
             summary: "A sufficiently long summary for store listings.".into(),
             description: "A medium-length description shown in the store detail view.".into(),
             description_file: PathBuf::from("help/en/description.ftl"),
-            version: "1.0.0".into(),
+            version: "1.0.0".parse().unwrap(),
             author: "FreeSynergy".into(),
             license: "MIT".into(),
             icon: PathBuf::from("icon.svg"),
-            tags: vec!["tag".into()],
+            tags: vec![crate::tags::FsTag::new("test")],
             resource_type: rt,
             dependencies: Vec::<Dependency>::new(),
             signature: None,
@@ -363,12 +400,23 @@ mod tests {
     #[test]
     fn color_tokens_is_complete_with_all_values() {
         let tokens = ColorTokens {
-            bg_base: "#000".into(), bg_surface: "#000".into(),
-            bg_elevated: "#000".into(), bg_card: "#000".into(), bg_input: "#000".into(),
-            text_primary: "#fff".into(), text_secondary: "#ccc".into(), text_muted: "#aaa".into(),
-            primary: "#44f".into(), primary_hover: "#66f".into(), primary_text: "#fff".into(),
-            accent: "#f90".into(), success: "#0f0".into(), warning: "#ff0".into(),
-            error: "#f00".into(), border: "#333".into(), border_focus: "#44f".into(),
+            bg_base: "#000".into(),
+            bg_surface: "#000".into(),
+            bg_elevated: "#000".into(),
+            bg_card: "#000".into(),
+            bg_input: "#000".into(),
+            text_primary: "#fff".into(),
+            text_secondary: "#ccc".into(),
+            text_muted: "#aaa".into(),
+            primary: "#44f".into(),
+            primary_hover: "#66f".into(),
+            primary_text: "#fff".into(),
+            accent: "#f90".into(),
+            success: "#0f0".into(),
+            warning: "#ff0".into(),
+            error: "#f00".into(),
+            border: "#333".into(),
+            border_focus: "#44f".into(),
         };
         assert!(tokens.is_complete());
     }

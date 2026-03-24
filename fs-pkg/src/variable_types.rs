@@ -80,29 +80,27 @@ impl VariableKind {
         )
     }
 
-
     /// Validate a string value against this type.
     ///
     /// Returns `Ok(())` if the value is acceptable, otherwise a `ValidationError`.
     pub fn validate(&self, value: &str) -> Result<(), ValidationError> {
         match self {
-            Self::String           => Ok(()),
-            Self::Integer          => parse_integer(value),
-            Self::Boolean          => parse_boolean(value),
-            Self::Url              => validate_url(value),
-            Self::Email            => validate_email(value),
-            Self::Hostname         => validate_hostname(value),
-            Self::Ip               => validate_ip(value),
-            Self::Port             => validate_port(value),
-            Self::Path             => Ok(()),  // existence check is caller's responsibility
+            Self::String => Ok(()),
+            Self::Integer => parse_integer(value),
+            Self::Boolean => parse_boolean(value),
+            Self::Url => validate_url(value),
+            Self::Email => validate_email(value),
+            Self::Hostname => validate_hostname(value),
+            Self::Ip => validate_ip(value),
+            Self::Port => validate_port(value),
+            Self::Path => Ok(()), // existence check is caller's responsibility
             Self::ConnectionString => validate_connection_string(value),
-            Self::Bytes            => validate_bytes(value),
-            Self::Duration         => validate_duration(value),
-            Self::Cron             => validate_cron(value),
-            Self::Select           => Ok(()),  // options are checked by VariableSpec
+            Self::Bytes => validate_bytes(value),
+            Self::Duration => validate_duration(value),
+            Self::Cron => validate_cron(value),
+            Self::Select => Ok(()), // options are checked by VariableSpec
             // Encrypted: any non-empty string is accepted
-            Self::Secret | Self::Password | Self::ApiKey
-            | Self::Certificate | Self::PrivateKey => {
+            Self::Secret | Self::Password | Self::ApiKey | Self::Certificate | Self::PrivateKey => {
                 if value.is_empty() {
                     Err(ValidationError::empty())
                 } else {
@@ -124,7 +122,9 @@ pub struct ValidationError {
 
 impl ValidationError {
     fn new(msg: impl Into<String>) -> Self {
-        Self { message: msg.into() }
+        Self {
+            message: msg.into(),
+        }
     }
 
     fn empty() -> Self {
@@ -142,25 +142,25 @@ impl StrLabel for VariableKind {
     /// Human-readable UI label (e.g. `"Text"`, `"URL"`, `"Secret 🔒"`).
     fn label(&self) -> &'static str {
         match self {
-            Self::String           => "Text",
-            Self::Integer          => "Integer",
-            Self::Boolean          => "Yes/No",
-            Self::Url              => "URL",
-            Self::Email            => "E-mail",
-            Self::Hostname         => "Hostname",
-            Self::Ip               => "IP Address",
-            Self::Port             => "Port",
-            Self::Path             => "Path",
+            Self::String => "Text",
+            Self::Integer => "Integer",
+            Self::Boolean => "Yes/No",
+            Self::Url => "URL",
+            Self::Email => "E-mail",
+            Self::Hostname => "Hostname",
+            Self::Ip => "IP Address",
+            Self::Port => "Port",
+            Self::Path => "Path",
             Self::ConnectionString => "Connection String",
-            Self::Bytes            => "Byte Size",
-            Self::Duration         => "Duration",
-            Self::Cron             => "Cron Expression",
-            Self::Select           => "Selection",
-            Self::Secret           => "Secret \u{1f512}",
-            Self::Password         => "Password \u{1f512}",
-            Self::ApiKey           => "API Key \u{1f512}",
-            Self::Certificate      => "Certificate \u{1f512}",
-            Self::PrivateKey       => "Private Key \u{1f512}",
+            Self::Bytes => "Byte Size",
+            Self::Duration => "Duration",
+            Self::Cron => "Cron Expression",
+            Self::Select => "Selection",
+            Self::Secret => "Secret \u{1f512}",
+            Self::Password => "Password \u{1f512}",
+            Self::ApiKey => "API Key \u{1f512}",
+            Self::Certificate => "Certificate \u{1f512}",
+            Self::PrivateKey => "Private Key \u{1f512}",
         }
     }
 }
@@ -222,7 +222,9 @@ pub struct VariableSpec {
     pub help: String,
 }
 
-fn default_priority() -> u8 { 3 }
+fn default_priority() -> u8 {
+    3
+}
 
 impl VariableSpec {
     /// Validate a value against this spec.
@@ -242,15 +244,16 @@ impl VariableSpec {
             }
             Some(v) => {
                 self.kind.validate(v)?;
-                if self.kind == VariableKind::Select && !self.options.is_empty() {
-                    if !self.options.iter().any(|o| o == v) {
-                        return Err(ValidationError::new(format!(
-                            "'{}' is not a valid option for {}; expected one of: {}",
-                            v,
-                            self.name,
-                            self.options.join(", ")
-                        )));
-                    }
+                if self.kind == VariableKind::Select
+                    && !self.options.is_empty()
+                    && !self.options.iter().any(|o| o == v)
+                {
+                    return Err(ValidationError::new(format!(
+                        "'{}' is not a valid option for {}; expected one of: {}",
+                        v,
+                        self.name,
+                        self.options.join(", ")
+                    )));
                 }
                 Ok(())
             }
@@ -301,14 +304,20 @@ fn validate_email(v: &str) -> Result<(), ValidationError> {
     if v.contains('@') && v.contains('.') {
         Ok(())
     } else {
-        Err(ValidationError::new(format!("'{}' is not a valid e-mail address", v)))
+        Err(ValidationError::new(format!(
+            "'{}' is not a valid e-mail address",
+            v
+        )))
     }
 }
 
 fn validate_hostname(v: &str) -> Result<(), ValidationError> {
     // Must not be empty and must not contain spaces.
     if v.is_empty() || v.contains(' ') {
-        return Err(ValidationError::new(format!("'{}' is not a valid hostname", v)));
+        return Err(ValidationError::new(format!(
+            "'{}' is not a valid hostname",
+            v
+        )));
     }
     Ok(())
 }
@@ -332,7 +341,13 @@ fn validate_port(v: &str) -> Result<(), ValidationError> {
 }
 
 fn validate_connection_string(v: &str) -> Result<(), ValidationError> {
-    let known_prefixes = ["postgres://", "postgresql://", "mysql://", "sqlite://", "redis://"];
+    let known_prefixes = [
+        "postgres://",
+        "postgresql://",
+        "mysql://",
+        "sqlite://",
+        "redis://",
+    ];
     if known_prefixes.iter().any(|p| v.starts_with(p)) {
         Ok(())
     } else {
@@ -356,27 +371,29 @@ fn validate_bytes(v: &str) -> Result<(), ValidationError> {
                     v
                 )));
             }
-            return numeric.trim().parse::<f64>()
+            return numeric
+                .trim()
+                .parse::<f64>()
                 .map(|_| ())
                 .map_err(|_| ValidationError::new(format!("'{}' has an invalid numeric part", v)));
         }
     }
     // Also allow a bare integer (bytes)
-    v.parse::<u64>()
-        .map(|_| ())
-        .map_err(|_| ValidationError::new(format!(
+    v.parse::<u64>().map(|_| ()).map_err(|_| {
+        ValidationError::new(format!(
             "'{}' is not a valid byte size (e.g. 100MB, 2GB)",
             v
-        )))
+        ))
+    })
 }
 
 fn validate_duration(v: &str) -> Result<(), ValidationError> {
     // Simple check: must end with a valid time unit and have a numeric part.
     let units = ["ms", "s", "m", "h", "d"];
     for u in &units {
-        if v.ends_with(u) {
-            let numeric = &v[..v.len() - u.len()];
-            return numeric.parse::<f64>()
+        if let Some(numeric) = v.strip_suffix(u) {
+            return numeric
+                .parse::<f64>()
                 .map(|_| ())
                 .map_err(|_| ValidationError::new(format!("'{}' has an invalid numeric part", v)));
         }
@@ -466,23 +483,29 @@ mod tests {
 
     #[test]
     fn connection_string_validation() {
-        assert!(VariableKind::ConnectionString.validate("postgres://user:pass@host/db").is_ok());
-        assert!(VariableKind::ConnectionString.validate("mysql://user@host/db").is_ok());
-        assert!(VariableKind::ConnectionString.validate("http://not-a-db").is_err());
+        assert!(VariableKind::ConnectionString
+            .validate("postgres://user:pass@host/db")
+            .is_ok());
+        assert!(VariableKind::ConnectionString
+            .validate("mysql://user@host/db")
+            .is_ok());
+        assert!(VariableKind::ConnectionString
+            .validate("http://not-a-db")
+            .is_err());
     }
 
     #[test]
     fn variable_spec_required() {
         let spec = VariableSpec {
-            name:     "DB_URL".into(),
-            label:    "Database URL".into(),
-            kind:     VariableKind::ConnectionString,
-            role:     "database.postgres.url".into(),
+            name: "DB_URL".into(),
+            label: "Database URL".into(),
+            kind: VariableKind::ConnectionString,
+            role: "database.postgres.url".into(),
             required: true,
             priority: 1,
-            default:  None,
-            options:  vec![],
-            help:     String::new(),
+            default: None,
+            options: vec![],
+            help: String::new(),
         };
         assert!(spec.validate(None).is_err());
         assert!(spec.validate(Some("")).is_err());
@@ -492,15 +515,15 @@ mod tests {
     #[test]
     fn variable_spec_select_validates_options() {
         let spec = VariableSpec {
-            name:     "LOG_LEVEL".into(),
-            label:    "Log Level".into(),
-            kind:     VariableKind::Select,
-            role:     String::new(),
+            name: "LOG_LEVEL".into(),
+            label: "Log Level".into(),
+            kind: VariableKind::Select,
+            role: String::new(),
             required: true,
             priority: 3,
-            default:  Some("info".into()),
-            options:  vec!["debug".into(), "info".into(), "warn".into(), "error".into()],
-            help:     String::new(),
+            default: Some("info".into()),
+            options: vec!["debug".into(), "info".into(), "warn".into(), "error".into()],
+            help: String::new(),
         };
         assert!(spec.validate(Some("info")).is_ok());
         assert!(spec.validate(Some("trace")).is_err());
@@ -509,15 +532,15 @@ mod tests {
     #[test]
     fn serde_roundtrip() {
         let spec = VariableSpec {
-            name:     "SECRET_KEY".into(),
-            label:    "Secret Key".into(),
-            kind:     VariableKind::Secret,
-            role:     String::new(),
+            name: "SECRET_KEY".into(),
+            label: "Secret Key".into(),
+            kind: VariableKind::Secret,
+            role: String::new(),
             required: true,
             priority: 1,
-            default:  None,
-            options:  vec![],
-            help:     "A random secret key.".into(),
+            default: None,
+            options: vec![],
+            help: "A random secret key.".into(),
         };
         let toml_str = toml::to_string(&spec).unwrap();
         let back: VariableSpec = toml::from_str(&toml_str).unwrap();

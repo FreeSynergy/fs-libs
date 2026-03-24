@@ -25,8 +25,16 @@ pub struct IconInstaller {
 }
 
 impl IconInstaller {
-    pub fn for_icons()   -> Self { Self { rt: ResourceType::IconSet } }
-    pub fn for_cursors() -> Self { Self { rt: ResourceType::CursorSet } }
+    pub fn for_icons() -> Self {
+        Self {
+            rt: ResourceType::IconSet,
+        }
+    }
+    pub fn for_cursors() -> Self {
+        Self {
+            rt: ResourceType::CursorSet,
+        }
+    }
 }
 
 impl Installer for IconInstaller {
@@ -54,7 +62,9 @@ impl Installer for IconInstaller {
                 install_path: dest.to_string_lossy().into_owned(),
                 summary: format!(
                     "[dry-run] would install {} '{}' to {}",
-                    self.rt.label(), meta.id, dest.display()
+                    self.rt.label(),
+                    meta.id,
+                    dest.display()
                 ),
                 dry_run: true,
             });
@@ -63,19 +73,26 @@ impl Installer for IconInstaller {
         if let Some(src) = source {
             copy_source_to_dir(src, &dest)?;
         } else {
-            std::fs::create_dir_all(&dest).map_err(|e| {
-                FsError::internal(format!("cannot create {}: {e}", dest.display()))
-            })?;
+            std::fs::create_dir_all(&dest)
+                .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dest.display())))?;
         }
 
         // Only IconSet needs cache refresh.
         if self.rt == ResourceType::IconSet {
-            run_system_cmd("gtk-update-icon-cache", &["-f", "-t", dest.to_str().unwrap_or("")]);
+            run_system_cmd(
+                "gtk-update-icon-cache",
+                &["-f", "-t", dest.to_str().unwrap_or("")],
+            );
         }
 
         Ok(InstallReport {
             install_path: dest.to_string_lossy().into_owned(),
-            summary: format!("installed {} '{}' to {}", self.rt.label(), meta.id, dest.display()),
+            summary: format!(
+                "installed {} '{}' to {}",
+                self.rt.label(),
+                meta.id,
+                dest.display()
+            ),
             dry_run: false,
         })
     }
@@ -86,7 +103,12 @@ impl Uninstaller for IconInstaller {
         self.rt
     }
 
-    fn uninstall(&self, name: &str, paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         let dest = paths
             .dir_for(self.rt, name)
             .ok_or_else(|| FsError::internal("IconInstaller: dir_for returned None"))?;
@@ -99,7 +121,10 @@ impl Uninstaller for IconInstaller {
         if self.rt == ResourceType::IconSet {
             // Parent directory is the icons dir — refresh its cache.
             if let Some(parent) = dest.parent() {
-                run_system_cmd("gtk-update-icon-cache", &["-f", "-t", parent.to_str().unwrap_or("")]);
+                run_system_cmd(
+                    "gtk-update-icon-cache",
+                    &["-f", "-t", parent.to_str().unwrap_or("")],
+                );
             }
         }
         Ok(())

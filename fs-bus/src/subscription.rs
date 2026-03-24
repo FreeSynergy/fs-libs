@@ -30,10 +30,7 @@ pub struct Subscription {
 
 impl Subscription {
     /// Build a new subscription with a generated ID.
-    pub fn new(
-        subscriber_role: impl Into<String>,
-        topic_filter: impl Into<String>,
-    ) -> Self {
+    pub fn new(subscriber_role: impl Into<String>, topic_filter: impl Into<String>) -> Self {
         Self {
             id: Uuid::new_v4(),
             subscriber_role: subscriber_role.into(),
@@ -109,14 +106,16 @@ impl SubscriptionManager {
     ///
     /// `source_inst` is the instance tag of the publishing service (if any).
     pub fn matching<'a>(&'a self, topic: &str, source_inst: Option<&str>) -> Vec<&'a Subscription> {
-        self.subs.values()
+        self.subs
+            .values()
             .filter(|s| s.matches(topic, source_inst))
             .collect()
     }
 
     /// Returns all subscriptions for a given role.
     pub fn for_role<'a>(&'a self, role: &str) -> Vec<&'a Subscription> {
-        self.subs.values()
+        self.subs
+            .values()
             .filter(|s| s.subscriber_role == role)
             .collect()
     }

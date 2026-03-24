@@ -1,7 +1,7 @@
 // fs-auth/src/jwt.rs — JWT signing and validation (feature = "jwt")
 
 use fs_error::FsError;
-use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 
 use crate::claims::Claims;
 
@@ -37,11 +37,7 @@ pub struct JwtSigner {
 
 impl JwtSigner {
     /// Create a signer that uses HMAC-SHA256 with the given `secret`.
-    pub fn hmac(
-        secret: &[u8],
-        issuer: impl Into<String>,
-        audience: impl Into<String>,
-    ) -> Self {
+    pub fn hmac(secret: &[u8], issuer: impl Into<String>, audience: impl Into<String>) -> Self {
         Self {
             key: EncodingKey::from_secret(secret),
             algorithm: JwtAlgorithm::HS256,
@@ -111,11 +107,7 @@ pub struct JwtValidator {
 
 impl JwtValidator {
     /// Create a validator that uses HMAC-SHA256 with the given `secret`.
-    pub fn hmac(
-        secret: &[u8],
-        issuer: impl Into<String>,
-        audience: impl Into<String>,
-    ) -> Self {
+    pub fn hmac(secret: &[u8], issuer: impl Into<String>, audience: impl Into<String>) -> Self {
         Self {
             key: DecodingKey::from_secret(secret),
             algorithm: JwtAlgorithm::HS256,

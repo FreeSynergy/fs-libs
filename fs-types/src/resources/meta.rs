@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 use super::platform::PlatformFilter;
+use crate::primitives::{FsValue, SemVer};
+use crate::tags::FsTag;
 
 // ── Role ──────────────────────────────────────────────────────────────────────
 
@@ -333,16 +335,20 @@ pub struct ResourceMeta {
     /// Internationalised: `help/en/description.ftl`, `help/de/description.ftl`, …
     /// Mandatory — every package must ship a translatable long description.
     pub description_file: PathBuf,
-    /// SemVer version string, e.g. `"1.5.0"`.
-    pub version: String,
+    /// Semantic version, e.g. `1.5.0` or `0.5.0-beta.1`.
+    pub version: SemVer,
     /// Author or organisation name.
     pub author: String,
     /// SPDX license identifier, e.g. `"MIT"` or `"Apache-2.0"`.
     pub license: String,
     /// Path to the SVG icon file — mandatory for every resource.
     pub icon: PathBuf,
-    /// Arbitrary tags used for store search and filtering.
-    pub tags: Vec<String>,
+    /// Tags for store search and filtering.
+    ///
+    /// Use the tag libraries (`PackageTags`, `PlatformTags`, `ApiTags`) for
+    /// standard tags.  Custom tags are accepted but will be flagged in the
+    /// Store if no matching i18n key is found.
+    pub tags: Vec<FsTag>,
     /// Which kind of resource this is.
     pub resource_type: ResourceType,
     /// Other resources this package requires before it can be installed.
@@ -386,14 +392,14 @@ impl ResourceMeta {
         self
     }
 
-    /// Builder: set `version`.
-    pub fn with_version(mut self, version: impl Into<String>) -> Self {
-        self.version = version.into();
+    /// Builder: set `version` from a `SemVer`.
+    pub fn with_version(mut self, version: SemVer) -> Self {
+        self.version = version;
         self
     }
 
     /// Builder: set `tags` (replaces existing).
-    pub fn with_tags(mut self, tags: impl IntoIterator<Item = impl Into<String>>) -> Self {
+    pub fn with_tags(mut self, tags: impl IntoIterator<Item = impl Into<FsTag>>) -> Self {
         self.tags = tags.into_iter().map(|t| t.into()).collect();
         self
     }
@@ -410,7 +416,8 @@ impl ResourceMeta {
                 .extension()
                 .is_some_and(|e| e.eq_ignore_ascii_case("svg"))
             || self.description.trim().is_empty()
-            || self.description_file.as_os_str().is_empty();
+            || self.description_file.as_os_str().is_empty()
+            || self.version.validate().is_err();
 
         if broken {
             self.status = ValidationStatus::Broken;
@@ -444,11 +451,11 @@ mod tests {
             summary: "A sufficiently long summary for store listings.".into(),
             description: "A medium-length description shown in the store detail view.".into(),
             description_file: PathBuf::from("help/en/description.ftl"),
-            version: "1.0.0".into(),
+            version: "1.0.0".parse().unwrap(),
             author: "FreeSynergy".into(),
             license: "MIT".into(),
             icon: PathBuf::from("icon.svg"),
-            tags: vec!["test".into()],
+            tags: vec![FsTag::new("test")],
             resource_type: ResourceType::App,
             dependencies: vec![],
             signature: None,

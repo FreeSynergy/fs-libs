@@ -58,8 +58,8 @@ impl InstallPaths {
         Self {
             system_base: PathBuf::from("/opt/fsn"),
             config_base: home.join(".config/fsn"),
-            font_base:   home.join(".local/share/fonts/fsn"),
-            icon_base:   home.join(".local/share/icons/fsn"),
+            font_base: home.join(".local/share/fonts/fsn"),
+            icon_base: home.join(".local/share/icons/fsn"),
             cursor_base: home.join(".local/share/icons/fsn-cursors"),
         }
     }
@@ -70,7 +70,7 @@ impl InstallPaths {
         let path = Self::config_file_path();
         match std::fs::read_to_string(&path) {
             Ok(content) => toml::from_str(&content).unwrap_or_else(|_| Self::default_for_user()),
-            Err(_)      => Self::default_for_user(),
+            Err(_) => Self::default_for_user(),
         }
     }
 
@@ -81,10 +81,9 @@ impl InstallPaths {
             std::fs::create_dir_all(parent)
                 .map_err(|e| format!("cannot create config dir: {e}"))?;
         }
-        let content = toml::to_string_pretty(self)
-            .map_err(|e| format!("cannot serialize paths: {e}"))?;
-        std::fs::write(&path, content)
-            .map_err(|e| format!("cannot write {}: {e}", path.display()))
+        let content =
+            toml::to_string_pretty(self).map_err(|e| format!("cannot serialize paths: {e}"))?;
+        std::fs::write(&path, content).map_err(|e| format!("cannot write {}: {e}", path.display()))
     }
 
     /// Path to the install-paths config file.
@@ -102,25 +101,28 @@ impl InstallPaths {
     /// For flat-file resources (Task, ColorScheme, …) use [`Self::config_file_for`].
     pub fn dir_for(&self, rt: ResourceType, name: &str) -> Option<PathBuf> {
         match rt {
-            ResourceType::App              => Some(self.system_base.join("apps").join(name)),
-            ResourceType::Bot              => Some(self.system_base.join("bots").join(name)),
+            ResourceType::App => Some(self.system_base.join("apps").join(name)),
+            ResourceType::Bot => Some(self.system_base.join("bots").join(name)),
             ResourceType::MessengerAdapter => Some(self.system_base.join("adapters").join(name)),
-            ResourceType::Widget           => Some(self.config_base.join("widgets").join(name)),
-            ResourceType::Language         => Some(self.config_base.join("i18n").join(name)),
-            ResourceType::FontSet          => Some(self.font_base.join(name)),
-            ResourceType::IconSet          => Some(self.icon_base.join(name)),
-            ResourceType::CursorSet        => Some(self.cursor_base.join(name)),
+            ResourceType::Widget => Some(self.config_base.join("widgets").join(name)),
+            ResourceType::Language => Some(self.config_base.join("i18n").join(name)),
+            ResourceType::FontSet => Some(self.font_base.join(name)),
+            ResourceType::IconSet => Some(self.icon_base.join(name)),
+            ResourceType::CursorSet => Some(self.cursor_base.join(name)),
             // Flat-file resources: no directory
             ResourceType::Task
             | ResourceType::ColorScheme
             | ResourceType::Style
             | ResourceType::ButtonStyle
             | ResourceType::WindowChrome
-            | ResourceType::AnimationSet   => None,
+            | ResourceType::AnimationSet => None,
             // In-process or externally managed — no local directory
             ResourceType::Bridge
             | ResourceType::Bundle
-            | ResourceType::Container      => None,
+            | ResourceType::Container
+            | ResourceType::Bootstrap
+            | ResourceType::Repo
+            | ResourceType::Theme => None,
         }
     }
 
@@ -129,13 +131,13 @@ impl InstallPaths {
     /// Returns `None` for directory-based or in-process resource types.
     pub fn config_file_for(&self, rt: ResourceType, name: &str) -> Option<PathBuf> {
         let (subdir, ext) = match rt {
-            ResourceType::Task         => ("tasks",          "toml"),
-            ResourceType::ColorScheme  => ("themes",         "toml"),
-            ResourceType::Style        => ("styles",         "toml"),
-            ResourceType::ButtonStyle  => ("button-styles",  "toml"),
-            ResourceType::WindowChrome => ("window-chrome",  "toml"),
-            ResourceType::AnimationSet => ("animations",     "toml"),
-            _                          => return None,
+            ResourceType::Task => ("tasks", "toml"),
+            ResourceType::ColorScheme => ("themes", "toml"),
+            ResourceType::Style => ("styles", "toml"),
+            ResourceType::ButtonStyle => ("button-styles", "toml"),
+            ResourceType::WindowChrome => ("window-chrome", "toml"),
+            ResourceType::AnimationSet => ("animations", "toml"),
+            _ => return None,
         };
         Some(self.config_base.join(subdir).join(format!("{name}.{ext}")))
     }
@@ -156,15 +158,24 @@ impl InstallPaths {
 
     /// Resource types whose paths are rooted under [`Self::system_base`].
     pub fn system_types() -> &'static [ResourceType] {
-        &[ResourceType::App, ResourceType::Bot, ResourceType::MessengerAdapter]
+        &[
+            ResourceType::App,
+            ResourceType::Bot,
+            ResourceType::MessengerAdapter,
+        ]
     }
 
     /// Resource types whose paths are rooted under [`Self::config_base`].
     pub fn config_types() -> &'static [ResourceType] {
         &[
-            ResourceType::Widget,   ResourceType::Language,
-            ResourceType::Task,     ResourceType::ColorScheme, ResourceType::Style,
-            ResourceType::ButtonStyle, ResourceType::WindowChrome, ResourceType::AnimationSet,
+            ResourceType::Widget,
+            ResourceType::Language,
+            ResourceType::Task,
+            ResourceType::ColorScheme,
+            ResourceType::Style,
+            ResourceType::ButtonStyle,
+            ResourceType::WindowChrome,
+            ResourceType::AnimationSet,
         ]
     }
 
@@ -230,16 +241,12 @@ impl<'a> PathMigrator<'a> {
     ///   - The resource type has no path (Bridge, Bundle, Container).
     ///   - The old and new paths are identical.
     ///   - The old path does not exist on disk.
-    pub fn move_resource(
-        &self,
-        rt: ResourceType,
-        name: &str,
-    ) -> Result<MoveOutcome, String> {
+    pub fn move_resource(&self, rt: ResourceType, name: &str) -> Result<MoveOutcome, String> {
         let old_path = self.old.install_path_for(rt, name);
         let new_path = self.new.install_path_for(rt, name);
 
         if old_path.is_empty() {
-            return Ok(MoveOutcome { new_path: new_path });
+            return Ok(MoveOutcome { new_path });
         }
 
         if old_path == new_path {
@@ -262,8 +269,7 @@ impl<'a> PathMigrator<'a> {
         if std::fs::rename(old_p, new_p).is_err() {
             // Cross-filesystem fallback: recursive copy then remove source.
             if old_p.is_dir() {
-                copy_dir_all(old_p, new_p)
-                    .map_err(|e| format!("copy {}: {e}", old_p.display()))?;
+                copy_dir_all(old_p, new_p).map_err(|e| format!("copy {}: {e}", old_p.display()))?;
                 std::fs::remove_dir_all(old_p)
                     .map_err(|e| format!("cleanup {}: {e}", old_p.display()))?;
             } else {
@@ -284,7 +290,7 @@ impl<'a> PathMigrator<'a> {
 fn copy_dir_all(src: &Path, dst: &Path) -> std::io::Result<()> {
     std::fs::create_dir_all(dst)?;
     for entry in std::fs::read_dir(src)? {
-        let entry    = entry?;
+        let entry = entry?;
         let file_type = entry.file_type()?;
         let dest_path = dst.join(entry.file_name());
         if file_type.is_dir() {
@@ -313,8 +319,8 @@ mod tests {
         InstallPaths {
             system_base: PathBuf::from("/opt/fsn"),
             config_base: PathBuf::from("/home/user/.config/fsn"),
-            font_base:   PathBuf::from("/home/user/.local/share/fonts/fsn"),
-            icon_base:   PathBuf::from("/home/user/.local/share/icons/fsn"),
+            font_base: PathBuf::from("/home/user/.local/share/fonts/fsn"),
+            icon_base: PathBuf::from("/home/user/.local/share/icons/fsn"),
             cursor_base: PathBuf::from("/home/user/.local/share/icons/fsn-cursors"),
         }
     }
@@ -387,7 +393,9 @@ mod tests {
         let p = fixed_paths();
         assert_eq!(
             p.dir_for(ResourceType::CursorSet, "breeze"),
-            Some(PathBuf::from("/home/user/.local/share/icons/fsn-cursors/breeze"))
+            Some(PathBuf::from(
+                "/home/user/.local/share/icons/fsn-cursors/breeze"
+            ))
         );
     }
 
@@ -425,7 +433,9 @@ mod tests {
         let p = fixed_paths();
         assert_eq!(
             p.config_file_for(ResourceType::ButtonStyle, "rounded"),
-            Some(PathBuf::from("/home/user/.config/fsn/button-styles/rounded.toml"))
+            Some(PathBuf::from(
+                "/home/user/.config/fsn/button-styles/rounded.toml"
+            ))
         );
     }
 
@@ -434,7 +444,9 @@ mod tests {
         let p = fixed_paths();
         assert_eq!(
             p.config_file_for(ResourceType::WindowChrome, "minimal"),
-            Some(PathBuf::from("/home/user/.config/fsn/window-chrome/minimal.toml"))
+            Some(PathBuf::from(
+                "/home/user/.config/fsn/window-chrome/minimal.toml"
+            ))
         );
     }
 
@@ -452,21 +464,27 @@ mod tests {
         let p = fixed_paths();
         assert_eq!(p.dir_for(ResourceType::Bridge, "kanidm-iam"), None);
         assert_eq!(p.config_file_for(ResourceType::Bridge, "kanidm-iam"), None);
-        assert!(p.install_path_for(ResourceType::Bridge, "kanidm-iam").is_empty());
+        assert!(p
+            .install_path_for(ResourceType::Bridge, "kanidm-iam")
+            .is_empty());
     }
 
     #[test]
     fn bundle_has_no_path() {
         let p = fixed_paths();
         assert_eq!(p.dir_for(ResourceType::Bundle, "starter"), None);
-        assert!(p.install_path_for(ResourceType::Bundle, "starter").is_empty());
+        assert!(p
+            .install_path_for(ResourceType::Bundle, "starter")
+            .is_empty());
     }
 
     #[test]
     fn container_has_no_path() {
         let p = fixed_paths();
         assert_eq!(p.dir_for(ResourceType::Container, "forgejo"), None);
-        assert!(p.install_path_for(ResourceType::Container, "forgejo").is_empty());
+        assert!(p
+            .install_path_for(ResourceType::Container, "forgejo")
+            .is_empty());
     }
 
     #[test]
@@ -485,7 +503,10 @@ mod tests {
     #[test]
     fn migrator_noop_when_paths_identical() {
         let paths = fixed_paths();
-        let migrator = PathMigrator { old: &paths, new: &paths };
+        let migrator = PathMigrator {
+            old: &paths,
+            new: &paths,
+        };
         let outcome = migrator.move_resource(ResourceType::App, "kanidm").unwrap();
         assert_eq!(outcome.new_path, "/opt/fsn/apps/kanidm");
     }
@@ -493,7 +514,10 @@ mod tests {
     #[test]
     fn migrator_noop_for_in_process_types() {
         let paths = fixed_paths();
-        let migrator = PathMigrator { old: &paths, new: &paths };
+        let migrator = PathMigrator {
+            old: &paths,
+            new: &paths,
+        };
         let outcome = migrator.move_resource(ResourceType::Bridge, "any").unwrap();
         assert!(outcome.new_path.is_empty());
     }
@@ -508,15 +532,15 @@ mod tests {
         let old_paths = InstallPaths {
             system_base: src_tmp.path().join("opt/fsn"),
             config_base: src_tmp.path().join("config/fsn"),
-            font_base:   src_tmp.path().join("fonts/fsn"),
-            icon_base:   src_tmp.path().join("icons/fsn"),
+            font_base: src_tmp.path().join("fonts/fsn"),
+            icon_base: src_tmp.path().join("icons/fsn"),
             cursor_base: src_tmp.path().join("cursors/fsn"),
         };
         let new_paths = InstallPaths {
             system_base: dst_tmp.path().join("opt/fsn"),
             config_base: dst_tmp.path().join("config/fsn"),
-            font_base:   dst_tmp.path().join("fonts/fsn"),
-            icon_base:   dst_tmp.path().join("icons/fsn"),
+            font_base: dst_tmp.path().join("fonts/fsn"),
+            icon_base: dst_tmp.path().join("icons/fsn"),
             cursor_base: dst_tmp.path().join("cursors/fsn"),
         };
 
@@ -525,12 +549,20 @@ mod tests {
         std::fs::create_dir_all(&app_src).unwrap();
         std::fs::write(app_src.join("testapp"), b"binary").unwrap();
 
-        let migrator = PathMigrator { old: &old_paths, new: &new_paths };
-        let outcome = migrator.move_resource(ResourceType::App, "testapp").unwrap();
+        let migrator = PathMigrator {
+            old: &old_paths,
+            new: &new_paths,
+        };
+        let outcome = migrator
+            .move_resource(ResourceType::App, "testapp")
+            .unwrap();
 
         let expected = new_paths.dir_for(ResourceType::App, "testapp").unwrap();
         assert_eq!(outcome.new_path, expected.to_string_lossy());
-        assert!(expected.join("testapp").exists(), "file must exist at new location");
+        assert!(
+            expected.join("testapp").exists(),
+            "file must exist at new location"
+        );
         assert!(!app_src.exists(), "old directory must be gone");
     }
 
@@ -544,8 +576,8 @@ mod tests {
         let paths = InstallPaths {
             system_base: PathBuf::from("/custom/fsn"),
             config_base: PathBuf::from("/custom/config"),
-            font_base:   PathBuf::from("/custom/fonts"),
-            icon_base:   PathBuf::from("/custom/icons"),
+            font_base: PathBuf::from("/custom/fonts"),
+            icon_base: PathBuf::from("/custom/icons"),
             cursor_base: PathBuf::from("/custom/cursors"),
         };
         paths.save().unwrap();

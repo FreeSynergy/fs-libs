@@ -26,7 +26,9 @@ pub struct BridgeRegistry {
 impl BridgeRegistry {
     /// Create an empty registry.
     pub fn new() -> Self {
-        Self { bridges: Vec::new() }
+        Self {
+            bridges: Vec::new(),
+        }
     }
 
     /// Register a bridge under its `service_id`.

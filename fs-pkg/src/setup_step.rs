@@ -58,11 +58,11 @@ pub enum SetupTrigger {
 impl SetupTrigger {
     pub fn label(&self) -> &str {
         match self {
-            Self::FirstInstall                          => "First install",
-            Self::OnConfigSave                          => "On config save",
-            Self::OnStart                               => "On start",
-            Self::OnDependencyInstalled { .. }          => "On dependency installed",
-            Self::OnDependencyRemoved   { .. }          => "On dependency removed",
+            Self::FirstInstall => "First install",
+            Self::OnConfigSave => "On config save",
+            Self::OnStart => "On start",
+            Self::OnDependencyInstalled { .. } => "On dependency installed",
+            Self::OnDependencyRemoved { .. } => "On dependency removed",
         }
     }
 
@@ -111,7 +111,9 @@ pub struct StepOutput {
 }
 
 impl StepOutput {
-    pub fn empty() -> Self { Self::default() }
+    pub fn empty() -> Self {
+        Self::default()
+    }
 
     pub fn with_value(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.config_values.insert(key.into(), value.into());
@@ -149,21 +151,29 @@ pub enum StepState {
     },
 
     /// Step failed — the error message is shown in the wizard.
-    Failed {
-        error: String,
-    },
+    Failed { error: String },
 
     /// Step was skipped by the user (only allowed if `can_skip()` is true).
     Skipped,
 }
 
 impl StepState {
-    pub fn is_done(&self)    -> bool { matches!(self, Self::Done { .. }) }
-    pub fn is_failed(&self)  -> bool { matches!(self, Self::Failed { .. }) }
-    pub fn is_pending(&self) -> bool { matches!(self, Self::Pending) }
+    pub fn is_done(&self) -> bool {
+        matches!(self, Self::Done { .. })
+    }
+    pub fn is_failed(&self) -> bool {
+        matches!(self, Self::Failed { .. })
+    }
+    pub fn is_pending(&self) -> bool {
+        matches!(self, Self::Pending)
+    }
 
     pub fn output(&self) -> Option<&StepOutput> {
-        if let Self::Done { output } = self { Some(output) } else { None }
+        if let Self::Done { output } = self {
+            Some(output)
+        } else {
+            None
+        }
     }
 }
 
@@ -216,13 +226,17 @@ pub trait SetupStep: Send + Sync {
     ///
     /// Required steps block the "Start" button in the Manager UI.
     /// Optional steps are informational or for enhanced functionality.
-    fn is_required(&self) -> bool { true }
+    fn is_required(&self) -> bool {
+        true
+    }
 
     /// Whether the user can skip this step.
     ///
     /// Non-technical users should almost always use the default `false`.
     /// Only offer skipping for genuinely optional enhancements.
-    fn can_skip(&self) -> bool { false }
+    fn can_skip(&self) -> bool {
+        false
+    }
 
     /// Returns `true` if this step does not need to run again.
     ///
@@ -261,13 +275,13 @@ use crate::setup_flow::SetupContext;
 ///
 /// Default values are shown pre-filled so non-technical users can just click OK.
 pub struct InputStep {
-    pub id:       String,
-    pub title:    String,
+    pub id: String,
+    pub title: String,
     /// Right-sidebar help text explaining the purpose of these fields.
-    pub help:     String,
+    pub help: String,
     pub triggers: Vec<SetupTrigger>,
     /// The form fields shown to the user.
-    pub fields:   Vec<InputField>,
+    pub fields: Vec<InputField>,
     /// Whether all fields must be filled before continuing.
     pub required: bool,
 }
@@ -275,33 +289,33 @@ pub struct InputStep {
 /// One field in an [`InputStep`].
 pub struct InputField {
     /// Key written into `SetupContext::config` when saved.
-    pub key:           String,
-    pub label:         String,
+    pub key: String,
+    pub label: String,
     /// Per-field help shown as tooltip/inline hint (mandatory).
-    pub field_help:    String,
-    pub kind:          ConfigFieldKind,
+    pub field_help: String,
+    pub kind: ConfigFieldKind,
     /// Default value — shown pre-filled in the wizard.
-    pub default:       Option<String>,
+    pub default: Option<String>,
     /// Auto-generate a random secret (overrides `default`).
     pub auto_generate: bool,
-    pub required:      bool,
+    pub required: bool,
 }
 
 impl InputField {
     pub fn new(
-        key:        impl Into<String>,
-        label:      impl Into<String>,
+        key: impl Into<String>,
+        label: impl Into<String>,
         field_help: impl Into<String>,
-        kind:       ConfigFieldKind,
+        kind: ConfigFieldKind,
     ) -> Self {
         Self {
-            key:           key.into(),
-            label:         label.into(),
-            field_help:    field_help.into(),
+            key: key.into(),
+            label: label.into(),
+            field_help: field_help.into(),
             kind,
-            default:       None,
+            default: None,
             auto_generate: false,
-            required:      true,
+            required: true,
         }
     }
 
@@ -325,33 +339,32 @@ impl InputField {
         let value = ctx
             .config_value(&self.key)
             .map(|v| ConfigValue::Text(v.to_string()))
-            .or_else(|| self.default.as_deref().map(|d| ConfigValue::Text(d.to_string())))
+            .or_else(|| {
+                self.default
+                    .as_deref()
+                    .map(|d| ConfigValue::Text(d.to_string()))
+            })
             .unwrap_or(ConfigValue::Empty);
 
-        ConfigField::new(
-            &self.key,
-            &self.label,
-            &self.field_help,
-            self.kind.clone(),
-        )
-        .with_value(value)
-        .required_if(self.required)
+        ConfigField::new(&self.key, &self.label, &self.field_help, self.kind.clone())
+            .with_value(value)
+            .required_if(self.required)
     }
 }
 
 impl InputStep {
     pub fn new(
-        id:       impl Into<String>,
-        title:    impl Into<String>,
-        help:     impl Into<String>,
+        id: impl Into<String>,
+        title: impl Into<String>,
+        help: impl Into<String>,
         triggers: Vec<SetupTrigger>,
     ) -> Self {
         Self {
-            id:       id.into(),
-            title:    title.into(),
-            help:     help.into(),
+            id: id.into(),
+            title: title.into(),
+            help: help.into(),
             triggers,
-            fields:   vec![],
+            fields: vec![],
             required: true,
         }
     }
@@ -368,16 +381,27 @@ impl InputStep {
 }
 
 impl SetupStep for InputStep {
-    fn id(&self)    -> &str { &self.id }
-    fn title(&self) -> &str { &self.title }
-    fn help(&self)  -> &str { &self.help }
+    fn id(&self) -> &str {
+        &self.id
+    }
+    fn title(&self) -> &str {
+        &self.title
+    }
+    fn help(&self) -> &str {
+        &self.help
+    }
 
-    fn triggers(&self)    -> &[SetupTrigger] { &self.triggers }
-    fn is_required(&self) -> bool            { self.required }
+    fn triggers(&self) -> &[SetupTrigger] {
+        &self.triggers
+    }
+    fn is_required(&self) -> bool {
+        self.required
+    }
 
     fn is_done(&self, ctx: &SetupContext) -> bool {
         // Done when all required fields are present in the context.
-        self.fields.iter()
+        self.fields
+            .iter()
             .filter(|f| f.required)
             .all(|f| ctx.config_value(&f.key).is_some())
     }
@@ -418,37 +442,37 @@ impl SetupStep for InputStep {
 /// If `capture_key` is set, the first line of stdout is written into the
 /// context under that key (e.g. to capture a generated admin password).
 pub struct CommandStep {
-    pub id:          String,
-    pub title:       String,
-    pub help:        String,
-    pub triggers:    Vec<SetupTrigger>,
+    pub id: String,
+    pub title: String,
+    pub help: String,
+    pub triggers: Vec<SetupTrigger>,
     /// Command binary (e.g. `"kanidm"`).
-    pub command:     String,
+    pub command: String,
     /// Arguments (e.g. `["server", "recover-account", "admin"]`).
-    pub args:        Vec<String>,
+    pub args: Vec<String>,
     /// If set, capture stdout and write it to the context under this key.
     pub capture_key: Option<String>,
-    pub required:    bool,
+    pub required: bool,
 }
 
 impl CommandStep {
     pub fn new(
-        id:       impl Into<String>,
-        title:    impl Into<String>,
-        help:     impl Into<String>,
+        id: impl Into<String>,
+        title: impl Into<String>,
+        help: impl Into<String>,
         triggers: Vec<SetupTrigger>,
-        command:  impl Into<String>,
-        args:     Vec<impl Into<String>>,
+        command: impl Into<String>,
+        args: Vec<impl Into<String>>,
     ) -> Self {
         Self {
-            id:          id.into(),
-            title:       title.into(),
-            help:        help.into(),
+            id: id.into(),
+            title: title.into(),
+            help: help.into(),
             triggers,
-            command:     command.into(),
-            args:        args.into_iter().map(Into::into).collect(),
+            command: command.into(),
+            args: args.into_iter().map(Into::into).collect(),
             capture_key: None,
-            required:    true,
+            required: true,
         }
     }
 
@@ -464,11 +488,21 @@ impl CommandStep {
 }
 
 impl SetupStep for CommandStep {
-    fn id(&self)       -> &str { &self.id }
-    fn title(&self)    -> &str { &self.title }
-    fn help(&self)     -> &str { &self.help }
-    fn triggers(&self) -> &[SetupTrigger] { &self.triggers }
-    fn is_required(&self) -> bool { self.required }
+    fn id(&self) -> &str {
+        &self.id
+    }
+    fn title(&self) -> &str {
+        &self.title
+    }
+    fn help(&self) -> &str {
+        &self.help
+    }
+    fn triggers(&self) -> &[SetupTrigger] {
+        &self.triggers
+    }
+    fn is_required(&self) -> bool {
+        self.required
+    }
 
     fn execute(&self, ctx: &mut SetupContext) -> Result<StepOutput, FsError> {
         use std::process::Command;
@@ -477,12 +511,15 @@ impl SetupStep for CommandStep {
             .args(&self.args)
             .current_dir(ctx.install_path.as_deref().unwrap_or("."))
             .output()
-            .map_err(|e| FsError::Io(e))?;
+            .map_err(FsError::Io)?;
 
         if !child.status.success() {
             let stderr = String::from_utf8_lossy(&child.stderr).into_owned();
             return Err(FsError::Internal(format!(
-                "Command `{} {}` failed: {}", self.command, self.args.join(" "), stderr
+                "Command `{} {}` failed: {}",
+                self.command,
+                self.args.join(" "),
+                stderr
             )));
         }
 
@@ -510,46 +547,53 @@ impl SetupStep for CommandStep {
 /// matches what the user has configured. This step is idempotent: writing
 /// the same config twice is safe.
 pub struct WriteConfigStep {
-    pub id:          String,
-    pub title:       String,
-    pub help:        String,
-    pub triggers:    Vec<SetupTrigger>,
+    pub id: String,
+    pub title: String,
+    pub help: String,
+    pub triggers: Vec<SetupTrigger>,
     /// Tera template string. Variables: all keys in `SetupContext::config`.
-    pub template:    String,
+    pub template: String,
     /// Destination path for the config file.
     pub config_path: String,
 }
 
 impl WriteConfigStep {
     pub fn new(
-        id:          impl Into<String>,
-        title:       impl Into<String>,
-        help:        impl Into<String>,
-        triggers:    Vec<SetupTrigger>,
-        template:    impl Into<String>,
+        id: impl Into<String>,
+        title: impl Into<String>,
+        help: impl Into<String>,
+        triggers: Vec<SetupTrigger>,
+        template: impl Into<String>,
         config_path: impl Into<String>,
     ) -> Self {
         Self {
-            id:          id.into(),
-            title:       title.into(),
-            help:        help.into(),
+            id: id.into(),
+            title: title.into(),
+            help: help.into(),
             triggers,
-            template:    template.into(),
+            template: template.into(),
             config_path: config_path.into(),
         }
     }
 }
 
 impl SetupStep for WriteConfigStep {
-    fn id(&self)       -> &str { &self.id }
-    fn title(&self)    -> &str { &self.title }
-    fn help(&self)     -> &str { &self.help }
-    fn triggers(&self) -> &[SetupTrigger] { &self.triggers }
+    fn id(&self) -> &str {
+        &self.id
+    }
+    fn title(&self) -> &str {
+        &self.title
+    }
+    fn help(&self) -> &str {
+        &self.help
+    }
+    fn triggers(&self) -> &[SetupTrigger] {
+        &self.triggers
+    }
 
     fn is_done(&self, ctx: &SetupContext) -> bool {
         // Done when the config file exists AND the step state is Done.
-        std::path::Path::new(&self.config_path).exists()
-            && ctx.step_state(self.id()).is_done()
+        std::path::Path::new(&self.config_path).exists() && ctx.step_state(self.id()).is_done()
     }
 
     fn execute(&self, ctx: &mut SetupContext) -> Result<StepOutput, FsError> {
@@ -562,7 +606,8 @@ impl SetupStep for WriteConfigStep {
             vars.insert(k, v);
         }
 
-        let rendered = tera.render("config", &vars)
+        let rendered = tera
+            .render("config", &vars)
             .map_err(|e| FsError::Internal(format!("Template render error: {e}")))?;
 
         if let Some(parent) = std::path::Path::new(&self.config_path).parent() {
@@ -584,31 +629,31 @@ impl SetupStep for WriteConfigStep {
 /// Used after starting a service to confirm it is ready before proceeding
 /// with configuration steps that require the API to be available.
 pub struct WaitForServiceStep {
-    pub id:           String,
-    pub title:        String,
-    pub help:         String,
-    pub triggers:     Vec<SetupTrigger>,
-    pub host:         String,
-    pub port:         u16,
+    pub id: String,
+    pub title: String,
+    pub help: String,
+    pub triggers: Vec<SetupTrigger>,
+    pub host: String,
+    pub port: u16,
     pub timeout_secs: u64,
 }
 
 impl WaitForServiceStep {
     pub fn new(
-        id:           impl Into<String>,
-        title:        impl Into<String>,
-        help:         impl Into<String>,
-        triggers:     Vec<SetupTrigger>,
-        host:         impl Into<String>,
-        port:         u16,
+        id: impl Into<String>,
+        title: impl Into<String>,
+        help: impl Into<String>,
+        triggers: Vec<SetupTrigger>,
+        host: impl Into<String>,
+        port: u16,
         timeout_secs: u64,
     ) -> Self {
         Self {
-            id:           id.into(),
-            title:        title.into(),
-            help:         help.into(),
+            id: id.into(),
+            title: title.into(),
+            help: help.into(),
             triggers,
-            host:         host.into(),
+            host: host.into(),
             port,
             timeout_secs,
         }
@@ -616,10 +661,18 @@ impl WaitForServiceStep {
 }
 
 impl SetupStep for WaitForServiceStep {
-    fn id(&self)       -> &str { &self.id }
-    fn title(&self)    -> &str { &self.title }
-    fn help(&self)     -> &str { &self.help }
-    fn triggers(&self) -> &[SetupTrigger] { &self.triggers }
+    fn id(&self) -> &str {
+        &self.id
+    }
+    fn title(&self) -> &str {
+        &self.title
+    }
+    fn help(&self) -> &str {
+        &self.help
+    }
+    fn triggers(&self) -> &[SetupTrigger] {
+        &self.triggers
+    }
 
     fn execute(&self, _ctx: &mut SetupContext) -> Result<StepOutput, FsError> {
         use std::net::TcpStream;
@@ -636,7 +689,8 @@ impl SetupStep for WaitForServiceStep {
         }
 
         Err(FsError::Internal(format!(
-            "Service not reachable at {} after {}s", addr, self.timeout_secs
+            "Service not reachable at {} after {}s",
+            addr, self.timeout_secs
         )))
     }
 }
@@ -651,26 +705,26 @@ impl SetupStep for WaitForServiceStep {
 /// This step is always `can_skip() == false` because the user must see the
 /// output before proceeding (e.g. an admin password they must save).
 pub struct DisplayOutputStep {
-    pub id:             String,
-    pub title:          String,
-    pub help:           String,
-    pub triggers:       Vec<SetupTrigger>,
+    pub id: String,
+    pub title: String,
+    pub help: String,
+    pub triggers: Vec<SetupTrigger>,
     /// ID of the step whose output to display.
     pub source_step_id: String,
 }
 
 impl DisplayOutputStep {
     pub fn new(
-        id:             impl Into<String>,
-        title:          impl Into<String>,
-        help:           impl Into<String>,
-        triggers:       Vec<SetupTrigger>,
+        id: impl Into<String>,
+        title: impl Into<String>,
+        help: impl Into<String>,
+        triggers: Vec<SetupTrigger>,
         source_step_id: impl Into<String>,
     ) -> Self {
         Self {
-            id:             id.into(),
-            title:          title.into(),
-            help:           help.into(),
+            id: id.into(),
+            title: title.into(),
+            help: help.into(),
             triggers,
             source_step_id: source_step_id.into(),
         }
@@ -678,11 +732,21 @@ impl DisplayOutputStep {
 }
 
 impl SetupStep for DisplayOutputStep {
-    fn id(&self)       -> &str { &self.id }
-    fn title(&self)    -> &str { &self.title }
-    fn help(&self)     -> &str { &self.help }
-    fn triggers(&self) -> &[SetupTrigger] { &self.triggers }
-    fn can_skip(&self) -> bool { false }
+    fn id(&self) -> &str {
+        &self.id
+    }
+    fn title(&self) -> &str {
+        &self.title
+    }
+    fn help(&self) -> &str {
+        &self.help
+    }
+    fn triggers(&self) -> &[SetupTrigger] {
+        &self.triggers
+    }
+    fn can_skip(&self) -> bool {
+        false
+    }
 
     fn is_done(&self, ctx: &SetupContext) -> bool {
         // Done once the source step is done.
@@ -722,10 +786,14 @@ pub fn generate_secret() -> String {
     // XorShift64 pseudo-random expansion
     let mut x = seed ^ 0xdeadbeefcafe1234;
     let charset = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    (0..32).map(|_| {
-        x ^= x << 13; x ^= x >> 7; x ^= x << 17;
-        charset[(x as usize) % charset.len()] as char
-    }).collect()
+    (0..32)
+        .map(|_| {
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            charset[(x as usize) % charset.len()] as char
+        })
+        .collect()
 }
 
 // ── ConfigField extension ─────────────────────────────────────────────────────
@@ -738,7 +806,9 @@ pub trait ConfigFieldExt {
 
 impl ConfigFieldExt for ConfigField {
     fn required_if(mut self, required: bool) -> Self {
-        if required { self = self.required(); }
+        if required {
+            self = self.required();
+        }
         self
     }
 }
@@ -763,7 +833,10 @@ mod tests {
             vec![SetupTrigger::FirstInstall],
         )
         .with_field(InputField::new(
-            "domain", "Domain", "The public hostname.", ConfigFieldKind::Text,
+            "domain",
+            "Domain",
+            "The public hostname.",
+            ConfigFieldKind::Text,
         ));
 
         let mut ctx = make_ctx();

@@ -58,7 +58,8 @@ impl HttpBridge {
     /// GET `{base_url}/{path}` and deserialize the JSON response body.
     pub async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, FsError> {
         let url = self.url(path);
-        self.send_and_decode(self.client.get(&url), &url, "GET").await
+        self.send_and_decode(self.client.get(&url), &url, "GET")
+            .await
     }
 
     /// POST `{base_url}/{path}` with a JSON body and deserialize the JSON response.
@@ -68,7 +69,8 @@ impl HttpBridge {
         body: &B,
     ) -> Result<T, FsError> {
         let url = self.url(path);
-        self.send_and_decode(self.client.post(&url).json(body), &url, "POST").await
+        self.send_and_decode(self.client.post(&url).json(body), &url, "POST")
+            .await
     }
 
     /// PUT `{base_url}/{path}` with a JSON body and deserialize the JSON response.
@@ -78,7 +80,8 @@ impl HttpBridge {
         body: &B,
     ) -> Result<T, FsError> {
         let url = self.url(path);
-        self.send_and_decode(self.client.put(&url).json(body), &url, "PUT").await
+        self.send_and_decode(self.client.put(&url).json(body), &url, "PUT")
+            .await
     }
 
     /// DELETE `{base_url}/{path}`. Returns an error if the response is not successful.

@@ -75,14 +75,19 @@ impl VersionManager {
     }
 
     /// Roll back to a specific version string. Returns `Err` if the version isn't found.
-    pub fn rollback(&mut self, package_id: &str, target_version: &str) -> Result<(), RollbackError> {
-        let target_exists = self.records.iter().any(|r| {
-            *r.package_id == *package_id && r.version == target_version
-        });
+    pub fn rollback(
+        &mut self,
+        package_id: &str,
+        target_version: &str,
+    ) -> Result<(), RollbackError> {
+        let target_exists = self
+            .records
+            .iter()
+            .any(|r| *r.package_id == *package_id && r.version == target_version);
         if !target_exists {
             return Err(RollbackError::VersionNotFound {
                 package_id: PackageId::new(package_id),
-                version:    target_version.to_string(),
+                version: target_version.to_string(),
             });
         }
 
@@ -107,7 +112,9 @@ impl VersionManager {
         };
 
         match versions.as_slice() {
-            [] | [_] => Err(RollbackError::NoPreviousVersion { package_id: PackageId::new(package_id) }),
+            [] | [_] => Err(RollbackError::NoPreviousVersion {
+                package_id: PackageId::new(package_id),
+            }),
             [_current, prev, ..] => self.rollback(package_id, prev),
         }
     }
@@ -142,7 +149,10 @@ impl VersionManager {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RollbackError {
     /// The requested version is not in the version history.
-    VersionNotFound { package_id: PackageId, version: String },
+    VersionNotFound {
+        package_id: PackageId,
+        version: String,
+    },
     /// Only one version is installed — cannot roll back.
     NoPreviousVersion { package_id: PackageId },
 }
@@ -150,8 +160,14 @@ pub enum RollbackError {
 impl std::fmt::Display for RollbackError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::VersionNotFound { package_id, version } => {
-                write!(f, "version '{version}' of '{package_id}' not found in history")
+            Self::VersionNotFound {
+                package_id,
+                version,
+            } => {
+                write!(
+                    f,
+                    "version '{version}' of '{package_id}' not found in history"
+                )
             }
             Self::NoPreviousVersion { package_id } => {
                 write!(f, "no previous version for '{package_id}' to roll back to")

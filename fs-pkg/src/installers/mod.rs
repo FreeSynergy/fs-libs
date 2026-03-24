@@ -123,14 +123,17 @@ pub struct UninstallOptions {
 /// If `source` is a file, copies that file into `dest_dir`.
 /// If `source` is a directory, copies all its contents recursively.
 pub(crate) fn copy_source_to_dir(source: &Path, dest_dir: &Path) -> Result<(), FsError> {
-    std::fs::create_dir_all(dest_dir).map_err(|e| {
-        FsError::internal(format!("cannot create {}: {e}", dest_dir.display()))
-    })?;
+    std::fs::create_dir_all(dest_dir)
+        .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dest_dir.display())))?;
 
     if source.is_file() {
         let dest = dest_dir.join(source.file_name().unwrap_or_default());
         std::fs::copy(source, &dest).map_err(|e| {
-            FsError::internal(format!("copy {} → {}: {e}", source.display(), dest.display()))
+            FsError::internal(format!(
+                "copy {} → {}: {e}",
+                source.display(),
+                dest.display()
+            ))
         })?;
         return Ok(());
     }
@@ -147,12 +150,11 @@ pub(crate) fn copy_source_to_dir(source: &Path, dest_dir: &Path) -> Result<(), F
 }
 
 pub(crate) fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), FsError> {
-    std::fs::create_dir_all(dst).map_err(|e| {
-        FsError::internal(format!("cannot create {}: {e}", dst.display()))
-    })?;
-    for entry in std::fs::read_dir(src).map_err(|e| {
-        FsError::internal(format!("cannot read dir {}: {e}", src.display()))
-    })? {
+    std::fs::create_dir_all(dst)
+        .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dst.display())))?;
+    for entry in std::fs::read_dir(src)
+        .map_err(|e| FsError::internal(format!("cannot read dir {}: {e}", src.display())))?
+    {
         let entry = entry.map_err(|e| FsError::internal(format!("dir entry error: {e}")))?;
         let dest_path = dst.join(entry.file_name());
         if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
@@ -174,7 +176,7 @@ pub(crate) fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), FsError> 
 /// Prints a warning but does not fail if the command is unavailable.
 pub(crate) fn run_system_cmd(program: &str, args: &[&str]) {
     match std::process::Command::new(program).args(args).status() {
-        Ok(s) if s.success() => {},
+        Ok(s) if s.success() => {}
         Ok(s) => eprintln!("warning: {program} exited with {s}"),
         Err(e) => eprintln!("warning: {program} unavailable: {e}"),
     }
@@ -211,12 +213,10 @@ pub(crate) fn remove_path(path: &PathBuf, dry_run: bool) -> Result<(), FsError> 
         return Ok(());
     }
     if path.is_dir() {
-        std::fs::remove_dir_all(path).map_err(|e| {
-            FsError::internal(format!("cannot remove {}: {e}", path.display()))
-        })
+        std::fs::remove_dir_all(path)
+            .map_err(|e| FsError::internal(format!("cannot remove {}: {e}", path.display())))
     } else {
-        std::fs::remove_file(path).map_err(|e| {
-            FsError::internal(format!("cannot remove {}: {e}", path.display()))
-        })
+        std::fs::remove_file(path)
+            .map_err(|e| FsError::internal(format!("cannot remove {}: {e}", path.display())))
     }
 }

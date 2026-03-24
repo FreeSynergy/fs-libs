@@ -38,7 +38,10 @@ impl LlmError {
 
     /// Convenience constructor for provider errors.
     pub fn provider(status: u16, message: impl Into<String>) -> Self {
-        Self::Provider { status, message: message.into() }
+        Self::Provider {
+            status,
+            message: message.into(),
+        }
     }
 
     /// Convenience constructor for serialization errors.

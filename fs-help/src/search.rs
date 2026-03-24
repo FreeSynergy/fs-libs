@@ -29,10 +29,10 @@ impl<'a> HelpSearch<'a> {
     /// Results are sorted by topic id for deterministic ordering.
     pub fn search(&self, query: &str) -> Vec<&'a HelpTopic> {
         let q = query.to_lowercase();
-        let mut results: Vec<&HelpTopic> = self.topics.values()
-            .filter(|t| {
-                t.id.contains(&q) || t.keywords.iter().any(|kw| kw.contains(&q))
-            })
+        let mut results: Vec<&HelpTopic> = self
+            .topics
+            .values()
+            .filter(|t| t.id.contains(&q) || t.keywords.iter().any(|kw| kw.contains(&q)))
             .collect();
         results.sort_by_key(|t| t.id.as_str());
         results

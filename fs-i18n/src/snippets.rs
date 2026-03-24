@@ -16,7 +16,10 @@ use fs_error::FsError;
 
 macro_rules! snippet {
     ($lang:literal, $file:literal) => {
-        ($lang, include_str!(concat!("../snippets/", $lang, "/", $file)))
+        (
+            $lang,
+            include_str!(concat!("../snippets/", $lang, "/", $file)),
+        )
     };
 }
 
@@ -236,14 +239,16 @@ mod tests {
     fn project_override_wins_over_builtin() {
         let mut i = I18n::new("en", "en");
         // Load project override first
-        i.add_toml_str("en", "[actions]\nsave = \"Persist\"\n").unwrap();
+        i.add_toml_str("en", "[actions]\nsave = \"Persist\"\n")
+            .unwrap();
         // Built-ins should NOT overwrite it
         load_builtins(&mut i).unwrap();
         // After add_toml_str the second call DOES overwrite (TOML map merges),
         // so built-ins load after. To keep project wins, load project AFTER.
         let mut i2 = I18n::new("en", "en");
         load_builtins(&mut i2).unwrap();
-        i2.add_toml_str("en", "[actions]\nsave = \"Persist\"\n").unwrap();
+        i2.add_toml_str("en", "[actions]\nsave = \"Persist\"\n")
+            .unwrap();
         assert_eq!(i2.t("actions.save"), "Persist");
     }
 }

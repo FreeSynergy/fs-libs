@@ -21,20 +21,20 @@ impl ToastLevel {
     /// CSS `border-left` declaration for this severity level.
     pub fn border_css(self) -> &'static str {
         match self {
-            Self::Info    => "border-left: 3px solid #06b6d4;",
+            Self::Info => "border-left: 3px solid #06b6d4;",
             Self::Success => "border-left: 3px solid #22c55e;",
             Self::Warning => "border-left: 3px solid #f59e0b;",
-            Self::Error   => "border-left: 3px solid #ef4444;",
+            Self::Error => "border-left: 3px solid #ef4444;",
         }
     }
 
     /// Unicode icon character representing this severity level.
     pub fn icon(self) -> &'static str {
         match self {
-            Self::Info    => "ℹ",
+            Self::Info => "ℹ",
             Self::Success => "✓",
             Self::Warning => "⚠",
-            Self::Error   => "✗",
+            Self::Error => "✗",
         }
     }
 }
@@ -44,10 +44,10 @@ impl ToastLevel {
 /// A single toast notification message.
 #[derive(Debug, Clone)]
 pub struct ToastMessage {
-    pub level:   ToastLevel,
-    pub title:   String,
+    pub level: ToastLevel,
+    pub title: String,
     /// Optional body text shown beneath the title.
-    pub body:    Option<String>,
+    pub body: Option<String>,
     /// Auto-dismiss after this many milliseconds. `None` = sticky.
     pub timeout: Option<u32>,
 }
@@ -55,25 +55,40 @@ pub struct ToastMessage {
 impl ToastMessage {
     /// Convenience constructor for simple info toasts.
     pub fn info(title: impl Into<String>) -> Self {
-        Self { level: ToastLevel::Info, title: title.into(), body: None, timeout: Some(3000) }
+        Self {
+            level: ToastLevel::Info,
+            title: title.into(),
+            body: None,
+            timeout: Some(3000),
+        }
     }
 
     /// Convenience constructor for success toasts.
     pub fn success(title: impl Into<String>) -> Self {
-        Self { level: ToastLevel::Success, title: title.into(), body: None, timeout: Some(3000) }
+        Self {
+            level: ToastLevel::Success,
+            title: title.into(),
+            body: None,
+            timeout: Some(3000),
+        }
     }
 
     /// Convenience constructor for warning toasts.
     pub fn warning(title: impl Into<String>) -> Self {
-        Self { level: ToastLevel::Warning, title: title.into(), body: None, timeout: Some(5000) }
+        Self {
+            level: ToastLevel::Warning,
+            title: title.into(),
+            body: None,
+            timeout: Some(5000),
+        }
     }
 
     /// Convenience constructor for sticky error toasts.
     pub fn error(title: impl Into<String>, body: impl Into<String>) -> Self {
         Self {
-            level:   ToastLevel::Error,
-            title:   title.into(),
-            body:    Some(body.into()),
+            level: ToastLevel::Error,
+            title: title.into(),
+            body: Some(body.into()),
             timeout: None,
         }
     }
@@ -111,9 +126,9 @@ impl ToastBus {
 #[derive(Debug, Clone)]
 pub struct ErrorMessage {
     /// Short human-readable summary.
-    pub title:   String,
+    pub title: String,
     /// `Debug` or structured representation of the underlying error.
-    pub detail:  String,
+    pub detail: String,
     /// Optional source location hint.
     pub context: Option<String>,
 }
@@ -122,8 +137,8 @@ impl ErrorMessage {
     /// Build an `ErrorMessage` from any `std::error::Error` implementation.
     pub fn from_err(title: impl Into<String>, err: &dyn std::error::Error) -> Self {
         Self {
-            title:   title.into(),
-            detail:  format!("{err:#}"),
+            title: title.into(),
+            detail: format!("{err:#}"),
             context: None,
         }
     }

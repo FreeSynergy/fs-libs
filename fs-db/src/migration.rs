@@ -83,9 +83,7 @@ impl Migrator {
                 .map_err(|e| FsError::internal(format!("migration '{name}' failed: {e}")))?;
         }
 
-        let record = format!(
-            "INSERT INTO _migrations (name) VALUES ('{name}')"
-        );
+        let record = format!("INSERT INTO _migrations (name) VALUES ('{name}')");
         db.execute_unprepared(&record)
             .await
             .map_err(|e| FsError::internal(format!("migration record '{name}': {e}")))?;

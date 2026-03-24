@@ -41,21 +41,21 @@ impl Installer for ThemeInstaller {
         paths: &InstallPaths,
         dry_run: bool,
     ) -> Result<InstallReport, FsError> {
-        let dest_file = paths
-            .config_file_for(self.rt, &meta.id)
-            .ok_or_else(|| {
-                FsError::internal(format!(
-                    "ThemeInstaller: config_file_for returned None for {:?}",
-                    self.rt
-                ))
-            })?;
+        let dest_file = paths.config_file_for(self.rt, &meta.id).ok_or_else(|| {
+            FsError::internal(format!(
+                "ThemeInstaller: config_file_for returned None for {:?}",
+                self.rt
+            ))
+        })?;
 
         if dry_run {
             return Ok(InstallReport {
                 install_path: dest_file.to_string_lossy().into_owned(),
                 summary: format!(
                     "[dry-run] would install {} '{}' to {}",
-                    self.rt.label(), meta.id, dest_file.display()
+                    self.rt.label(),
+                    meta.id,
+                    dest_file.display()
                 ),
                 dry_run: true,
             });
@@ -86,7 +86,9 @@ impl Installer for ThemeInstaller {
             install_path: dest_file.to_string_lossy().into_owned(),
             summary: format!(
                 "installed {} '{}' to {}",
-                self.rt.label(), meta.id, dest_file.display()
+                self.rt.label(),
+                meta.id,
+                dest_file.display()
             ),
             dry_run: false,
         })
@@ -98,7 +100,12 @@ impl Uninstaller for ThemeInstaller {
         self.rt
     }
 
-    fn uninstall(&self, name: &str, paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         let dest_file = paths
             .config_file_for(self.rt, name)
             .ok_or_else(|| FsError::internal("ThemeInstaller: config_file_for returned None"))?;
@@ -144,7 +151,11 @@ impl Installer for LanguageInstaller {
         if dry_run {
             return Ok(InstallReport {
                 install_path: dest.to_string_lossy().into_owned(),
-                summary: format!("[dry-run] would install language '{}' to {}", meta.id, dest.display()),
+                summary: format!(
+                    "[dry-run] would install language '{}' to {}",
+                    meta.id,
+                    dest.display()
+                ),
                 dry_run: true,
             });
         }
@@ -152,15 +163,14 @@ impl Installer for LanguageInstaller {
         if let Some(src) = source {
             copy_source_to_dir(src, &dest)?;
         } else {
-            std::fs::create_dir_all(&dest).map_err(|e| {
-                FsError::internal(format!("cannot create {}: {e}", dest.display()))
-            })?;
+            std::fs::create_dir_all(&dest)
+                .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dest.display())))?;
         }
 
         Ok(InstallReport {
             install_path: dest.to_string_lossy().into_owned(),
-            summary:      format!("installed language '{}' to {}", meta.id, dest.display()),
-            dry_run:      false,
+            summary: format!("installed language '{}' to {}", meta.id, dest.display()),
+            dry_run: false,
         })
     }
 }
@@ -170,11 +180,19 @@ impl Uninstaller for LanguageInstaller {
         ResourceType::Language
     }
 
-    fn uninstall(&self, name: &str, paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         let dest = paths
             .dir_for(ResourceType::Language, name)
             .expect("LanguageInstaller: dir_for returned None");
-        if opts.dry_run { println!("[dry-run] would remove {}", dest.display()); return Ok(()); }
+        if opts.dry_run {
+            println!("[dry-run] would remove {}", dest.display());
+            return Ok(());
+        }
         remove_path(&dest, opts.dry_run)
     }
 }

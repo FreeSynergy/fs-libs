@@ -27,7 +27,9 @@ impl<'a> HelpContext<'a> {
     /// Returns `None` if no topic matches even the root segment.
     pub fn lookup(&self, ctx: &str) -> Option<&'a HelpTopic> {
         // Exact match
-        if let Some(t) = self.topics.get(ctx) { return Some(t); }
+        if let Some(t) = self.topics.get(ctx) {
+            return Some(t);
+        }
 
         // Walk up the dot-separated hierarchy
         let mut parts: Vec<&str> = ctx.split('.').collect();

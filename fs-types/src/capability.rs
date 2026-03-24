@@ -81,12 +81,18 @@ mod tests {
     }
 
     impl DeclareRequirements for MockService {
-        fn requirements(&self) -> Vec<Requirement> { self.reqs.clone() }
+        fn requirements(&self) -> Vec<Requirement> {
+            self.reqs.clone()
+        }
     }
 
     impl Capability for MockService {
-        fn capability_id(&self) -> &str { self.id }
-        fn provides(&self) -> Vec<String> { self.provides.clone() }
+        fn capability_id(&self) -> &str {
+            self.id
+        }
+        fn provides(&self) -> Vec<String> {
+            self.provides.clone()
+        }
     }
 
     #[test]
@@ -144,7 +150,7 @@ mod tests {
             provides: vec!["wiki".into()],
             reqs: vec![
                 Requirement::required("oidc-provider"),
-                Requirement::optional("monitoring"),  // optional — must not block
+                Requirement::optional("monitoring"), // optional — must not block
             ],
         };
         let available = vec!["oidc-provider".into()]; // monitoring absent but optional

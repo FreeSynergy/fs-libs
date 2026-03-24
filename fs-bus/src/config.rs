@@ -182,14 +182,23 @@ priority      = 0
     #[test]
     fn delivery_for_shorthand() {
         let cfg = RoutingConfig::from_toml(SAMPLE_TOML).unwrap();
-        assert_eq!(cfg.delivery_for("auth.login", Some("iam")), DeliveryType::Guaranteed);
-        assert_eq!(cfg.delivery_for("anything", None), DeliveryType::FireAndForget);
+        assert_eq!(
+            cfg.delivery_for("auth.login", Some("iam")),
+            DeliveryType::Guaranteed
+        );
+        assert_eq!(
+            cfg.delivery_for("anything", None),
+            DeliveryType::FireAndForget
+        );
     }
 
     #[test]
     fn empty_config_fallback() {
         let cfg = RoutingConfig::default();
-        assert_eq!(cfg.delivery_for("any.topic", None), DeliveryType::FireAndForget);
+        assert_eq!(
+            cfg.delivery_for("any.topic", None),
+            DeliveryType::FireAndForget
+        );
         assert_eq!(cfg.storage_for("any.topic", None), StorageType::NoStore);
     }
 }

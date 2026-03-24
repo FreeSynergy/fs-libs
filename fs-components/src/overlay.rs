@@ -20,16 +20,20 @@ use crate::toast_bus::ToastLevel;
 #[derive(Clone, PartialEq)]
 pub struct HelpLinkEntry {
     /// Icon character (e.g. `"🌐"`, `"📖"`, `"⑂"`).
-    pub icon:  &'static str,
+    pub icon: &'static str,
     /// Resolved display label (already translated).
     pub label: String,
     /// Target URL.
-    pub url:   String,
+    pub url: String,
 }
 
 impl HelpLinkEntry {
     pub fn new(icon: &'static str, label: impl Into<String>, url: impl Into<String>) -> Self {
-        Self { icon, label: label.into(), url: url.into() }
+        Self {
+            icon,
+            label: label.into(),
+            url: url.into(),
+        }
     }
 }
 
@@ -59,9 +63,9 @@ impl HelpLinkEntry {
 /// ```
 #[derive(Clone, PartialEq, Default)]
 pub struct HelpTopicView {
-    pub title:        String,
-    pub content:      String,
-    pub links:        Vec<HelpLinkEntry>,
+    pub title: String,
+    pub content: String,
+    pub links: Vec<HelpLinkEntry>,
     /// Engine-agnostic tutorial search query.
     /// The caller or the `HelpPanel`'s `on_search` handler builds the URL.
     pub search_query: Option<String>,
@@ -70,9 +74,9 @@ pub struct HelpTopicView {
 impl HelpTopicView {
     pub fn new(title: impl Into<String>, content: impl Into<String>) -> Self {
         Self {
-            title:        title.into(),
-            content:      content.into(),
-            links:        Vec::new(),
+            title: title.into(),
+            content: content.into(),
+            links: Vec::new(),
             search_query: None,
         }
     }
@@ -569,8 +573,12 @@ pub struct HelpBarProps {
 /// ```
 #[component]
 pub fn HelpBar(props: HelpBarProps) -> Element {
-    let Some(topic) = &props.topic else { return rsx! { Fragment {} }; };
-    if topic.is_empty() { return rsx! { Fragment {} }; }
+    let Some(topic) = &props.topic else {
+        return rsx! { Fragment {} };
+    };
+    if topic.is_empty() {
+        return rsx! { Fragment {} };
+    }
 
     rsx! {
         div {

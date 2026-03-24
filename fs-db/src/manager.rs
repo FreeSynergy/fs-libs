@@ -124,7 +124,7 @@ impl DbManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::repository::{HostStatus, ModuleStatus, ProjectStatus};
+    use crate::repository::{CrudRepo, HostStatus, ModuleStatus, ProjectStatus};
 
     #[tokio::test]
     async fn open_memory_and_migrate() {
@@ -166,7 +166,15 @@ mod tests {
         let db = DbManager::open_memory().await.unwrap();
 
         db.audit()
-            .log("system", "deploy", None, Some("host".into()), None, None, "ok")
+            .log(
+                "system",
+                "deploy",
+                None,
+                Some("host".into()),
+                None,
+                None,
+                "ok",
+            )
             .await
             .unwrap();
 
@@ -213,7 +221,10 @@ mod tests {
         assert_eq!(h.name, "web-01");
         assert_eq!(h.status, "unknown");
 
-        db.hosts().update_status(h.id, HostStatus::Online).await.unwrap();
+        db.hosts()
+            .update_status(h.id, HostStatus::Online)
+            .await
+            .unwrap();
         let updated = db.hosts().find_by_id(h.id).await.unwrap().unwrap();
         assert_eq!(updated.status, "online");
 
@@ -240,7 +251,13 @@ mod tests {
 
         let updated = db
             .projects()
-            .update(p.id, "acme", Some("acme.example.com".into()), None, ProjectStatus::Active)
+            .update(
+                p.id,
+                "acme",
+                Some("acme.example.com".into()),
+                None,
+                ProjectStatus::Active,
+            )
             .await
             .unwrap();
         assert_eq!(updated.status, "active");
@@ -266,13 +283,23 @@ mod tests {
 
         let m = db
             .modules()
-            .insert("main-proxy", "proxy", h.id, None, Some("1.0.0".into()), None)
+            .insert(
+                "main-proxy",
+                "proxy",
+                h.id,
+                None,
+                Some("1.0.0".into()),
+                None,
+            )
             .await
             .unwrap();
         assert_eq!(m.module_type, "proxy");
         assert_eq!(m.status, "stopped");
 
-        db.modules().update_status(m.id, ModuleStatus::Running).await.unwrap();
+        db.modules()
+            .update_status(m.id, ModuleStatus::Running)
+            .await
+            .unwrap();
         let found = db.modules().find_by_id(m.id).await.unwrap().unwrap();
         assert_eq!(found.status, "running");
 

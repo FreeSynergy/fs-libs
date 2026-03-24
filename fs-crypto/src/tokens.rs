@@ -172,13 +172,20 @@ fn random_nonce() -> String {
 
 /// Encode `input` as base64url without padding.
 fn base64url_encode(input: &[u8]) -> String {
-    const ALPHABET: &[u8] =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
     let mut output = String::with_capacity((input.len() * 4 + 2) / 3);
     for chunk in input.chunks(3) {
         let b0 = chunk[0] as usize;
-        let b1 = if chunk.len() > 1 { chunk[1] as usize } else { 0 };
-        let b2 = if chunk.len() > 2 { chunk[2] as usize } else { 0 };
+        let b1 = if chunk.len() > 1 {
+            chunk[1] as usize
+        } else {
+            0
+        };
+        let b2 = if chunk.len() > 2 {
+            chunk[2] as usize
+        } else {
+            0
+        };
 
         output.push(ALPHABET[b0 >> 2] as char);
         output.push(ALPHABET[((b0 & 0x3) << 4) | (b1 >> 4)] as char);
@@ -198,8 +205,8 @@ fn base64url_decode(input: &str) -> Result<Vec<u8>, ()> {
         let mut table = [-1i8; 256];
         let mut i = 0u8;
         loop {
-            let ch = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-                [i as usize];
+            let ch =
+                b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"[i as usize];
             table[ch as usize] = i as i8;
             i += 1;
             if i == 64 {
@@ -289,7 +296,10 @@ mod tests {
             expires_at: 1, // Unix epoch + 1s — definitely expired
             nonce: "aabbccdd".into(),
         };
-        assert_eq!(token.verify("192.168.1.1:7000"), Err(JoinTokenError::Expired));
+        assert_eq!(
+            token.verify("192.168.1.1:7000"),
+            Err(JoinTokenError::Expired)
+        );
     }
 
     #[test]

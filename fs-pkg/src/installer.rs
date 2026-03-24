@@ -65,7 +65,11 @@ pub trait FetchStrategy: Send + Sync {
     ///
     /// Returns the paths of all fetched/staged files.
     /// In dry-run mode (`options.dry_run == true`): validate and return empty vec.
-    fn fetch(&self, manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError>;
+    fn fetch(
+        &self,
+        manifest: &ApiManifest,
+        options: &InstallOptions,
+    ) -> Result<Vec<PathBuf>, FsError>;
 }
 
 // ── GithubReleaseFetch ────────────────────────────────────────────────────────
@@ -85,11 +89,24 @@ pub trait FetchStrategy: Send + Sync {
 pub struct GithubReleaseFetch;
 
 impl FetchStrategy for GithubReleaseFetch {
-    fn name(&self) -> &'static str { "github_release" }
+    fn name(&self) -> &'static str {
+        "github_release"
+    }
 
-    fn fetch(&self, manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
-        let Some(PackageSource::GithubRelease { repo, artifact, checksum }) = &manifest.source else {
-            return Err(FsError::internal("GithubReleaseFetch: manifest has no github_release source"));
+    fn fetch(
+        &self,
+        manifest: &ApiManifest,
+        options: &InstallOptions,
+    ) -> Result<Vec<PathBuf>, FsError> {
+        let Some(PackageSource::GithubRelease {
+            repo,
+            artifact,
+            checksum,
+        }) = &manifest.source
+        else {
+            return Err(FsError::internal(
+                "GithubReleaseFetch: manifest has no github_release source",
+            ));
         };
 
         if options.dry_run {
@@ -98,9 +115,8 @@ impl FetchStrategy for GithubReleaseFetch {
 
         let version = &manifest.package.version;
         let resolved_artifact = artifact.replace("{version}", version);
-        let url = format!(
-            "https://github.com/{repo}/releases/download/v{version}/{resolved_artifact}"
-        );
+        let url =
+            format!("https://github.com/{repo}/releases/download/v{version}/{resolved_artifact}");
 
         github_download(&url, &resolved_artifact, checksum.as_deref())
     }
@@ -112,7 +128,7 @@ impl FetchStrategy for GithubReleaseFetch {
 /// Returns `[staging_path]` on success.
 #[cfg(feature = "download")]
 fn github_download(
-    url:      &str,
+    url: &str,
     artifact: &str,
     checksum: Option<&str>,
 ) -> Result<Vec<PathBuf>, FsError> {
@@ -126,7 +142,8 @@ fn github_download(
         )));
     }
 
-    let bytes = response.bytes()
+    let bytes = response
+        .bytes()
         .map_err(|e| FsError::internal(format!("GithubReleaseFetch: read body: {e}")))?;
 
     if let Some(expected) = checksum {
@@ -143,12 +160,17 @@ fn github_download(
 
     let staging_dir = std::env::temp_dir().join("fs-pkg-staging");
     fs::create_dir_all(&staging_dir).map_err(|e| {
-        FsError::internal(format!("GithubReleaseFetch: cannot create staging dir: {e}"))
+        FsError::internal(format!(
+            "GithubReleaseFetch: cannot create staging dir: {e}"
+        ))
     })?;
 
     let dest = staging_dir.join(artifact);
     fs::write(&dest, &bytes).map_err(|e| {
-        FsError::internal(format!("GithubReleaseFetch: cannot write {}: {e}", dest.display()))
+        FsError::internal(format!(
+            "GithubReleaseFetch: cannot write {}: {e}",
+            dest.display()
+        ))
     })?;
 
     Ok(vec![dest])
@@ -156,7 +178,7 @@ fn github_download(
 
 #[cfg(not(feature = "download"))]
 fn github_download(
-    url:      &str,
+    url: &str,
     _artifact: &str,
     _checksum: Option<&str>,
 ) -> Result<Vec<PathBuf>, FsError> {
@@ -176,9 +198,15 @@ fn github_download(
 pub struct OciFetch;
 
 impl FetchStrategy for OciFetch {
-    fn name(&self) -> &'static str { "oci" }
+    fn name(&self) -> &'static str {
+        "oci"
+    }
 
-    fn fetch(&self, _manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
+    fn fetch(
+        &self,
+        _manifest: &ApiManifest,
+        options: &InstallOptions,
+    ) -> Result<Vec<PathBuf>, FsError> {
         if options.dry_run {
             return Ok(vec![]);
         }
@@ -193,17 +221,26 @@ impl FetchStrategy for OciFetch {
 pub struct LocalFetch;
 
 impl FetchStrategy for LocalFetch {
-    fn name(&self) -> &'static str { "local" }
+    fn name(&self) -> &'static str {
+        "local"
+    }
 
-    fn fetch(&self, manifest: &ApiManifest, options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
+    fn fetch(
+        &self,
+        manifest: &ApiManifest,
+        options: &InstallOptions,
+    ) -> Result<Vec<PathBuf>, FsError> {
         let Some(PackageSource::Local { path }) = &manifest.source else {
-            return Err(FsError::internal("LocalFetch: manifest has no local source"));
+            return Err(FsError::internal(
+                "LocalFetch: manifest has no local source",
+            ));
         };
 
         let base = PathBuf::from(path);
         if !options.dry_run && !base.exists() {
             return Err(FsError::internal(format!(
-                "LocalFetch: source path does not exist: {}", base.display()
+                "LocalFetch: source path does not exist: {}",
+                base.display()
             )));
         }
 
@@ -222,9 +259,15 @@ impl FetchStrategy for LocalFetch {
 pub struct NoOpFetch;
 
 impl FetchStrategy for NoOpFetch {
-    fn name(&self) -> &'static str { "no_op" }
+    fn name(&self) -> &'static str {
+        "no_op"
+    }
 
-    fn fetch(&self, _manifest: &ApiManifest, _options: &InstallOptions) -> Result<Vec<PathBuf>, FsError> {
+    fn fetch(
+        &self,
+        _manifest: &ApiManifest,
+        _options: &InstallOptions,
+    ) -> Result<Vec<PathBuf>, FsError> {
         Ok(vec![])
     }
 }
@@ -238,9 +281,9 @@ impl FetchStrategy for NoOpFetch {
 pub fn fetch_strategy_for(source: Option<&PackageSource>) -> Box<dyn FetchStrategy> {
     match source {
         Some(PackageSource::GithubRelease { .. }) => Box::new(GithubReleaseFetch),
-        Some(PackageSource::Oci { .. })           => Box::new(OciFetch),
-        Some(PackageSource::Local { .. })         => Box::new(LocalFetch),
-        Some(PackageSource::Store { .. }) | None  => Box::new(NoOpFetch),
+        Some(PackageSource::Oci { .. }) => Box::new(OciFetch),
+        Some(PackageSource::Local { .. }) => Box::new(LocalFetch),
+        Some(PackageSource::Store { .. }) | None => Box::new(NoOpFetch),
     }
 }
 
@@ -324,9 +367,9 @@ pub struct InstallOutcome {
 /// Passed to [`PackageInstaller::execute_lifecycle`] to parameterize
 /// the Template Method with the correct hooks and event kinds.
 struct LifecyclePhase<'a> {
-    pre_hooks:    &'a [String],
-    post_hooks:   &'a [String],
-    on_started:   InstallEventKind,
+    pre_hooks: &'a [String],
+    post_hooks: &'a [String],
+    on_started: InstallEventKind,
     on_completed: InstallEventKind,
 }
 
@@ -361,7 +404,9 @@ pub struct PackageInstaller {
 impl PackageInstaller {
     /// Create a new installer with no hooks registered.
     pub fn new() -> Self {
-        Self { bus: EventBus::new() }
+        Self {
+            bus: EventBus::new(),
+        }
     }
 
     /// Register a named lifecycle hook.
@@ -392,9 +437,9 @@ impl PackageInstaller {
             manifest,
             options,
             LifecyclePhase {
-                pre_hooks:    &manifest.hooks.pre_install,
-                post_hooks:   &manifest.hooks.post_install,
-                on_started:   InstallEventKind::InstallStarted,
+                pre_hooks: &manifest.hooks.pre_install,
+                post_hooks: &manifest.hooks.post_install,
+                on_started: InstallEventKind::InstallStarted,
                 on_completed: InstallEventKind::InstallCompleted,
             },
             |src, dest_path, dry_run| {
@@ -431,9 +476,9 @@ impl PackageInstaller {
             manifest,
             options,
             LifecyclePhase {
-                pre_hooks:    &manifest.hooks.pre_remove,
-                post_hooks:   &manifest.hooks.post_remove,
-                on_started:   InstallEventKind::RemoveStarted,
+                pre_hooks: &manifest.hooks.pre_remove,
+                post_hooks: &manifest.hooks.post_remove,
+                on_started: InstallEventKind::RemoveStarted,
                 on_completed: InstallEventKind::RemoveCompleted,
             },
             |_src, dest_path, dry_run| {
@@ -463,13 +508,14 @@ impl PackageInstaller {
         phase: LifecyclePhase,
         mut file_op: impl FnMut(&str, PathBuf, bool) -> Result<PathBuf, FsError>,
     ) -> Result<InstallOutcome, FsError> {
-        let id  = &manifest.package.id;
+        let id = &manifest.package.id;
         let ver = &manifest.package.version;
 
-        self.bus.emit(&InstallEvent::new(id, ver, phase.on_started))?;
+        self.bus
+            .emit(&InstallEvent::new(id, ver, phase.on_started))?;
 
         let mut touched_files = Vec::new();
-        let mut ran_hooks     = Vec::new();
+        let mut ran_hooks = Vec::new();
 
         if !options.skip_hooks {
             for cmd in phase.pre_hooks {
@@ -480,7 +526,7 @@ impl PackageInstaller {
 
         for mapping in manifest.files.all() {
             let dest_path = PathBuf::from(options.vars.expand(&mapping.dest));
-            let touched   = file_op(&mapping.source, dest_path, options.dry_run)?;
+            let touched = file_op(&mapping.source, dest_path, options.dry_run)?;
             touched_files.push(touched);
         }
 
@@ -491,14 +537,15 @@ impl PackageInstaller {
             }
         }
 
-        self.bus.emit(&InstallEvent::new(id, ver, phase.on_completed))?;
+        self.bus
+            .emit(&InstallEvent::new(id, ver, phase.on_completed))?;
 
         Ok(InstallOutcome {
-            package_id:    id.clone(),
-            version:       ver.clone(),
+            package_id: id.clone(),
+            version: ver.clone(),
             written_files: touched_files,
             ran_hooks,
-            dry_run:       options.dry_run,
+            dry_run: options.dry_run,
         })
     }
 }
@@ -567,8 +614,8 @@ post_remove  = ["echo post-remove"]
     fn dry_run_install_writes_no_files() {
         let dir = TempDir::new().unwrap();
         let manifest = make_manifest();
-        let mut options = InstallOptions::default()
-            .with_var("data_root", dir.path().to_str().unwrap());
+        let mut options =
+            InstallOptions::default().with_var("data_root", dir.path().to_str().unwrap());
         options.dry_run = true;
 
         let outcome = PackageInstaller::new().install(&manifest, options).unwrap();
@@ -582,8 +629,8 @@ post_remove  = ["echo post-remove"]
     fn install_writes_declared_files() {
         let dir = TempDir::new().unwrap();
         let manifest = make_manifest();
-        let mut opts = InstallOptions::default()
-            .with_var("data_root", dir.path().to_str().unwrap());
+        let mut opts =
+            InstallOptions::default().with_var("data_root", dir.path().to_str().unwrap());
         opts.skip_hooks = true;
 
         let outcome = PackageInstaller::new().install(&manifest, opts).unwrap();
@@ -599,19 +646,23 @@ post_remove  = ["echo post-remove"]
         let manifest = make_manifest();
 
         // Install first
-        let mut install_opts = InstallOptions::default()
-            .with_var("data_root", dir.path().to_str().unwrap());
+        let mut install_opts =
+            InstallOptions::default().with_var("data_root", dir.path().to_str().unwrap());
         install_opts.skip_hooks = true;
-        PackageInstaller::new().install(&manifest, install_opts).unwrap();
+        PackageInstaller::new()
+            .install(&manifest, install_opts)
+            .unwrap();
 
         let dest = dir.path().join("config.toml");
         assert!(dest.exists());
 
         // Remove
-        let mut remove_opts = InstallOptions::default()
-            .with_var("data_root", dir.path().to_str().unwrap());
+        let mut remove_opts =
+            InstallOptions::default().with_var("data_root", dir.path().to_str().unwrap());
         remove_opts.skip_hooks = true;
-        PackageInstaller::new().remove(&manifest, remove_opts).unwrap();
+        PackageInstaller::new()
+            .remove(&manifest, remove_opts)
+            .unwrap();
 
         assert!(!dest.exists(), "remove must delete the file");
     }
@@ -629,8 +680,8 @@ post_remove  = ["echo post-remove"]
 
         let dir = TempDir::new().unwrap();
         let manifest = make_manifest();
-        let mut opts = InstallOptions::default()
-            .with_var("data_root", dir.path().to_str().unwrap());
+        let mut opts =
+            InstallOptions::default().with_var("data_root", dir.path().to_str().unwrap());
         opts.skip_hooks = true;
 
         installer.install(&manifest, opts).unwrap();

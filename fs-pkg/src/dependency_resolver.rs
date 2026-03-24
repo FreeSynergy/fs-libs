@@ -36,15 +36,24 @@ pub enum ResolutionError {
     /// A cyclic dependency was detected (the vector lists the cycle).
     Cycle(Vec<String>),
     /// A required package is not registered in the graph.
-    MissingPackage { required_by: String, missing: String },
+    MissingPackage {
+        required_by: String,
+        missing: String,
+    },
 }
 
 impl std::fmt::Display for ResolutionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Cycle(cycle) => write!(f, "dependency cycle detected: {}", cycle.join(" → ")),
-            Self::MissingPackage { required_by, missing } => {
-                write!(f, "'{required_by}' requires '{missing}', which is not registered")
+            Self::MissingPackage {
+                required_by,
+                missing,
+            } => {
+                write!(
+                    f,
+                    "'{required_by}' requires '{missing}', which is not registered"
+                )
             }
         }
     }
@@ -95,7 +104,10 @@ impl DepGraph {
 
     /// Returns all direct dependencies of a package.
     pub fn deps_of(&self, id: &str) -> &[String] {
-        self.nodes.get(id).map(|p| p.requires.as_slice()).unwrap_or(&[])
+        self.nodes
+            .get(id)
+            .map(|p| p.requires.as_slice())
+            .unwrap_or(&[])
     }
 
     /// Returns all packages that directly depend on `id`.
@@ -127,7 +139,7 @@ impl DepGraph {
                 if !self.nodes.contains_key(req.as_str()) {
                     return Err(ResolutionError::MissingPackage {
                         required_by: pkg.id.clone(),
-                        missing:     req.clone(),
+                        missing: req.clone(),
                     });
                 }
             }
@@ -161,9 +173,9 @@ impl<'a> DependencyResolver<'a> {
         for pkg in self.graph.nodes.values() {
             for dep in &pkg.requires {
                 *in_degree.entry(dep.as_str()).or_insert(0) += 0; // ensure present
-                // increment the requirer's consumer count — actually we need
-                // reverse: dep is a prerequisite of pkg, so pkg has in-degree
-                // incremented for each of its dependencies.
+                                                                  // increment the requirer's consumer count — actually we need
+                                                                  // reverse: dep is a prerequisite of pkg, so pkg has in-degree
+                                                                  // incremented for each of its dependencies.
             }
         }
 
@@ -179,7 +191,10 @@ impl<'a> DependencyResolver<'a> {
         let mut rev_adj: HashMap<&str, Vec<&str>> = HashMap::new();
         for pkg in self.graph.nodes.values() {
             for dep in &pkg.requires {
-                rev_adj.entry(dep.as_str()).or_default().push(pkg.id.as_str());
+                rev_adj
+                    .entry(dep.as_str())
+                    .or_default()
+                    .push(pkg.id.as_str());
             }
         }
 
@@ -253,17 +268,20 @@ mod tests {
 
     fn simple_graph() -> DepGraph {
         let mut g = DepGraph::new();
-        g.add(PackageDep { id: "database/postgres".into(), requires: vec![] });
         g.add(PackageDep {
-            id:       "iam/kanidm".into(),
+            id: "database/postgres".into(),
+            requires: vec![],
+        });
+        g.add(PackageDep {
+            id: "iam/kanidm".into(),
             requires: vec!["database/postgres".into()],
         });
         g.add(PackageDep {
-            id:       "wiki/outline".into(),
+            id: "wiki/outline".into(),
             requires: vec!["iam/kanidm".into(), "database/postgres".into()],
         });
         g.add(PackageDep {
-            id:       "proxy/zentinel".into(),
+            id: "proxy/zentinel".into(),
             requires: vec![],
         });
         g
@@ -276,7 +294,7 @@ mod tests {
 
         let pos = |id: &str| order.iter().position(|s| s == id).unwrap();
         assert!(pos("database/postgres") < pos("iam/kanidm"));
-        assert!(pos("iam/kanidm")        < pos("wiki/outline"));
+        assert!(pos("iam/kanidm") < pos("wiki/outline"));
         assert!(pos("database/postgres") < pos("wiki/outline"));
     }
 
@@ -290,9 +308,18 @@ mod tests {
     #[test]
     fn cycle_detection() {
         let mut g = DepGraph::new();
-        g.add(PackageDep { id: "a".into(), requires: vec!["b".into()] });
-        g.add(PackageDep { id: "b".into(), requires: vec!["c".into()] });
-        g.add(PackageDep { id: "c".into(), requires: vec!["a".into()] });
+        g.add(PackageDep {
+            id: "a".into(),
+            requires: vec!["b".into()],
+        });
+        g.add(PackageDep {
+            id: "b".into(),
+            requires: vec!["c".into()],
+        });
+        g.add(PackageDep {
+            id: "c".into(),
+            requires: vec!["a".into()],
+        });
 
         let err = g.install_order().unwrap_err();
         assert!(matches!(err, ResolutionError::Cycle(_)));
@@ -302,7 +329,7 @@ mod tests {
     fn missing_dependency_error() {
         let mut g = DepGraph::new();
         g.add(PackageDep {
-            id:       "iam/kanidm".into(),
+            id: "iam/kanidm".into(),
             requires: vec!["database/postgres".into()], // not registered
         });
 
@@ -331,9 +358,18 @@ mod tests {
     #[test]
     fn no_dependencies_any_order() {
         let mut g = DepGraph::new();
-        g.add(PackageDep { id: "a".into(), requires: vec![] });
-        g.add(PackageDep { id: "b".into(), requires: vec![] });
-        g.add(PackageDep { id: "c".into(), requires: vec![] });
+        g.add(PackageDep {
+            id: "a".into(),
+            requires: vec![],
+        });
+        g.add(PackageDep {
+            id: "b".into(),
+            requires: vec![],
+        });
+        g.add(PackageDep {
+            id: "c".into(),
+            requires: vec![],
+        });
         let order = g.install_order().unwrap();
         assert_eq!(order.len(), 3);
     }

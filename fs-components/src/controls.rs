@@ -109,7 +109,11 @@ pub struct ToggleProps {
 /// ```
 #[component]
 pub fn Toggle(props: ToggleProps) -> Element {
-    let cursor = if props.disabled { "not-allowed" } else { "pointer" };
+    let cursor = if props.disabled {
+        "not-allowed"
+    } else {
+        "pointer"
+    };
 
     let track_bg = if props.checked {
         "var(--fs-color-primary, #06b6d4)"

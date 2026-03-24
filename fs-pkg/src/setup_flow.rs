@@ -41,7 +41,11 @@ pub struct ServiceRef {
 
 impl ServiceRef {
     pub fn new(id: impl Into<String>, roles: Vec<String>) -> Self {
-        Self { id: id.into(), roles, api_url: None }
+        Self {
+            id: id.into(),
+            roles,
+            api_url: None,
+        }
     }
 
     pub fn with_api_url(mut self, url: impl Into<String>) -> Self {
@@ -51,7 +55,9 @@ impl ServiceRef {
 
     /// Returns true when this service provides the given role.
     pub fn provides_role(&self, role: &str) -> bool {
-        self.roles.iter().any(|r| r == role || r.starts_with(&format!("{role}.")))
+        self.roles
+            .iter()
+            .any(|r| r == role || r.starts_with(&format!("{role}.")))
     }
 }
 
@@ -103,11 +109,11 @@ impl SetupContext {
 
     pub fn new(package_id: impl Into<String>) -> Self {
         Self {
-            package_id:         package_id.into(),
-            config:             HashMap::new(),
-            step_states:        HashMap::new(),
-            install_path:       None,
-            config_dir:         None,
+            package_id: package_id.into(),
+            config: HashMap::new(),
+            step_states: HashMap::new(),
+            install_path: None,
+            config_dir: None,
             available_services: vec![],
         }
     }
@@ -155,17 +161,24 @@ impl SetupContext {
 
     /// Mark a step as done with its output.
     pub fn mark_done(&mut self, step_id: &str, output: StepOutput) {
-        self.step_states.insert(step_id.to_string(), StepState::Done { output });
+        self.step_states
+            .insert(step_id.to_string(), StepState::Done { output });
     }
 
     /// Mark a step as failed with an error message.
     pub fn mark_failed(&mut self, step_id: &str, error: impl Into<String>) {
-        self.step_states.insert(step_id.to_string(), StepState::Failed { error: error.into() });
+        self.step_states.insert(
+            step_id.to_string(),
+            StepState::Failed {
+                error: error.into(),
+            },
+        );
     }
 
     /// Mark a step as skipped.
     pub fn mark_skipped(&mut self, step_id: &str) {
-        self.step_states.insert(step_id.to_string(), StepState::Skipped);
+        self.step_states
+            .insert(step_id.to_string(), StepState::Skipped);
     }
 
     /// Reset a step to pending (for re-running).
@@ -177,14 +190,17 @@ impl SetupContext {
 
     /// Find all available services that provide the given role.
     pub fn services_with_role(&self, role: &str) -> Vec<&ServiceRef> {
-        self.available_services.iter()
+        self.available_services
+            .iter()
             .filter(|s| s.provides_role(role))
             .collect()
     }
 
     /// Find the first available service that provides the given role.
     pub fn first_service_with_role(&self, role: &str) -> Option<&ServiceRef> {
-        self.available_services.iter().find(|s| s.provides_role(role))
+        self.available_services
+            .iter()
+            .find(|s| s.provides_role(role))
     }
 
     // ── Persistence ───────────────────────────────────────────────────────────
@@ -195,13 +211,11 @@ impl SetupContext {
     pub fn load(package_id: &str, config_dir: &Path) -> Self {
         let path = config_dir.join(".setup-state.toml");
         if !path.exists() {
-            return Self::new(package_id)
-                .with_config_dir(config_dir.to_string_lossy().as_ref());
+            return Self::new(package_id).with_config_dir(config_dir.to_string_lossy().as_ref());
         }
         let text = std::fs::read_to_string(&path).unwrap_or_default();
         toml::from_str::<Self>(&text).unwrap_or_else(|_| {
-            Self::new(package_id)
-                .with_config_dir(config_dir.to_string_lossy().as_ref())
+            Self::new(package_id).with_config_dir(config_dir.to_string_lossy().as_ref())
         })
     }
 
@@ -231,18 +245,22 @@ impl SetupContext {
 #[derive(Debug)]
 pub struct StepExecution {
     /// ID of the step.
-    pub step_id:    String,
+    pub step_id: String,
     /// Human-readable title of the step.
     pub step_title: String,
     /// Result of execution.
-    pub result:     Result<StepOutput, FsError>,
+    pub result: Result<StepOutput, FsError>,
     /// Whether the step was skipped (already done, not re-run).
-    pub skipped:    bool,
+    pub skipped: bool,
 }
 
 impl StepExecution {
-    pub fn succeeded(&self) -> bool { self.result.is_ok() && !self.skipped }
-    pub fn failed(&self)    -> bool { self.result.is_err() }
+    pub fn succeeded(&self) -> bool {
+        self.result.is_ok() && !self.skipped
+    }
+    pub fn failed(&self) -> bool {
+        self.result.is_err()
+    }
 }
 
 // ── SetupFlow ─────────────────────────────────────────────────────────────────
@@ -273,7 +291,7 @@ impl StepExecution {
 /// ```
 pub struct SetupFlow {
     /// Ordered list of steps.
-    steps:      Vec<Box<dyn SetupStep>>,
+    steps: Vec<Box<dyn SetupStep>>,
     /// Shared mutable context.
     pub context: SetupContext,
 }
@@ -282,7 +300,10 @@ impl SetupFlow {
     // ── Constructors ──────────────────────────────────────────────────────────
 
     pub fn new(context: SetupContext) -> Self {
-        Self { steps: vec![], context }
+        Self {
+            steps: vec![],
+            context,
+        }
     }
 
     /// Add a step at the end of the pipeline.
@@ -307,7 +328,8 @@ impl SetupFlow {
 
     /// Returns all steps that match the given trigger.
     pub fn steps_for_trigger(&self, trigger: &SetupTrigger) -> Vec<&dyn SetupStep> {
-        self.steps.iter()
+        self.steps
+            .iter()
             .filter(|s| s.matches_trigger(trigger))
             .map(|s| s.as_ref())
             .collect()
@@ -317,7 +339,8 @@ impl SetupFlow {
     ///
     /// These are the steps blocking the "Start" button in the Manager UI.
     pub fn pending_required_steps(&self) -> Vec<&dyn SetupStep> {
-        self.steps.iter()
+        self.steps
+            .iter()
             .filter(|s| s.is_required() && !s.is_done(&self.context))
             .map(|s| s.as_ref())
             .collect()
@@ -325,7 +348,8 @@ impl SetupFlow {
 
     /// Returns all steps (required + optional) that are not yet done.
     pub fn pending_steps(&self) -> Vec<&dyn SetupStep> {
-        self.steps.iter()
+        self.steps
+            .iter()
             .filter(|s| !s.is_done(&self.context))
             .map(|s| s.as_ref())
             .collect()
@@ -344,7 +368,9 @@ impl SetupFlow {
     /// Returns `(done, total)`. Use for a progress bar in the wizard.
     pub fn progress(&self) -> (usize, usize) {
         let total = self.steps.iter().filter(|s| s.is_required()).count();
-        let done  = self.steps.iter()
+        let done = self
+            .steps
+            .iter()
             .filter(|s| s.is_required() && s.is_done(&self.context))
             .count();
         (done, total)
@@ -361,7 +387,9 @@ impl SetupFlow {
     /// Returns one `StepExecution` per matching step.
     pub fn execute_trigger(&mut self, trigger: SetupTrigger) -> Vec<StepExecution> {
         // Collect matching step IDs first to avoid borrow issues.
-        let matching_ids: Vec<(String, String)> = self.steps.iter()
+        let matching_ids: Vec<(String, String)> = self
+            .steps
+            .iter()
             .filter(|s| s.matches_trigger(&trigger))
             .map(|s| (s.id().to_string(), s.title().to_string()))
             .collect();
@@ -370,17 +398,19 @@ impl SetupFlow {
 
         for (step_id, step_title) in matching_ids {
             // Find the step.
-            let step = self.steps.iter()
+            let step = self
+                .steps
+                .iter()
                 .find(|s| s.id() == step_id)
                 .expect("step must exist — we collected its ID just above");
 
             // Skip if already done.
             if step.is_done(&self.context) {
                 executions.push(StepExecution {
-                    step_id:    step_id.clone(),
+                    step_id: step_id.clone(),
                     step_title: step_title.clone(),
-                    result:     Ok(StepOutput::empty()),
-                    skipped:    true,
+                    result: Ok(StepOutput::empty()),
+                    skipped: true,
                 });
                 continue;
             }
@@ -443,10 +473,10 @@ impl SetupFlow {
         let _ = self.context.save();
 
         Some(StepExecution {
-            step_id:    step_id.to_string(),
+            step_id: step_id.to_string(),
             step_title: title,
             result,
-            skipped:    false,
+            skipped: false,
         })
     }
 
@@ -466,15 +496,15 @@ impl SetupFlow {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::setup_step::{InputField, InputStep, SetupTrigger};
     use crate::manageable::ConfigFieldKind;
+    use crate::setup_step::{InputField, InputStep, SetupTrigger};
 
     fn make_input_step(id: &str, trigger: SetupTrigger, field_key: &str) -> Box<dyn SetupStep> {
         Box::new(
-            InputStep::new(id, "Test step", "Help text.", vec![trigger])
-                .with_field(InputField::new(
-                    field_key, "Field", "Field help.", ConfigFieldKind::Text,
-                ).with_default("default_val")),
+            InputStep::new(id, "Test step", "Help text.", vec![trigger]).with_field(
+                InputField::new(field_key, "Field", "Field help.", ConfigFieldKind::Text)
+                    .with_default("default_val"),
+            ),
         )
     }
 
@@ -532,8 +562,14 @@ mod tests {
     #[test]
     fn context_service_role_query() {
         let mut ctx = SetupContext::new("forgejo");
-        ctx.available_services.push(ServiceRef::new("kanidm", vec!["iam".into(), "iam.oidc-provider".into()]));
-        ctx.available_services.push(ServiceRef::new("stalwart", vec!["smtp".into(), "smtp.sender".into()]));
+        ctx.available_services.push(ServiceRef::new(
+            "kanidm",
+            vec!["iam".into(), "iam.oidc-provider".into()],
+        ));
+        ctx.available_services.push(ServiceRef::new(
+            "stalwart",
+            vec!["smtp".into(), "smtp.sender".into()],
+        ));
 
         let iam = ctx.services_with_role("iam");
         assert_eq!(iam.len(), 1);

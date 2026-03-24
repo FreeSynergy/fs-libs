@@ -2,8 +2,8 @@
 
 use fs_error::FsError;
 use rcgen::{
-    BasicConstraints, CertificateParams, DnType, ExtendedKeyUsagePurpose, IsCa,
-    KeyPair, KeyUsagePurpose, SanType,
+    BasicConstraints, CertificateParams, DnType, ExtendedKeyUsagePurpose, IsCa, KeyPair,
+    KeyUsagePurpose, SanType,
 };
 use time::{Duration, OffsetDateTime};
 
@@ -39,7 +39,9 @@ impl CaBundle {
             .map_err(|e| FsError::internal(format!("CA key generation failed: {e}")))?;
 
         let mut params = CertificateParams::default();
-        params.distinguished_name.push(DnType::CommonName, common_name);
+        params
+            .distinguished_name
+            .push(DnType::CommonName, common_name);
         params.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
         params.key_usages = vec![KeyUsagePurpose::KeyCertSign, KeyUsagePurpose::CrlSign];
 
@@ -79,7 +81,9 @@ impl CaBundle {
             .map_err(|e| FsError::internal(format!("server key generation failed: {e}")))?;
 
         let mut params = CertificateParams::default();
-        params.distinguished_name.push(DnType::CommonName, common_name);
+        params
+            .distinguished_name
+            .push(DnType::CommonName, common_name);
         params.extended_key_usages = vec![ExtendedKeyUsagePurpose::ServerAuth];
 
         let now = OffsetDateTime::now_utc();
@@ -87,11 +91,11 @@ impl CaBundle {
         params.not_after = now + Duration::days(days_valid as i64);
 
         for dns_name in san {
-            params.subject_alt_names.push(SanType::DnsName(
-                (*dns_name).try_into().map_err(|e| {
+            params
+                .subject_alt_names
+                .push(SanType::DnsName((*dns_name).try_into().map_err(|e| {
                     FsError::internal(format!("invalid SAN DNS name '{dns_name}': {e}"))
-                })?,
-            ));
+                })?));
         }
 
         let cert = params
@@ -123,7 +127,9 @@ impl CaBundle {
             .map_err(|e| FsError::internal(format!("client key generation failed: {e}")))?;
 
         let mut params = CertificateParams::default();
-        params.distinguished_name.push(DnType::CommonName, common_name);
+        params
+            .distinguished_name
+            .push(DnType::CommonName, common_name);
         params.extended_key_usages = vec![ExtendedKeyUsagePurpose::ClientAuth];
 
         let now = OffsetDateTime::now_utc();

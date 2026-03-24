@@ -43,11 +43,7 @@ pub enum VerifyOutcome {
 /// - [`TrustAllStrategy`] — no-op, trusts everything (development / unsigned builds)
 pub trait SignatureStrategy: Send + Sync {
     /// Verify `data` against an optional hex-encoded signature.
-    fn verify(
-        &self,
-        data: &[u8],
-        signature_hex: Option<&str>,
-    ) -> Result<VerifyOutcome, FsError>;
+    fn verify(&self, data: &[u8], signature_hex: Option<&str>) -> Result<VerifyOutcome, FsError>;
 }
 
 // ── TrustAllStrategy ─────────────────────────────────────────────────────────
@@ -59,11 +55,7 @@ pub trait SignatureStrategy: Send + Sync {
 pub struct TrustAllStrategy;
 
 impl SignatureStrategy for TrustAllStrategy {
-    fn verify(
-        &self,
-        _data: &[u8],
-        _signature_hex: Option<&str>,
-    ) -> Result<VerifyOutcome, FsError> {
+    fn verify(&self, _data: &[u8], _signature_hex: Option<&str>) -> Result<VerifyOutcome, FsError> {
         Ok(VerifyOutcome::UnsignedTrusted)
     }
 }
@@ -85,20 +77,19 @@ pub struct Ed25519Strategy {
 impl Ed25519Strategy {
     /// Create a strategy with the given public key and policy.
     pub fn new(verifying_key_hex: impl Into<String>, policy: SignaturePolicy) -> Self {
-        Self { verifying_key_hex: verifying_key_hex.into(), policy }
+        Self {
+            verifying_key_hex: verifying_key_hex.into(),
+            policy,
+        }
     }
 }
 
 #[cfg(feature = "signing")]
 impl SignatureStrategy for Ed25519Strategy {
-    fn verify(
-        &self,
-        data: &[u8],
-        signature_hex: Option<&str>,
-    ) -> Result<VerifyOutcome, FsError> {
+    fn verify(&self, data: &[u8], signature_hex: Option<&str>) -> Result<VerifyOutcome, FsError> {
         match signature_hex {
             Some(sig_hex) => {
-                let vk  = fs_crypto::FsVerifyingKey::from_hex(&self.verifying_key_hex)?;
+                let vk = fs_crypto::FsVerifyingKey::from_hex(&self.verifying_key_hex)?;
                 let sig = fs_crypto::PackageSignature::from_hex(sig_hex)?;
                 vk.verify(data, &sig)?;
                 Ok(VerifyOutcome::Valid)
@@ -145,7 +136,9 @@ impl SignatureVerifier {
     ///
     /// Suitable for development builds or integration tests.
     pub fn trust_all() -> Self {
-        Self { strategy: Box::new(TrustAllStrategy) }
+        Self {
+            strategy: Box::new(TrustAllStrategy),
+        }
     }
 
     /// Create a verifier backed by [`Ed25519Strategy`].
@@ -153,7 +146,9 @@ impl SignatureVerifier {
     /// Requires feature `signing`.
     #[cfg(feature = "signing")]
     pub fn ed25519(verifying_key_hex: impl Into<String>, policy: SignaturePolicy) -> Self {
-        Self { strategy: Box::new(Ed25519Strategy::new(verifying_key_hex, policy)) }
+        Self {
+            strategy: Box::new(Ed25519Strategy::new(verifying_key_hex, policy)),
+        }
     }
 
     /// Verify `data` against an optional hex-encoded signature.

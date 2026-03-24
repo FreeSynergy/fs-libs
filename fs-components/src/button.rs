@@ -23,27 +23,35 @@ pub enum ButtonVariant {
 impl VariantStyle for ButtonVariant {
     fn css(&self) -> &'static str {
         match self {
-            Self::Primary   => "background: var(--fs-color-primary, #06b6d4); \
+            Self::Primary => {
+                "background: var(--fs-color-primary, #06b6d4); \
                                 color: var(--fs-color-primary-text, #000); \
-                                border: none;",
-            Self::Secondary => "background: transparent; \
+                                border: none;"
+            }
+            Self::Secondary => {
+                "background: transparent; \
                                 color: var(--fs-color-text-primary, #e2e8f0); \
-                                border: 1px solid var(--fs-color-border-default, #334155);",
-            Self::Ghost     => "background: transparent; \
+                                border: 1px solid var(--fs-color-border-default, #334155);"
+            }
+            Self::Ghost => {
+                "background: transparent; \
                                 color: var(--fs-color-text-secondary, #94a3b8); \
-                                border: none;",
-            Self::Danger    => "background: var(--fs-color-error, #ef4444); \
+                                border: none;"
+            }
+            Self::Danger => {
+                "background: var(--fs-color-error, #ef4444); \
                                 color: #fff; \
-                                border: none;",
+                                border: none;"
+            }
         }
     }
 
     fn class_suffix(&self) -> &'static str {
         match self {
-            Self::Primary   => "primary",
+            Self::Primary => "primary",
             Self::Secondary => "secondary",
-            Self::Ghost     => "ghost",
-            Self::Danger    => "danger",
+            Self::Ghost => "ghost",
+            Self::Danger => "danger",
         }
     }
 }
@@ -112,10 +120,18 @@ pub fn Button(props: ButtonProps) -> Element {
          cursor: {}; font-family: inherit; font-weight: 500; \
          transition: opacity 0.15s, background 0.15s; \
          {} {}{}",
-        if is_disabled { "not-allowed" } else { "pointer" },
+        if is_disabled {
+            "not-allowed"
+        } else {
+            "pointer"
+        },
         props.variant.css(),
         props.size.css(),
-        props.extra_style.as_deref().map(|s| format!(" {s}")).unwrap_or_default(),
+        props
+            .extra_style
+            .as_deref()
+            .map(|s| format!(" {s}"))
+            .unwrap_or_default(),
     );
 
     let variant_class = format!("fs-btn fs-btn--{}", props.variant.class_suffix());
@@ -218,7 +234,11 @@ pub fn IconButton(props: IconButtonProps) -> Element {
          cursor: {}; font-family: inherit; line-height: 1; \
          transition: opacity 0.15s, background 0.15s; \
          {} {} {}",
-        if is_disabled { "not-allowed" } else { "pointer" },
+        if is_disabled {
+            "not-allowed"
+        } else {
+            "pointer"
+        },
         props.variant.css(),
         pad,
         font,

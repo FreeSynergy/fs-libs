@@ -34,12 +34,12 @@ use crate::manifest::{ApiManifest, ManifestFieldType, PackageMeta, PackageType};
 impl From<ManifestFieldType> for ConfigFieldKind {
     fn from(t: ManifestFieldType) -> Self {
         match t {
-            ManifestFieldType::Bool                                   => ConfigFieldKind::Bool,
-            ManifestFieldType::Port                                   => ConfigFieldKind::Port,
-            ManifestFieldType::Password | ManifestFieldType::Secret   => ConfigFieldKind::Password,
-            ManifestFieldType::Path                                   => ConfigFieldKind::Path,
-            ManifestFieldType::Textarea                               => ConfigFieldKind::Textarea,
-            ManifestFieldType::Text | ManifestFieldType::String       => ConfigFieldKind::Text,
+            ManifestFieldType::Bool => ConfigFieldKind::Bool,
+            ManifestFieldType::Port => ConfigFieldKind::Port,
+            ManifestFieldType::Password | ManifestFieldType::Secret => ConfigFieldKind::Password,
+            ManifestFieldType::Path => ConfigFieldKind::Path,
+            ManifestFieldType::Textarea => ConfigFieldKind::Textarea,
+            ManifestFieldType::Text | ManifestFieldType::String => ConfigFieldKind::Text,
         }
     }
 }
@@ -67,21 +67,21 @@ pub struct InstalledRecord {
 impl InstalledRecord {
     pub fn new(version: impl Into<String>, installed_at: impl Into<String>) -> Self {
         Self {
-            version:      version.into(),
+            version: version.into(),
             installed_at: installed_at.into(),
-            config_path:  String::new(),
-            data_path:    String::new(),
-            status:       RunStatus::Stopped,
+            config_path: String::new(),
+            data_path: String::new(),
+            status: RunStatus::Stopped,
         }
     }
 
     pub fn with_paths(
         mut self,
         config_path: impl Into<String>,
-        data_path:   impl Into<String>,
+        data_path: impl Into<String>,
     ) -> Self {
         self.config_path = config_path.into();
-        self.data_path   = data_path.into();
+        self.data_path = data_path.into();
         self
     }
 
@@ -103,13 +103,13 @@ impl<'de> Deserialize<'de> for RunStatus {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         let label = String::deserialize(d)?;
         Ok(match label.as_str() {
-            "Running"        => Self::Running,
-            "Starting"       => Self::Starting,
-            "Stopping"       => Self::Stopping,
-            "Not installed"  => Self::NotInstalled,
+            "Running" => Self::Running,
+            "Starting" => Self::Starting,
+            "Stopping" => Self::Stopping,
+            "Not installed" => Self::NotInstalled,
             "Setup required" => Self::SetupRequired,
             s if s.starts_with("Error") => Self::Error(s.to_string()),
-            _                => Self::Stopped,
+            _ => Self::Stopped,
         })
     }
 }
@@ -150,7 +150,7 @@ impl Package {
     pub fn from_manifest(manifest: ApiManifest) -> Self {
         Self {
             manifest,
-            installed:        None,
+            installed: None,
             config_overrides: std::collections::HashMap::new(),
         }
     }
@@ -159,7 +159,7 @@ impl Package {
     pub fn from_installed(manifest: ApiManifest, record: InstalledRecord) -> Self {
         Self {
             manifest,
-            installed:        Some(record),
+            installed: Some(record),
             config_overrides: std::collections::HashMap::new(),
         }
     }
@@ -223,41 +223,46 @@ impl Manageable for Package {
     fn run_status(&self) -> RunStatus {
         match &self.installed {
             Some(rec) => rec.status.clone(),
-            None      => RunStatus::NotInstalled,
+            None => RunStatus::NotInstalled,
         }
     }
 
     fn config_fields(&self) -> Vec<ConfigField> {
         // Build ConfigFields from the manifest's [[variables]] entries.
         // Each ManifestVariable maps to one ConfigField rendered in the Config tab.
-        self.manifest.variables.iter().map(|v| {
-            let kind: ConfigFieldKind = v.field_type.into();
+        self.manifest
+            .variables
+            .iter()
+            .map(|v| {
+                let kind: ConfigFieldKind = v.field_type.into();
 
-            let default_value = v.default.as_deref().map(|d| match v.field_type {
-                ManifestFieldType::Port => {
-                    d.parse::<u16>().map(ConfigValue::Port)
-                        .unwrap_or_else(|_| ConfigValue::Text(d.to_string()))
+                let default_value = v
+                    .default
+                    .as_deref()
+                    .map(|d| match v.field_type {
+                        ManifestFieldType::Port => d
+                            .parse::<u16>()
+                            .map(ConfigValue::Port)
+                            .unwrap_or_else(|_| ConfigValue::Text(d.to_string())),
+                        ManifestFieldType::Bool => {
+                            ConfigValue::Bool(d == "true" || d == "1" || d == "yes")
+                        }
+                        _ => ConfigValue::Text(d.to_string()),
+                    })
+                    .unwrap_or(ConfigValue::Empty);
+
+                let mut field = ConfigField::new(&v.name, v.display_label(), &v.description, kind)
+                    .with_value(default_value);
+
+                if v.required {
+                    field = field.required();
                 }
-                ManifestFieldType::Bool => ConfigValue::Bool(d == "true" || d == "1" || d == "yes"),
-                _ => ConfigValue::Text(d.to_string()),
-            }).unwrap_or(ConfigValue::Empty);
-
-            let mut field = ConfigField::new(
-                &v.name,
-                v.display_label(),
-                &v.description,
-                kind,
-            )
-            .with_value(default_value);
-
-            if v.required {
-                field = field.required();
-            }
-            if v.needs_restart {
-                field = field.needs_restart();
-            }
-            field
-        }).collect()
+                if v.needs_restart {
+                    field = field.needs_restart();
+                }
+                field
+            })
+            .collect()
     }
 
     fn apply_config(&mut self, key: &str, value: ConfigValue) -> Result<(), FsError> {
@@ -322,31 +327,31 @@ mod tests {
     fn make_manifest(id: &str, pkg_type: PackageType) -> ApiManifest {
         ApiManifest {
             package: PackageMeta {
-                id:           id.into(),
-                name:         id.to_string(),
-                version:      "0.1.0".into(),
-                description:  String::new(),
-                category:     String::new(),
-                license:      String::new(),
-                author:       String::new(),
-                tags:         vec![],
-                icon:         String::new(),
+                id: id.into(),
+                name: id.to_string(),
+                version: "0.1.0".into(),
+                description: String::new(),
+                category: String::new(),
+                license: String::new(),
+                author: String::new(),
+                tags: vec![],
+                icon: String::new(),
                 package_type: pkg_type,
-                channel:      Default::default(),
-                origin:       Default::default(),
+                channel: Default::default(),
+                origin: Default::default(),
             },
-            source:    None,
-            app:       None,
+            source: None,
+            app: None,
             container: None,
-            files:     Default::default(),
-            hooks:     Default::default(),
-            requires:  Default::default(),
-            bundle:    None,
+            files: Default::default(),
+            hooks: Default::default(),
+            requires: Default::default(),
+            bundle: None,
             variables: vec![],
-            setup:     None,
-            provides:  Default::default(),
-            messages:  Default::default(),
-            contract:  None,
+            setup: None,
+            provides: Default::default(),
+            messages: Default::default(),
+            contract: None,
         }
     }
 

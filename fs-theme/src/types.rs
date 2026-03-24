@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Typography {
     pub font_family: String,
-    pub font_size:   u8,
+    pub font_size: u8,
     pub line_height: f32,
 }
 
@@ -17,7 +17,7 @@ impl Default for Typography {
     fn default() -> Self {
         Self {
             font_family: "\"JetBrains Mono\", \"Fira Code\", monospace".into(),
-            font_size:   14,
+            font_size: 14,
             line_height: 1.6,
         }
     }
@@ -37,7 +37,13 @@ pub struct Spacing {
 
 impl Default for Spacing {
     fn default() -> Self {
-        Self { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 }
+        Self {
+            xs: 4,
+            sm: 8,
+            md: 16,
+            lg: 24,
+            xl: 32,
+        }
     }
 }
 
@@ -47,16 +53,20 @@ impl Default for Spacing {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Glass {
     /// Background opacity (0.0–1.0).
-    pub bg_opacity:     f32,
+    pub bg_opacity: f32,
     /// Blur radius in pixels.
-    pub blur:           u8,
+    pub blur: u8,
     /// Border opacity (0.0–1.0).
     pub border_opacity: f32,
 }
 
 impl Default for Glass {
     fn default() -> Self {
-        Self { bg_opacity: 0.08, blur: 12, border_opacity: 0.15 }
+        Self {
+            bg_opacity: 0.08,
+            blur: 12,
+            border_opacity: 0.15,
+        }
     }
 }
 
@@ -72,7 +82,11 @@ pub struct Animation {
 
 impl Default for Animation {
     fn default() -> Self {
-        Self { fast: 150, base: 250, slow: 400 }
+        Self {
+            fast: 150,
+            base: 250,
+            slow: 400,
+        }
     }
 }
 

@@ -1,5 +1,5 @@
-use async_trait::async_trait;
 use crate::{BotCommand, BotResponse, CommandContext, Right};
+use async_trait::async_trait;
 
 pub struct HealthQueryCommand {
     provider: Box<dyn HealthQueryProvider>,
@@ -15,7 +15,7 @@ impl HealthQueryProvider for StubHealthProvider {
     fn query(&self, target: Option<&str>) -> String {
         match target {
             Some(t) => format!("✓ {t}: healthy"),
-            None    => "✓ All services healthy.".to_string(),
+            None => "✓ All services healthy.".to_string(),
         }
     }
 }
@@ -32,10 +32,18 @@ impl HealthQueryCommand {
 
 #[async_trait]
 impl BotCommand for HealthQueryCommand {
-    fn name(&self) -> &str { "health" }
-    fn description(&self) -> &str { "Show service health" }
-    fn usage(&self) -> Option<&str> { Some("health [<service>]") }
-    fn required_right(&self) -> Right { Right::Member }
+    fn name(&self) -> &str {
+        "health"
+    }
+    fn description(&self) -> &str {
+        "Show service health"
+    }
+    fn usage(&self) -> Option<&str> {
+        Some("health [<service>]")
+    }
+    fn required_right(&self) -> Right {
+        Right::Member
+    }
 
     async fn execute(&self, ctx: CommandContext) -> BotResponse {
         let target = ctx.args.first().map(String::as_str);

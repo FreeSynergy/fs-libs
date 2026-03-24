@@ -78,12 +78,16 @@ impl LlmProvider for OllamaProvider {
         let wire_msgs: Vec<OllamaMessage<'_>> = messages
             .iter()
             .map(|m| OllamaMessage {
-                role:    m.role.as_str(),
+                role: m.role.as_str(),
                 content: &m.content,
             })
             .collect();
 
-        let req = OllamaRequest { model: &self.model, messages: wire_msgs, stream: false };
+        let req = OllamaRequest {
+            model: &self.model,
+            messages: wire_msgs,
+            stream: false,
+        };
         let url = format!("{}/api/chat", self.base_url);
 
         debug!(url = %url, model = %self.model, "ollama request");
@@ -108,7 +112,10 @@ impl LlmProvider for OllamaProvider {
             .map_err(|e| LlmError::serialization(e.to_string()))?;
 
         let usage = match (body.prompt_eval_count, body.eval_count) {
-            (Some(p), Some(c)) => Some(TokenUsage { prompt_tokens: p, completion_tokens: c }),
+            (Some(p), Some(c)) => Some(TokenUsage {
+                prompt_tokens: p,
+                completion_tokens: c,
+            }),
             _ => None,
         };
 

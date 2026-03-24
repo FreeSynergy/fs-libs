@@ -98,17 +98,24 @@ impl CapabilityRegistry {
 
     /// Remove a service by ID.
     pub fn unregister(&mut self, service_id: &str) {
-        self.services.retain(|s| s.service_id.as_str() != service_id);
+        self.services
+            .retain(|s| s.service_id.as_str() != service_id);
     }
 
     /// All services that provide the given capability.
     pub fn providers_of(&self, capability: &str) -> Vec<&ServiceCapabilities> {
-        self.services.iter().filter(|s| s.has_capability(capability)).collect()
+        self.services
+            .iter()
+            .filter(|s| s.has_capability(capability))
+            .collect()
     }
 
     /// All services that can fulfil the given variable role.
     pub fn providers_for_role(&self, role: &str) -> Vec<&ServiceCapabilities> {
-        self.services.iter().filter(|s| s.fulfils_role(role)).collect()
+        self.services
+            .iter()
+            .filter(|s| s.fulfils_role(role))
+            .collect()
     }
 
     /// Iterate over all registered services.
@@ -118,7 +125,9 @@ impl CapabilityRegistry {
 
     /// Find a service by ID.
     pub fn find(&self, service_id: &str) -> Option<&ServiceCapabilities> {
-        self.services.iter().find(|s| s.service_id.as_str() == service_id)
+        self.services
+            .iter()
+            .find(|s| s.service_id.as_str() == service_id)
     }
 }
 
@@ -202,11 +211,11 @@ impl<'a> CapabilityMatcher<'a> {
         let candidates: Vec<PackageId> = providers.iter().map(|p| p.service_id.clone()).collect();
 
         Some(CapabilityMatch {
-            variable_name:      variable_name.to_string(),
-            role:               role.to_string(),
-            provider_id:        primary.service_id.clone(),
-            provider_name:      primary.service_name.clone(),
-            value:              primary.role_value(role).unwrap_or("").to_string(),
+            variable_name: variable_name.to_string(),
+            role: role.to_string(),
+            provider_id: primary.service_id.clone(),
+            provider_name: primary.service_name.clone(),
+            value: primary.role_value(role).unwrap_or("").to_string(),
             requires_user_choice: providers.len() > 1,
             candidates,
         })
@@ -215,10 +224,7 @@ impl<'a> CapabilityMatcher<'a> {
     /// Resolve multiple (variable_name, role) pairs at once.
     ///
     /// Only returns matches where a provider was found.
-    pub fn resolve_all(
-        &self,
-        variables: &[(&str, &str)],
-    ) -> Vec<CapabilityMatch> {
+    pub fn resolve_all(&self, variables: &[(&str, &str)]) -> Vec<CapabilityMatch> {
         variables
             .iter()
             .filter_map(|(name, role)| self.resolve_role(name, role))
@@ -233,31 +239,37 @@ mod tests {
     use super::*;
 
     fn kanidm() -> ServiceCapabilities {
-        let mut s = ServiceCapabilities::default();
-        s.service_id   = "iam/kanidm".into();
-        s.service_name = "Kanidm".into();
-        s.capabilities.insert("oidc-provider".into(), true);
-        s.capabilities.insert("scim-server".into(), true);
-        s.capabilities.insert("saml".into(), false);
-        s.provides_roles.insert(
-            "iam.oidc-discovery-url".into(),
-            "https://auth.example.com/.well-known/openid-configuration".into(),
-        );
-        s.provides_roles.insert("iam.client-id".into(), "kanidm-client".into());
-        s
+        ServiceCapabilities {
+            service_id: "iam/kanidm".into(),
+            service_name: "Kanidm".into(),
+            capabilities: [
+                ("oidc-provider".into(), true),
+                ("scim-server".into(), true),
+                ("saml".into(), false),
+            ]
+            .into(),
+            provides_roles: [
+                (
+                    "iam.oidc-discovery-url".into(),
+                    "https://auth.example.com/.well-known/openid-configuration".into(),
+                ),
+                ("iam.client-id".into(), "kanidm-client".into()),
+            ]
+            .into(),
+        }
     }
 
     fn keycloak() -> ServiceCapabilities {
-        let mut s = ServiceCapabilities::default();
-        s.service_id   = "iam/keycloak".into();
-        s.service_name = "KeyCloak".into();
-        s.capabilities.insert("oidc-provider".into(), true);
-        s.capabilities.insert("saml".into(), true);
-        s.provides_roles.insert(
-            "iam.oidc-discovery-url".into(),
-            "https://auth2.example.com/realms/master/.well-known/openid-configuration".into(),
-        );
-        s
+        ServiceCapabilities {
+            service_id: "iam/keycloak".into(),
+            service_name: "KeyCloak".into(),
+            capabilities: [("oidc-provider".into(), true), ("saml".into(), true)].into(),
+            provides_roles: [(
+                "iam.oidc-discovery-url".into(),
+                "https://auth2.example.com/realms/master/.well-known/openid-configuration".into(),
+            )]
+            .into(),
+        }
     }
 
     #[test]
@@ -283,7 +295,9 @@ mod tests {
         reg.register(kanidm());
 
         let matcher = CapabilityMatcher::new(&reg);
-        let m = matcher.resolve_role("OAUTH_ISSUER_URL", "iam.oidc-discovery-url").unwrap();
+        let m = matcher
+            .resolve_role("OAUTH_ISSUER_URL", "iam.oidc-discovery-url")
+            .unwrap();
         assert_eq!(m.provider_id.as_str(), "iam/kanidm");
         assert!(!m.requires_user_choice);
         assert!(m.value.contains("well-known"));
@@ -296,7 +310,9 @@ mod tests {
         reg.register(keycloak());
 
         let matcher = CapabilityMatcher::new(&reg);
-        let m = matcher.resolve_role("OAUTH_ISSUER_URL", "iam.oidc-discovery-url").unwrap();
+        let m = matcher
+            .resolve_role("OAUTH_ISSUER_URL", "iam.oidc-discovery-url")
+            .unwrap();
         assert!(m.requires_user_choice);
         assert_eq!(m.candidates.len(), 2);
     }
@@ -317,7 +333,7 @@ mod tests {
         let results = matcher.resolve_all(&[
             ("OAUTH_ISSUER_URL", "iam.oidc-discovery-url"),
             ("CLIENT_ID", "iam.client-id"),
-            ("SMTP_HOST", "smtp.host"),  // no provider → omitted
+            ("SMTP_HOST", "smtp.host"), // no provider → omitted
         ]);
         assert_eq!(results.len(), 2);
     }

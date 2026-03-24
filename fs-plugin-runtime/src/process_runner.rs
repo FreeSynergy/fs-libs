@@ -32,7 +32,9 @@ pub struct ProcessPluginRunner {
 impl ProcessPluginRunner {
     /// Create a new runner pointing at the given Store module directory.
     pub fn new(dir: impl Into<PathBuf>) -> Self {
-        Self { store_module_dir: dir.into() }
+        Self {
+            store_module_dir: dir.into(),
+        }
     }
 
     /// Invoke the plugin with the given context and return its response.
@@ -53,9 +55,8 @@ impl ProcessPluginRunner {
             )));
         }
 
-        let ctx_json = serde_json::to_string(ctx).map_err(|e| {
-            FsError::Plugin(format!("failed to serialize PluginContext: {e}"))
-        })?;
+        let ctx_json = serde_json::to_string(ctx)
+            .map_err(|e| FsError::Plugin(format!("failed to serialize PluginContext: {e}")))?;
 
         tracing::debug!(
             executable = %executable.display(),
@@ -79,14 +80,14 @@ impl ProcessPluginRunner {
         {
             let stdin = child.stdin.take().expect("stdin was piped");
             let mut stdin = stdin;
-            stdin.write_all(ctx_json.as_bytes()).map_err(|e| {
-                FsError::Plugin(format!("failed to write to plugin stdin: {e}"))
-            })?;
+            stdin
+                .write_all(ctx_json.as_bytes())
+                .map_err(|e| FsError::Plugin(format!("failed to write to plugin stdin: {e}")))?;
         }
 
-        let output = child.wait_with_output().map_err(|e| {
-            FsError::Plugin(format!("plugin process error: {e}"))
-        })?;
+        let output = child
+            .wait_with_output()
+            .map_err(|e| FsError::Plugin(format!("plugin process error: {e}")))?;
 
         if !output.status.success() {
             return Err(FsError::Plugin(format!(
@@ -95,10 +96,8 @@ impl ProcessPluginRunner {
             )));
         }
 
-        let response: PluginResponse =
-            serde_json::from_slice(&output.stdout).map_err(|e| {
-                FsError::Plugin(format!("invalid JSON from plugin stdout: {e}"))
-            })?;
+        let response: PluginResponse = serde_json::from_slice(&output.stdout)
+            .map_err(|e| FsError::Plugin(format!("invalid JSON from plugin stdout: {e}")))?;
 
         if response.protocol != 1 {
             return Err(FsError::Plugin(format!(
@@ -118,14 +117,14 @@ impl ProcessPluginRunner {
     ///
     /// Call this after [`run`][Self::run] once you've decided to commit the changes.
     pub fn apply(&self, response: &PluginResponse) -> Result<(), FsError> {
-        self.write_files(response)?;
-        self.run_commands(response)?;
+        Self::write_files(response)?;
+        Self::run_commands(response)?;
         Ok(())
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    fn write_files(&self, response: &PluginResponse) -> Result<(), FsError> {
+    fn write_files(response: &PluginResponse) -> Result<(), FsError> {
         for file in &response.files {
             let dest = Path::new(&file.dest);
 
@@ -138,25 +137,22 @@ impl ProcessPluginRunner {
                 })?;
             }
 
-            fs::write(dest, &file.content).map_err(|e| {
-                FsError::Plugin(format!("failed to write {}: {e}", dest.display()))
-            })?;
+            fs::write(dest, &file.content)
+                .map_err(|e| FsError::Plugin(format!("failed to write {}: {e}", dest.display())))?;
 
-            fs::set_permissions(dest, fs::Permissions::from_mode(file.mode)).map_err(
-                |e| {
-                    FsError::Plugin(format!(
-                        "failed to set permissions on {}: {e}",
-                        dest.display()
-                    ))
-                },
-            )?;
+            fs::set_permissions(dest, fs::Permissions::from_mode(file.mode)).map_err(|e| {
+                FsError::Plugin(format!(
+                    "failed to set permissions on {}: {e}",
+                    dest.display()
+                ))
+            })?;
 
             tracing::debug!(dest = %dest.display(), mode = file.mode, "wrote output file");
         }
         Ok(())
     }
 
-    fn run_commands(&self, response: &PluginResponse) -> Result<(), FsError> {
+    fn run_commands(response: &PluginResponse) -> Result<(), FsError> {
         for shell_cmd in &response.commands {
             let mut builder = Command::new("sh");
             builder.arg("-c").arg(&shell_cmd.cmd);
@@ -172,10 +168,7 @@ impl ProcessPluginRunner {
             tracing::debug!(cmd = %shell_cmd.cmd, "running shell command");
 
             let status = builder.status().map_err(|e| {
-                FsError::Plugin(format!(
-                    "failed to run command `{}`: {e}",
-                    shell_cmd.cmd
-                ))
+                FsError::Plugin(format!("failed to run command `{}`: {e}", shell_cmd.cmd))
             })?;
 
             if !status.success() {

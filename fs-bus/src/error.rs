@@ -34,7 +34,10 @@ impl BusError {
 
     /// Convenience constructor for handler errors.
     pub fn handler(topic: impl Into<String>, message: impl Into<String>) -> Self {
-        Self::Handler { topic: topic.into(), message: message.into() }
+        Self::Handler {
+            topic: topic.into(),
+            message: message.into(),
+        }
     }
 
     /// Convenience constructor for transform errors.

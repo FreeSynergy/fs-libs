@@ -8,6 +8,7 @@ use fs_types::resources::{
     bridge::{BridgeMethod, BridgeResource, FieldMapping, HttpMethod},
     meta::{ResourceMeta, ResourceType, Role, ValidationStatus},
 };
+use fs_types::tags::FsTag;
 use std::path::PathBuf;
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
@@ -16,12 +17,17 @@ fn meta(id: &str, name: &str, description: &str, target_service: &str) -> Resour
     ResourceMeta {
         id: id.into(),
         name: name.into(),
+        summary: description.chars().take(255).collect(),
         description: description.into(),
-        version: "1.0.0".into(),
+        description_file: PathBuf::from("help/en/description.ftl"),
+        version: "1.0.0".parse().unwrap(),
         author: "FreeSynergy".into(),
         license: "MIT".into(),
         icon: PathBuf::from("bridge.svg"),
-        tags: vec!["bridge".into(), target_service.into()],
+        tags: vec![
+            FsTag::new("api.bridge"),
+            FsTag::new(format!("package.{target_service}")),
+        ],
         resource_type: ResourceType::Bridge,
         dependencies: vec![],
         signature: None,
@@ -66,49 +72,75 @@ pub fn kanidm_iam_bridge() -> BridgeResource {
         methods: vec![
             // user.create → POST /v1/person
             method(
-                "user.create", HttpMethod::Post, "/v1/person",
-                FieldMapping::identity().map("username", "attrs.name").map("email", "attrs.mail"),
-                FieldMapping::identity().map("attrs.uuid", "id").map("attrs.name", "username").map("attrs.mail", "email"),
+                "user.create",
+                HttpMethod::Post,
+                "/v1/person",
+                FieldMapping::identity()
+                    .map("username", "attrs.name")
+                    .map("email", "attrs.mail"),
+                FieldMapping::identity()
+                    .map("attrs.uuid", "id")
+                    .map("attrs.name", "username")
+                    .map("attrs.mail", "email"),
             ),
             // user.get → GET /v1/person/:id
             method(
-                "user.get", HttpMethod::Get, "/v1/person",
+                "user.get",
+                HttpMethod::Get,
+                "/v1/person",
                 FieldMapping::identity(),
-                FieldMapping::identity().map("attrs.uuid", "id").map("attrs.name", "username").map("attrs.mail", "email"),
+                FieldMapping::identity()
+                    .map("attrs.uuid", "id")
+                    .map("attrs.name", "username")
+                    .map("attrs.mail", "email"),
             ),
             // user.list → GET /v1/person
             method(
-                "user.list", HttpMethod::Get, "/v1/person",
+                "user.list",
+                HttpMethod::Get,
+                "/v1/person",
                 FieldMapping::identity(),
                 FieldMapping::identity(),
             ),
             // user.update → PATCH /v1/person/:id
             method(
-                "user.update", HttpMethod::Patch, "/v1/person",
+                "user.update",
+                HttpMethod::Patch,
+                "/v1/person",
                 FieldMapping::identity().map("email", "attrs.mail"),
                 FieldMapping::identity(),
             ),
             // user.delete → DELETE /v1/person/:id
             method(
-                "user.delete", HttpMethod::Delete, "/v1/person",
+                "user.delete",
+                HttpMethod::Delete,
+                "/v1/person",
                 FieldMapping::identity(),
                 FieldMapping::identity(),
             ),
             // group.create → POST /v1/group
             method(
-                "group.create", HttpMethod::Post, "/v1/group",
+                "group.create",
+                HttpMethod::Post,
+                "/v1/group",
                 FieldMapping::identity().map("name", "attrs.name"),
-                FieldMapping::identity().map("attrs.uuid", "id").map("attrs.name", "name"),
+                FieldMapping::identity()
+                    .map("attrs.uuid", "id")
+                    .map("attrs.name", "name"),
             ),
             // group.list → GET /v1/group
             method(
-                "group.list", HttpMethod::Get, "/v1/group",
+                "group.list",
+                HttpMethod::Get,
+                "/v1/group",
                 FieldMapping::identity(),
                 FieldMapping::identity(),
             ),
             // group.add_member → POST /v1/group/:id/_attr/member
             method(
-                "group.add_member", HttpMethod::Post, "/v1/group/_attr/member",
+                "group.add_member",
+                HttpMethod::Post,
+                "/v1/group/_attr/member",
                 FieldMapping::identity().map("user_id", "member"),
                 FieldMapping::identity(),
             ),
@@ -135,25 +167,46 @@ pub fn outline_wiki_bridge() -> BridgeResource {
         methods: vec![
             // page.create → POST /api/documents.create
             method(
-                "page.create", HttpMethod::Post, "/api/documents.create",
-                FieldMapping::identity().map("title", "title").map("content", "text").map("collection_id", "collectionId"),
-                FieldMapping::identity().map("data.id", "id").map("data.title", "title").map("data.text", "content").map("data.url", "url").map("data.updatedAt", "updated_at"),
+                "page.create",
+                HttpMethod::Post,
+                "/api/documents.create",
+                FieldMapping::identity()
+                    .map("title", "title")
+                    .map("content", "text")
+                    .map("collection_id", "collectionId"),
+                FieldMapping::identity()
+                    .map("data.id", "id")
+                    .map("data.title", "title")
+                    .map("data.text", "content")
+                    .map("data.url", "url")
+                    .map("data.updatedAt", "updated_at"),
             ),
             // page.get → POST /api/documents.info
             method(
-                "page.get", HttpMethod::Post, "/api/documents.info",
+                "page.get",
+                HttpMethod::Post,
+                "/api/documents.info",
                 FieldMapping::identity().map("id", "id"),
-                FieldMapping::identity().map("data.id", "id").map("data.title", "title").map("data.text", "content").map("data.url", "url").map("data.updatedAt", "updated_at"),
+                FieldMapping::identity()
+                    .map("data.id", "id")
+                    .map("data.title", "title")
+                    .map("data.text", "content")
+                    .map("data.url", "url")
+                    .map("data.updatedAt", "updated_at"),
             ),
             // page.list → POST /api/documents.list
             method(
-                "page.list", HttpMethod::Post, "/api/documents.list",
+                "page.list",
+                HttpMethod::Post,
+                "/api/documents.list",
                 FieldMapping::identity(),
                 FieldMapping::identity(),
             ),
             // page.search → POST /api/documents.search
             method(
-                "page.search", HttpMethod::Post, "/api/documents.search",
+                "page.search",
+                HttpMethod::Post,
+                "/api/documents.search",
                 FieldMapping::identity().map("query", "query"),
                 FieldMapping::identity(),
             ),
@@ -180,27 +233,53 @@ pub fn forgejo_git_bridge() -> BridgeResource {
         methods: vec![
             // repo.create → POST /api/v1/user/repos
             method(
-                "repo.create", HttpMethod::Post, "/api/v1/user/repos",
-                FieldMapping::identity().map("private", "private").map("description", "description"),
-                FieldMapping::identity().map("id", "id").map("name", "name").map("full_name", "full_name").map("clone_url", "clone_url").map("private", "private").map("default_branch", "default_branch"),
+                "repo.create",
+                HttpMethod::Post,
+                "/api/v1/user/repos",
+                FieldMapping::identity()
+                    .map("private", "private")
+                    .map("description", "description"),
+                FieldMapping::identity()
+                    .map("id", "id")
+                    .map("name", "name")
+                    .map("full_name", "full_name")
+                    .map("clone_url", "clone_url")
+                    .map("private", "private")
+                    .map("default_branch", "default_branch"),
             ),
             // repo.list → GET /api/v1/repos/search
             method(
-                "repo.list", HttpMethod::Get, "/api/v1/repos/search",
+                "repo.list",
+                HttpMethod::Get,
+                "/api/v1/repos/search",
                 FieldMapping::identity(),
                 FieldMapping::identity(),
             ),
             // repo.get → GET /api/v1/repos/:owner/:repo
             method(
-                "repo.get", HttpMethod::Get, "/api/v1/repos",
+                "repo.get",
+                HttpMethod::Get,
+                "/api/v1/repos",
                 FieldMapping::identity(),
-                FieldMapping::identity().map("id", "id").map("name", "name").map("full_name", "full_name").map("clone_url", "clone_url").map("private", "private").map("default_branch", "default_branch"),
+                FieldMapping::identity()
+                    .map("id", "id")
+                    .map("name", "name")
+                    .map("full_name", "full_name")
+                    .map("clone_url", "clone_url")
+                    .map("private", "private")
+                    .map("default_branch", "default_branch"),
             ),
             // commit.list → GET /api/v1/repos/:owner/:repo/git/commits
             method(
-                "commit.list", HttpMethod::Get, "/api/v1/repos/commits",
+                "commit.list",
+                HttpMethod::Get,
+                "/api/v1/repos/commits",
                 FieldMapping::identity(),
-                FieldMapping::identity().map("sha", "sha").map("commit.message", "message").map("commit.author.name", "author").map("commit.author.date", "timestamp"),
+                FieldMapping::identity()
+                    .map("sha", "sha")
+                    .map("commit.message", "message")
+                    .map("commit.author.name", "author")
+                    .map("commit.author.date", "timestamp"),
             ),
         ],
     }
@@ -227,9 +306,9 @@ impl BridgeEntry {
 ///
 /// To add a new bridge: append a `BridgeEntry` here — no `match` arm required.
 static BUILTIN_BRIDGES: &[BridgeEntry] = &[
-    BridgeEntry::new("kanidm-iam-bridge",   kanidm_iam_bridge),
+    BridgeEntry::new("kanidm-iam-bridge", kanidm_iam_bridge),
     BridgeEntry::new("outline-wiki-bridge", outline_wiki_bridge),
-    BridgeEntry::new("forgejo-git-bridge",  forgejo_git_bridge),
+    BridgeEntry::new("forgejo-git-bridge", forgejo_git_bridge),
 ];
 
 /// The default [`BridgeCatalog`] — serves the three built-in bridge definitions.
@@ -253,7 +332,7 @@ impl BridgeCatalog for BuiltinCatalog {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fs_types::resources::{validator::Validate, meta::Role};
+    use fs_types::resources::{meta::Role, validator::Validate};
 
     #[test]
     fn kanidm_bridge_validates_ok() {

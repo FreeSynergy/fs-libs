@@ -19,10 +19,18 @@ impl ThemeEngine {
     }
 
     /// FreeSynergy Default theme (cyan/white on dark navy).
-    pub fn default() -> Self {
+    pub fn from_default_theme() -> Self {
+        Self::default()
+    }
+}
+
+impl Default for ThemeEngine {
+    fn default() -> Self {
         Self::new(Theme::default())
     }
+}
 
+impl ThemeEngine {
     /// Load from a `theme.toml` file on disk.
     pub fn from_toml(path: &Path) -> Result<Self, FsError> {
         let text = std::fs::read_to_string(path)
@@ -32,8 +40,8 @@ impl ThemeEngine {
 
     /// Parse a TOML string (e.g. downloaded from the store).
     pub fn from_toml_str(text: &str) -> Result<Self, FsError> {
-        let theme: Theme = toml::from_str(text)
-            .map_err(|e| FsError::Parse(format!("theme TOML: {e}")))?;
+        let theme: Theme =
+            toml::from_str(text).map_err(|e| FsError::Parse(format!("theme TOML: {e}")))?;
         Ok(Self::new(theme))
     }
 
@@ -50,33 +58,48 @@ impl ThemeEngine {
     pub fn from_css(css: &str, name: &str) -> Result<Self, FsError> {
         // Split by `;` so both multi-line and single-line CSS blocks are handled.
         let mut plain_vars: HashMap<String, String> = HashMap::new();
-        let mut fs_vars:   HashMap<String, String> = HashMap::new();
+        let mut fs_vars: HashMap<String, String> = HashMap::new();
 
         for chunk in css.split(';') {
-            let Some(dash_pos) = chunk.find("--") else { continue };
+            let Some(dash_pos) = chunk.find("--") else {
+                continue;
+            };
             let decl = &chunk[dash_pos..];
-            let Some(colon) = decl.find(':') else { continue };
-            let var   = decl[..colon].trim();
+            let Some(colon) = decl.find(':') else {
+                continue;
+            };
+            let var = decl[..colon].trim();
             let value = decl[colon + 1..].trim().to_string();
-            if value.is_empty() || !var.starts_with("--") { continue; }
+            if value.is_empty() || !var.starts_with("--") {
+                continue;
+            }
 
             if var.starts_with("--fs-") {
-                fs_vars.insert(format!("--{}", &var["--fs-".len()..]), value);
+                fs_vars.insert(
+                    format!("--{}", var.strip_prefix("--fs-").unwrap_or(var)),
+                    value,
+                );
             } else {
                 plain_vars.insert(var.to_string(), value);
             }
         }
 
-        let mut theme = Theme::default();
-        theme.name = name.to_string();
+        let mut theme = Theme {
+            name: name.to_string(),
+            ..Theme::default()
+        };
 
-        let plain_refs: HashMap<&str, &str> =
-            plain_vars.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+        let plain_refs: HashMap<&str, &str> = plain_vars
+            .iter()
+            .map(|(k, v)| (k.as_str(), v.as_str()))
+            .collect();
         theme.colors.apply_css_vars(&plain_refs);
 
         // --fs-* overrides plain vars
-        let fs_refs: HashMap<&str, &str> =
-            fs_vars.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+        let fs_refs: HashMap<&str, &str> = fs_vars
+            .iter()
+            .map(|(k, v)| (k.as_str(), v.as_str()))
+            .collect();
         theme.colors.apply_css_vars(&fs_refs);
 
         Ok(Self::new(theme))
@@ -92,12 +115,12 @@ impl ThemeEngine {
     /// Output: `:root { --primary: #00bcd4; … }`
     /// Includes colors, typography, spacing, animation, shadow, and glass vars.
     pub fn to_css(&self) -> String {
-        let c  = &self.theme.colors;
-        let t  = &self.theme.typography;
-        let s  = &self.theme.spacing;
-        let a  = &self.theme.animation;
+        let c = &self.theme.colors;
+        let t = &self.theme.typography;
+        let s = &self.theme.spacing;
+        let a = &self.theme.animation;
         let sh = &self.theme.shadows;
-        let g  = &self.theme.glass;
+        let g = &self.theme.glass;
         format!(
             ":root {{\n\
             {colors}\n\
@@ -120,15 +143,24 @@ impl ThemeEngine {
             \x20 --glass-blur:           {glass_blur}px;\n\
             \x20 --glass-border-opacity: {glass_border_opacity};\n\
             }}",
-            colors         = c.to_css_vars(),
-            font_family    = t.font_family,
-            font_size      = t.font_size,
-            line_height    = t.line_height,
-            xs = s.xs, sm = s.sm, md = s.md, lg = s.lg, xl = s.xl,
-            afast = a.fast, abase = a.base, aslow = a.slow,
-            shadow_sm = sh.sm, shadow_md = sh.md, shadow_lg = sh.lg, shadow_xl = sh.xl,
-            glass_bg_opacity     = g.bg_opacity,
-            glass_blur           = g.blur,
+            colors = c.to_css_vars(),
+            font_family = t.font_family,
+            font_size = t.font_size,
+            line_height = t.line_height,
+            xs = s.xs,
+            sm = s.sm,
+            md = s.md,
+            lg = s.lg,
+            xl = s.xl,
+            afast = a.fast,
+            abase = a.base,
+            aslow = a.slow,
+            shadow_sm = sh.sm,
+            shadow_md = sh.md,
+            shadow_lg = sh.lg,
+            shadow_xl = sh.xl,
+            glass_bg_opacity = g.bg_opacity,
+            glass_blur = g.blur,
             glass_border_opacity = g.border_opacity,
         )
     }
@@ -146,14 +178,14 @@ impl ThemeEngine {
             None => "/* theme is dark by default */".to_string(),
         };
 
-        let contrast_block = format!(
-            "@media (prefers-contrast: more) {{\n\
-             \x20 :root {{\n\
-             \x20   --glass-bg-opacity:     1.0;\n\
-             \x20   --glass-blur:           0px;\n\
-             \x20   --glass-border-opacity: 1.0;\n\
-             \x20 }}\n\
-             }}"
+        let contrast_block = concat!(
+            "@media (prefers-contrast: more) {\n",
+            "   :root {\n",
+            "    --glass-bg-opacity:     1.0;\n",
+            "    --glass-blur:           0px;\n",
+            "    --glass-border-opacity: 1.0;\n",
+            "   }\n",
+            "}"
         );
 
         format!("{root}\n\n{dark_block}\n\n{contrast_block}")
@@ -188,7 +220,8 @@ impl ThemeEngine {
 
         // Build fontFamily as a JSON array, splitting on comma so each font
         // gets its own array entry. Quotes and whitespace are stripped per entry.
-        let font_array: Vec<String> = t.font_family
+        let font_array: Vec<String> = t
+            .font_family
             .split(',')
             .map(|f| {
                 let clean = f.trim().trim_matches('"').trim();
@@ -216,10 +249,14 @@ impl ThemeEngine {
             \x20   \"xl\": \"{xl}px\"\n\
             \x20 }}\n\
             }}",
-            colors    = c.to_tailwind_colors(),
+            colors = c.to_tailwind_colors(),
             font_json = font_json,
             font_size = t.font_size,
-            xs = s.xs, sm = s.sm, md = s.md, lg = s.lg, xl = s.xl,
+            xs = s.xs,
+            sm = s.sm,
+            md = s.md,
+            lg = s.lg,
+            xl = s.xl,
         )
     }
 }

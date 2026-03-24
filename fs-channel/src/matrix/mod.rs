@@ -4,10 +4,12 @@ pub mod config;
 
 use async_trait::async_trait;
 use matrix_sdk::{
-    Client,
     config::SyncSettings,
     room::Room,
-    ruma::events::room::message::{MessageType, RoomMessageEventContent, OriginalSyncRoomMessageEvent},
+    ruma::events::room::message::{
+        MessageType, OriginalSyncRoomMessageEvent, RoomMessageEventContent,
+    },
+    Client,
 };
 use tracing::{debug, info};
 
@@ -47,11 +49,16 @@ pub struct MatrixAdapter {
 impl MatrixAdapter {
     /// Create a new adapter from the given config. Call [`connect`](Channel::connect) before use.
     pub fn new(config: MatrixConfig) -> Self {
-        Self { config, client: tokio::sync::OnceCell::new() }
+        Self {
+            config,
+            client: tokio::sync::OnceCell::new(),
+        }
     }
 
     fn client(&self) -> Result<&Client, ChannelError> {
-        self.client.get().ok_or_else(|| ChannelError::connection("not connected — call connect() first"))
+        self.client
+            .get()
+            .ok_or_else(|| ChannelError::connection("not connected — call connect() first"))
     }
 
     fn build_content(msg: &ChannelMessage) -> RoomMessageEventContent {
@@ -72,7 +79,6 @@ impl Channel for MatrixAdapter {
     async fn connect(&self) -> Result<(), ChannelError> {
         let client = Client::builder()
             .homeserver_url(&self.config.homeserver_url)
-            .sqlite_store(&self.config.store_path, None)
             .build()
             .await
             .map_err(|e| ChannelError::connection(e.to_string()))?;
@@ -87,11 +93,12 @@ impl Channel for MatrixAdapter {
                             refresh_token: None,
                         },
                         meta: matrix_sdk::SessionMeta {
-                            user_id: self.config.user_id.parse()
-                                .map_err(|e: matrix_sdk::IdParseError| ChannelError::config(e.to_string()))?,
+                            user_id: self.config.user_id.parse().map_err(
+                                |e: matrix_sdk::IdParseError| ChannelError::config(e.to_string()),
+                            )?,
                             device_id: "FSN".into(),
                         },
-                    }
+                    },
                 ))
                 .await
                 .map_err(|e| ChannelError::connection(e.to_string()))?;
@@ -110,7 +117,9 @@ impl Channel for MatrixAdapter {
         }
 
         info!(user = %self.config.user_id, "matrix adapter connected");
-        self.client.set(client).map_err(|_| ChannelError::internal("client already set"))?;
+        self.client
+            .set(client)
+            .map_err(|_| ChannelError::internal("client already set"))?;
         Ok(())
     }
 
@@ -141,9 +150,9 @@ impl Channel for MatrixAdapter {
 
         client.add_event_handler(move |ev: OriginalSyncRoomMessageEvent, room: Room| {
             let body = match &ev.content.msgtype {
-                MessageType::Text(t)   => t.body.clone(),
+                MessageType::Text(t) => t.body.clone(),
                 MessageType::Notice(n) => n.body.clone(),
-                _                      => return futures_util::future::ready(()),
+                _ => return futures_util::future::ready(()),
             };
 
             let incoming = IncomingMessage {
@@ -156,7 +165,9 @@ impl Channel for MatrixAdapter {
             futures_util::future::ready(())
         });
 
-        client.sync(SyncSettings::default()).await
+        client
+            .sync(SyncSettings::default())
+            .await
             .map_err(|e| ChannelError::receive(e.to_string()))?;
 
         Ok(())

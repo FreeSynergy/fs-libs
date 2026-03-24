@@ -103,10 +103,7 @@ impl Filter for Indent {
             .as_str()
             .ok_or_else(|| tera::Error::msg("indent: expected a string value"))?;
 
-        let width = args
-            .get("width")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(2) as usize;
+        let width = args.get("width").and_then(|v| v.as_u64()).unwrap_or(2) as usize;
 
         let pad = " ".repeat(width);
         let result = s

@@ -75,7 +75,10 @@ pub struct OAuth2Client {
 impl OAuth2Client {
     /// Create a new client.
     pub fn new(config: OAuth2Config) -> Self {
-        Self { config, http: reqwest::Client::new() }
+        Self {
+            config,
+            http: reqwest::Client::new(),
+        }
     }
 
     /// Build the authorization URL to redirect the user to.
@@ -98,11 +101,7 @@ impl OAuth2Client {
     /// Exchange an authorization code for access and refresh tokens.
     ///
     /// `state` must match what was passed to [`authorization_url`](OAuth2Client::authorization_url).
-    pub async fn exchange_code(
-        &self,
-        code: &str,
-        _state: &str,
-    ) -> Result<TokenResponse, FsError> {
+    pub async fn exchange_code(&self, code: &str, _state: &str) -> Result<TokenResponse, FsError> {
         let params = [
             ("grant_type", "authorization_code"),
             ("code", code),

@@ -102,9 +102,10 @@ impl OidcClient {
         discovery: &OidcDiscovery,
         bearer_token: &str,
     ) -> Result<OidcClaims, FsError> {
-        let endpoint = discovery.userinfo_endpoint.as_deref().ok_or_else(|| {
-            FsError::config("OIDC provider does not expose a userinfo endpoint")
-        })?;
+        let endpoint = discovery
+            .userinfo_endpoint
+            .as_deref()
+            .ok_or_else(|| FsError::config("OIDC provider does not expose a userinfo endpoint"))?;
 
         let response = self
             .http

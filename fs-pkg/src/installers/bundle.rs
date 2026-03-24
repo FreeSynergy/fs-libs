@@ -34,7 +34,11 @@ impl Installer for BundleInstaller {
             install_path: String::new(),
             summary: format!(
                 "{}registered bundle '{}' ({} dependencies — install individually)",
-                if dry_run { "[dry-run] would register" } else { "" },
+                if dry_run {
+                    "[dry-run] would register"
+                } else {
+                    ""
+                },
                 meta.id,
                 meta.dependencies.len()
             ),
@@ -48,11 +52,18 @@ impl Uninstaller for BundleInstaller {
         ResourceType::Bundle
     }
 
-    fn uninstall(&self, name: &str, _paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        _paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         if opts.dry_run {
             println!("[dry-run] would unregister bundle '{name}' (no files to remove)");
         } else {
-            println!("unregistered bundle '{name}' (constituent packages not removed automatically)");
+            println!(
+                "unregistered bundle '{name}' (constituent packages not removed automatically)"
+            );
         }
         Ok(())
     }

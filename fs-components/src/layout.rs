@@ -18,7 +18,11 @@ pub struct TabItem {
 impl TabItem {
     /// Shorthand constructor without an icon.
     pub fn new(key: impl Into<String>, label: impl Into<String>) -> Self {
-        Self { key: key.into(), label: label.into(), icon: None }
+        Self {
+            key: key.into(),
+            label: label.into(),
+            icon: None,
+        }
     }
 
     /// Attach an icon.
@@ -184,12 +188,18 @@ pub struct BreadcrumbItem {
 impl BreadcrumbItem {
     /// Construct a link step.
     pub fn link(label: impl Into<String>, href: impl Into<String>) -> Self {
-        Self { label: label.into(), href: Some(href.into()) }
+        Self {
+            label: label.into(),
+            href: Some(href.into()),
+        }
     }
 
     /// Construct the current (non-link) step.
     pub fn current(label: impl Into<String>) -> Self {
-        Self { label: label.into(), href: None }
+        Self {
+            label: label.into(),
+            href: None,
+        }
     }
 }
 

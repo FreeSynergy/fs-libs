@@ -61,7 +61,7 @@ impl InstallerRegistry {
         rt: ResourceType,
         meta: &ResourceMeta,
     ) -> Result<(), FsError> {
-        self.installer_for(rt).check_prerequisites(meta)
+        Self::installer_for(rt).check_prerequisites(meta)
     }
 
     /// Install a resource.
@@ -72,8 +72,7 @@ impl InstallerRegistry {
         paths: &InstallPaths,
         dry_run: bool,
     ) -> Result<InstallReport, FsError> {
-        self.installer_for(meta.resource_type)
-            .install(meta, source, paths, dry_run)
+        Self::installer_for(meta.resource_type).install(meta, source, paths, dry_run)
     }
 
     /// Uninstall a resource.
@@ -84,53 +83,61 @@ impl InstallerRegistry {
         paths: &InstallPaths,
         opts: &UninstallOptions,
     ) -> Result<(), FsError> {
-        self.uninstaller_for(rt).uninstall(name, paths, opts)
+        Self::uninstaller_for(rt).uninstall(name, paths, opts)
     }
 
     // ── Private factories ──────────────────────────────────────────────────────
 
-    fn installer_for(&self, rt: ResourceType) -> Box<dyn Installer> {
+    fn installer_for(rt: ResourceType) -> Box<dyn Installer> {
         match rt {
-            ResourceType::App              => Box::new(AppInstaller),
-            ResourceType::Bot              => Box::new(BotInstaller),
+            ResourceType::App => Box::new(AppInstaller),
+            ResourceType::Bot => Box::new(BotInstaller),
             ResourceType::MessengerAdapter => Box::new(BotInstaller), // same logic as Bot
-            ResourceType::Widget           => Box::new(WidgetInstaller),
-            ResourceType::Language         => Box::new(LanguageInstaller),
-            ResourceType::FontSet          => Box::new(FontInstaller),
-            ResourceType::IconSet          => Box::new(IconInstaller::for_icons()),
-            ResourceType::CursorSet        => Box::new(IconInstaller::for_cursors()),
-            ResourceType::Bridge           => Box::new(BridgeInstaller),
-            ResourceType::Bundle           => Box::new(BundleInstaller),
-            ResourceType::Container        => Box::new(ContainerInstaller),
+            ResourceType::Widget => Box::new(WidgetInstaller),
+            ResourceType::Language => Box::new(LanguageInstaller),
+            ResourceType::FontSet => Box::new(FontInstaller),
+            ResourceType::IconSet => Box::new(IconInstaller::for_icons()),
+            ResourceType::CursorSet => Box::new(IconInstaller::for_cursors()),
+            ResourceType::Bridge => Box::new(BridgeInstaller),
+            ResourceType::Bundle => Box::new(BundleInstaller),
+            ResourceType::Container => Box::new(ContainerInstaller),
             // All flat-file theme types share ThemeInstaller, parameterized by ResourceType.
             rt @ (ResourceType::Task
-                | ResourceType::ColorScheme
-                | ResourceType::Style
-                | ResourceType::ButtonStyle
-                | ResourceType::WindowChrome
-                | ResourceType::AnimationSet) => Box::new(ThemeInstaller { rt }),
+            | ResourceType::ColorScheme
+            | ResourceType::Style
+            | ResourceType::ButtonStyle
+            | ResourceType::WindowChrome
+            | ResourceType::AnimationSet) => Box::new(ThemeInstaller { rt }),
+            // Bootstrap and Repo are download-only; Theme is a meta-bundle.
+            // None of them are installed by the installer pipeline.
+            ResourceType::Bootstrap | ResourceType::Repo | ResourceType::Theme => {
+                Box::new(BundleInstaller)
+            }
         }
     }
 
-    fn uninstaller_for(&self, rt: ResourceType) -> Box<dyn Uninstaller> {
+    fn uninstaller_for(rt: ResourceType) -> Box<dyn Uninstaller> {
         match rt {
-            ResourceType::App              => Box::new(AppInstaller),
-            ResourceType::Bot              => Box::new(BotInstaller),
+            ResourceType::App => Box::new(AppInstaller),
+            ResourceType::Bot => Box::new(BotInstaller),
             ResourceType::MessengerAdapter => Box::new(BotInstaller),
-            ResourceType::Widget           => Box::new(WidgetInstaller),
-            ResourceType::Language         => Box::new(LanguageInstaller),
-            ResourceType::FontSet          => Box::new(FontInstaller),
-            ResourceType::IconSet          => Box::new(IconInstaller::for_icons()),
-            ResourceType::CursorSet        => Box::new(IconInstaller::for_cursors()),
-            ResourceType::Bridge           => Box::new(BridgeInstaller),
-            ResourceType::Bundle           => Box::new(BundleInstaller),
-            ResourceType::Container        => Box::new(ContainerInstaller),
+            ResourceType::Widget => Box::new(WidgetInstaller),
+            ResourceType::Language => Box::new(LanguageInstaller),
+            ResourceType::FontSet => Box::new(FontInstaller),
+            ResourceType::IconSet => Box::new(IconInstaller::for_icons()),
+            ResourceType::CursorSet => Box::new(IconInstaller::for_cursors()),
+            ResourceType::Bridge => Box::new(BridgeInstaller),
+            ResourceType::Bundle => Box::new(BundleInstaller),
+            ResourceType::Container => Box::new(ContainerInstaller),
             rt @ (ResourceType::Task
-                | ResourceType::ColorScheme
-                | ResourceType::Style
-                | ResourceType::ButtonStyle
-                | ResourceType::WindowChrome
-                | ResourceType::AnimationSet) => Box::new(ThemeInstaller { rt }),
+            | ResourceType::ColorScheme
+            | ResourceType::Style
+            | ResourceType::ButtonStyle
+            | ResourceType::WindowChrome
+            | ResourceType::AnimationSet) => Box::new(ThemeInstaller { rt }),
+            ResourceType::Bootstrap | ResourceType::Repo | ResourceType::Theme => {
+                Box::new(BundleInstaller)
+            }
         }
     }
 }

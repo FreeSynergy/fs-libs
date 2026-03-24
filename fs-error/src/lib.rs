@@ -65,20 +65,35 @@ pub type FsyError = FsError;
 
 impl FsError {
     /// Convenience constructor for Config errors.
-    pub fn config(msg: impl Into<String>) -> Self { Self::Config(msg.into()) }
+    pub fn config(msg: impl Into<String>) -> Self {
+        Self::Config(msg.into())
+    }
     /// Convenience constructor for Parse errors.
-    pub fn parse(msg: impl Into<String>) -> Self { Self::Parse(msg.into()) }
+    pub fn parse(msg: impl Into<String>) -> Self {
+        Self::Parse(msg.into())
+    }
     /// Convenience constructor for NotFound errors.
-    pub fn not_found(msg: impl Into<String>) -> Self { Self::NotFound(msg.into()) }
+    pub fn not_found(msg: impl Into<String>) -> Self {
+        Self::NotFound(msg.into())
+    }
     /// Convenience constructor for Network errors.
-    pub fn network(msg: impl Into<String>) -> Self { Self::Network(msg.into()) }
+    pub fn network(msg: impl Into<String>) -> Self {
+        Self::Network(msg.into())
+    }
     /// Convenience constructor for Internal errors.
-    pub fn internal(msg: impl Into<String>) -> Self { Self::Internal(msg.into()) }
+    pub fn internal(msg: impl Into<String>) -> Self {
+        Self::Internal(msg.into())
+    }
     /// Convenience constructor for Auth errors.
-    pub fn auth(msg: impl Into<String>) -> Self { Self::Auth(msg.into()) }
+    pub fn auth(msg: impl Into<String>) -> Self {
+        Self::Auth(msg.into())
+    }
     /// Convenience constructor for Validation errors.
     pub fn validation(field: impl Into<String>, message: impl Into<String>) -> Self {
-        Self::Validation { field: field.into(), message: message.into() }
+        Self::Validation {
+            field: field.into(),
+            message: message.into(),
+        }
     }
 }
 

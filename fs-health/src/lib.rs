@@ -69,30 +69,30 @@ mod tests {
 
     #[test]
     fn health_level_indicators() {
-        assert_eq!(HealthLevel::Ok.indicator(),      "✓");
+        assert_eq!(HealthLevel::Ok.indicator(), "✓");
         assert_eq!(HealthLevel::Warning.indicator(), "⚠");
-        assert_eq!(HealthLevel::Error.indicator(),   "✗");
+        assert_eq!(HealthLevel::Error.indicator(), "✗");
     }
 
     #[test]
     fn health_level_indicator_text() {
-        assert_eq!(HealthLevel::Ok.indicator_text(),      "ok");
+        assert_eq!(HealthLevel::Ok.indicator_text(), "ok");
         assert_eq!(HealthLevel::Warning.indicator_text(), "warning");
-        assert_eq!(HealthLevel::Error.indicator_text(),   "error");
+        assert_eq!(HealthLevel::Error.indicator_text(), "error");
     }
 
     #[test]
     fn health_level_indicator_with_text() {
-        assert_eq!(HealthLevel::Ok.indicator_with_text(),      "✓ (ok)");
+        assert_eq!(HealthLevel::Ok.indicator_with_text(), "✓ (ok)");
         assert_eq!(HealthLevel::Warning.indicator_with_text(), "⚠ (warning)");
-        assert_eq!(HealthLevel::Error.indicator_with_text(),   "✗ (error)");
+        assert_eq!(HealthLevel::Error.indicator_with_text(), "✗ (error)");
     }
 
     #[test]
     fn health_level_i18n_keys() {
-        assert_eq!(HealthLevel::Ok.i18n_key(),      "health.ok");
+        assert_eq!(HealthLevel::Ok.i18n_key(), "health.ok");
         assert_eq!(HealthLevel::Warning.i18n_key(), "health.warning");
-        assert_eq!(HealthLevel::Error.i18n_key(),   "health.error");
+        assert_eq!(HealthLevel::Error.i18n_key(), "health.error");
     }
 
     #[test]
@@ -142,7 +142,9 @@ mod tests {
 
     #[test]
     fn health_check_trait_works() {
-        struct DummyResource { ok: bool }
+        struct DummyResource {
+            ok: bool,
+        }
 
         impl HealthCheck for DummyResource {
             fn health(&self) -> HealthStatus {

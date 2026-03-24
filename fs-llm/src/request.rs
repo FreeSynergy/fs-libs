@@ -31,8 +31,8 @@ impl Role {
     /// Return the wire string used by OpenAI-compatible and Ollama APIs.
     pub fn as_str(&self) -> &'static str {
         match self {
-            Self::System    => "system",
-            Self::User      => "user",
+            Self::System => "system",
+            Self::User => "user",
             Self::Assistant => "assistant",
         }
     }
@@ -41,17 +41,26 @@ impl Role {
 impl Message {
     /// Create a system-role message.
     pub fn system(content: impl Into<String>) -> Self {
-        Self { role: Role::System, content: content.into() }
+        Self {
+            role: Role::System,
+            content: content.into(),
+        }
     }
 
     /// Create a user-role message.
     pub fn user(content: impl Into<String>) -> Self {
-        Self { role: Role::User, content: content.into() }
+        Self {
+            role: Role::User,
+            content: content.into(),
+        }
     }
 
     /// Create an assistant-role message.
     pub fn assistant(content: impl Into<String>) -> Self {
-        Self { role: Role::Assistant, content: content.into() }
+        Self {
+            role: Role::Assistant,
+            content: content.into(),
+        }
     }
 }
 
@@ -89,6 +98,10 @@ pub struct LlmResponse {
 impl LlmResponse {
     /// Create a minimal response (no usage data).
     pub fn new(content: impl Into<String>, model: impl Into<String>) -> Self {
-        Self { content: content.into(), model: model.into(), usage: None }
+        Self {
+            content: content.into(),
+            model: model.into(),
+            usage: None,
+        }
     }
 }

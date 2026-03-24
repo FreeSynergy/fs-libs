@@ -45,10 +45,10 @@ impl HttpMethodExt for HttpMethod {
         body: &Value,
     ) -> reqwest::RequestBuilder {
         match self {
-            HttpMethod::Get    => client.get(url).query(body),
-            HttpMethod::Post   => client.post(url).json(body),
-            HttpMethod::Put    => client.put(url).json(body),
-            HttpMethod::Patch  => client.patch(url).json(body),
+            HttpMethod::Get => client.get(url).query(body),
+            HttpMethod::Post => client.post(url).json(body),
+            HttpMethod::Put => client.put(url).json(body),
+            HttpMethod::Patch => client.patch(url).json(body),
             HttpMethod::Delete => client.delete(url),
         }
     }
@@ -113,11 +113,7 @@ impl BridgeExecutor {
     /// field names.  Field-mapping is applied before the HTTP call and again
     /// on the response.
     #[instrument(name = "bridge.execute", skip(self, params), fields(method, bridge = %self.resource.meta.id))]
-    pub async fn execute(
-        &self,
-        method: &str,
-        params: Value,
-    ) -> Result<Value, BridgeError> {
+    pub async fn execute(&self, method: &str, params: Value) -> Result<Value, BridgeError> {
         let bridge_method = self
             .resource
             .methods
@@ -128,7 +124,11 @@ impl BridgeExecutor {
                 bridge_id: self.resource.meta.id.clone(),
             })?;
 
-        let url = format!("{}{}", self.base_url.trim_end_matches('/'), bridge_method.endpoint);
+        let url = format!(
+            "{}{}",
+            self.base_url.trim_end_matches('/'),
+            bridge_method.endpoint
+        );
 
         // Apply request field mapping via the FieldMappingExt trait.
         let mapped_request = bridge_method.request_mapping.apply(&params);

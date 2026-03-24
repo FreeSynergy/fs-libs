@@ -19,10 +19,10 @@ pub enum HttpMethod {
 impl HttpMethod {
     pub fn as_str(self) -> &'static str {
         match self {
-            HttpMethod::Get    => "GET",
-            HttpMethod::Post   => "POST",
-            HttpMethod::Put    => "PUT",
-            HttpMethod::Patch  => "PATCH",
+            HttpMethod::Get => "GET",
+            HttpMethod::Post => "POST",
+            HttpMethod::Put => "PUT",
+            HttpMethod::Patch => "PATCH",
             HttpMethod::Delete => "DELETE",
         }
     }
@@ -48,11 +48,7 @@ impl FieldMapping {
     }
 
     /// Add a field translation.
-    pub fn map(
-        mut self,
-        standard: impl Into<String>,
-        service: impl Into<String>,
-    ) -> Self {
+    pub fn map(mut self, standard: impl Into<String>, service: impl Into<String>) -> Self {
         self.fields.push((standard.into(), service.into()));
         self
     }

@@ -30,24 +30,24 @@ impl ModuleStatus {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            ModuleStatus::Running    => "Running",
-            ModuleStatus::Stopped    => "Stopped",
+            ModuleStatus::Running => "Running",
+            ModuleStatus::Stopped => "Stopped",
             ModuleStatus::Installing => "Installing",
-            ModuleStatus::Updating   => "Updating",
-            ModuleStatus::Error      => "Error",
-            ModuleStatus::Pending    => "Pending",
+            ModuleStatus::Updating => "Updating",
+            ModuleStatus::Error => "Error",
+            ModuleStatus::Pending => "Pending",
         }
     }
 
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ModuleStatus::Running    => "module.status.running",
-            ModuleStatus::Stopped    => "module.status.stopped",
+            ModuleStatus::Running => "module.status.running",
+            ModuleStatus::Stopped => "module.status.stopped",
             ModuleStatus::Installing => "module.status.installing",
-            ModuleStatus::Updating   => "module.status.updating",
-            ModuleStatus::Error      => "module.status.error",
-            ModuleStatus::Pending    => "module.status.pending",
+            ModuleStatus::Updating => "module.status.updating",
+            ModuleStatus::Error => "module.status.error",
+            ModuleStatus::Pending => "module.status.pending",
         }
     }
 
@@ -86,8 +86,8 @@ impl ModuleSource {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            ModuleSource::Store    => "Store",
-            ModuleSource::Local    => "Local",
+            ModuleSource::Store => "Store",
+            ModuleSource::Local => "Local",
             ModuleSource::External => "External",
         }
     }
@@ -95,8 +95,8 @@ impl ModuleSource {
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ModuleSource::Store    => "module.source.store",
-            ModuleSource::Local    => "module.source.local",
+            ModuleSource::Store => "module.source.store",
+            ModuleSource::Local => "module.source.local",
             ModuleSource::External => "module.source.external",
         }
     }

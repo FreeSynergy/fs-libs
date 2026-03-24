@@ -8,15 +8,15 @@ use crate::rights::Right;
 #[derive(Debug, Clone)]
 pub struct CommandContext {
     /// Parsed command name (without prefix).
-    pub command:      String,
+    pub command: String,
     /// Arguments after the command name.
-    pub args:         Vec<String>,
+    pub args: Vec<String>,
     /// Platform label, e.g. `"matrix"` or `"telegram"`.
-    pub platform:     String,
+    pub platform: String,
     /// Room or chat ID the message came from.
-    pub room_id:      String,
+    pub room_id: String,
     /// Sender identifier (user ID, username, etc.).
-    pub sender:       String,
+    pub sender: String,
     /// Resolved access level of the caller.
     pub caller_right: Right,
 }
@@ -24,19 +24,19 @@ pub struct CommandContext {
 impl CommandContext {
     /// Create a new context.
     pub fn new(
-        command:      impl Into<String>,
-        args:         Vec<String>,
-        platform:     impl Into<String>,
-        room_id:      impl Into<String>,
-        sender:       impl Into<String>,
+        command: impl Into<String>,
+        args: Vec<String>,
+        platform: impl Into<String>,
+        room_id: impl Into<String>,
+        sender: impl Into<String>,
         caller_right: Right,
     ) -> Self {
         Self {
-            command:      command.into(),
+            command: command.into(),
             args,
-            platform:     platform.into(),
-            room_id:      room_id.into(),
-            sender:       sender.into(),
+            platform: platform.into(),
+            room_id: room_id.into(),
+            sender: sender.into(),
             caller_right,
         }
     }

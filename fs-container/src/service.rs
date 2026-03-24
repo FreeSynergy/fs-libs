@@ -35,17 +35,28 @@ impl PortBinding {
 
     /// Create a TCP port binding `host_port:container_port`.
     pub fn tcp(host_port: u16, container_port: u16) -> Self {
-        Self { host_port, container_port, protocol: Self::DEFAULT_PROTOCOL.to_string() }
+        Self {
+            host_port,
+            container_port,
+            protocol: Self::DEFAULT_PROTOCOL.to_string(),
+        }
     }
 
     /// Create a UDP port binding `host_port:container_port`.
     pub fn udp(host_port: u16, container_port: u16) -> Self {
-        Self { host_port, container_port, protocol: "udp".to_string() }
+        Self {
+            host_port,
+            container_port,
+            protocol: "udp".to_string(),
+        }
     }
 
     /// Render as `"host:container/proto"` (Quadlet `PublishPort=` format).
     pub fn to_quadlet_line(&self) -> String {
-        format!("{}:{}/{}", self.host_port, self.container_port, self.protocol)
+        format!(
+            "{}:{}/{}",
+            self.host_port, self.container_port, self.protocol
+        )
     }
 }
 
@@ -66,19 +77,27 @@ pub struct Volume {
 impl Volume {
     /// Create a read-write bind mount.
     pub fn bind(host: impl Into<String>, container: impl Into<String>) -> Self {
-        Self { host: host.into(), container: container.into(), options: None }
+        Self {
+            host: host.into(),
+            container: container.into(),
+            options: None,
+        }
     }
 
     /// Create a read-only bind mount.
     pub fn bind_ro(host: impl Into<String>, container: impl Into<String>) -> Self {
-        Self { host: host.into(), container: container.into(), options: Some("ro".to_string()) }
+        Self {
+            host: host.into(),
+            container: container.into(),
+            options: Some("ro".to_string()),
+        }
     }
 
     /// Render as `"host:container[:opts]"` (Quadlet `Volume=` format).
     pub fn to_quadlet_line(&self) -> String {
         match &self.options {
             Some(opts) => format!("{}:{}:{}", self.host, self.container, opts),
-            None       => format!("{}:{}", self.host, self.container),
+            None => format!("{}:{}", self.host, self.container),
         }
     }
 }
@@ -102,15 +121,17 @@ impl RestartPolicy {
     /// The string value used in the `[Service]` section.
     pub fn as_str(&self) -> &'static str {
         match self {
-            Self::Always    => "always",
+            Self::Always => "always",
             Self::OnFailure => "on-failure",
-            Self::No        => "no",
+            Self::No => "no",
         }
     }
 }
 
 impl StrLabel for RestartPolicy {
-    fn label(&self) -> &'static str { self.as_str() }
+    fn label(&self) -> &'static str {
+        self.as_str()
+    }
 }
 
 fs_types::impl_str_label_display!(RestartPolicy);
@@ -148,16 +169,24 @@ pub struct HealthCheck {
 
 impl HealthCheck {
     // Single source of truth for all timing defaults.
-    const DEFAULT_INTERVAL:     &'static str = "30s";
-    const DEFAULT_TIMEOUT:      &'static str = "10s";
-    const DEFAULT_RETRIES:      u32          = 3;
+    const DEFAULT_INTERVAL: &'static str = "30s";
+    const DEFAULT_TIMEOUT: &'static str = "10s";
+    const DEFAULT_RETRIES: u32 = 3;
     const DEFAULT_START_PERIOD: &'static str = "5s";
 
     // Serde `default = "…"` requires a function path, not a const.
-    fn default_interval()     -> String { Self::DEFAULT_INTERVAL.to_string() }
-    fn default_timeout()      -> String { Self::DEFAULT_TIMEOUT.to_string() }
-    fn default_retries()      -> u32    { Self::DEFAULT_RETRIES }
-    fn default_start_period() -> String { Self::DEFAULT_START_PERIOD.to_string() }
+    fn default_interval() -> String {
+        Self::DEFAULT_INTERVAL.to_string()
+    }
+    fn default_timeout() -> String {
+        Self::DEFAULT_TIMEOUT.to_string()
+    }
+    fn default_retries() -> u32 {
+        Self::DEFAULT_RETRIES
+    }
+    fn default_start_period() -> String {
+        Self::DEFAULT_START_PERIOD.to_string()
+    }
 
     /// Create a health check with the given command and default timings.
     ///
@@ -167,7 +196,10 @@ impl HealthCheck {
     /// let hc = HealthCheck::new(["curl", "-fs", "http://localhost/health"]);
     /// ```
     pub fn new(test: impl IntoIterator<Item = impl Into<String>>) -> Self {
-        Self { test: test.into_iter().map(Into::into).collect(), ..Self::default() }
+        Self {
+            test: test.into_iter().map(Into::into).collect(),
+            ..Self::default()
+        }
     }
 
     /// Override the check interval (systemd time span, e.g. `"60s"`).
@@ -383,9 +415,9 @@ mod tests {
 
     #[test]
     fn restart_policy_strings() {
-        assert_eq!(RestartPolicy::Always.as_str(),    "always");
+        assert_eq!(RestartPolicy::Always.as_str(), "always");
         assert_eq!(RestartPolicy::OnFailure.as_str(), "on-failure");
-        assert_eq!(RestartPolicy::No.as_str(),        "no");
+        assert_eq!(RestartPolicy::No.as_str(), "no");
     }
 
     #[test]
@@ -418,7 +450,10 @@ mod tests {
             .with_restart(RestartPolicy::OnFailure);
 
         assert_eq!(svc.description.as_deref(), Some("My app"));
-        assert_eq!(svc.environment.get("LOG_LEVEL").map(String::as_str), Some("debug"));
+        assert_eq!(
+            svc.environment.get("LOG_LEVEL").map(String::as_str),
+            Some("debug")
+        );
         assert_eq!(svc.volumes.len(), 1);
         assert_eq!(svc.ports.len(), 1);
         assert_eq!(svc.restart_policy.as_str(), "on-failure");

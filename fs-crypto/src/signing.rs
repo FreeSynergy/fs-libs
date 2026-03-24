@@ -35,18 +35,22 @@ pub struct FsSigningKey {
 impl FsSigningKey {
     /// Generate a new random signing key.
     pub fn generate() -> Self {
-        Self { inner: SigningKey::generate(&mut OsRng) }
+        Self {
+            inner: SigningKey::generate(&mut OsRng),
+        }
     }
 
     /// Load a signing key from raw 32-byte seed.
     pub fn from_bytes(bytes: &[u8; 32]) -> Self {
-        Self { inner: SigningKey::from_bytes(bytes) }
+        Self {
+            inner: SigningKey::from_bytes(bytes),
+        }
     }
 
     /// Load from a hex-encoded string.
     pub fn from_hex(s: &str) -> Result<Self, FsError> {
-        let bytes = hex::decode(s)
-            .map_err(|e| FsError::parse(format!("signing key hex decode: {e}")))?;
+        let bytes =
+            hex::decode(s).map_err(|e| FsError::parse(format!("signing key hex decode: {e}")))?;
         let arr: [u8; 32] = bytes
             .try_into()
             .map_err(|_| FsError::parse("signing key must be 32 bytes"))?;
@@ -60,7 +64,9 @@ impl FsSigningKey {
 
     /// The corresponding public verifying key.
     pub fn verifying_key(&self) -> FsVerifyingKey {
-        FsVerifyingKey { inner: self.inner.verifying_key() }
+        FsVerifyingKey {
+            inner: self.inner.verifying_key(),
+        }
     }
 
     /// Sign `data` and return a detached [`PackageSignature`].
@@ -69,7 +75,9 @@ impl FsSigningKey {
     pub fn sign(&self, data: &[u8]) -> PackageSignature {
         let hash = Sha256::digest(data);
         let sig = self.inner.sign(&hash);
-        PackageSignature { bytes: sig.to_bytes() }
+        PackageSignature {
+            bytes: sig.to_bytes(),
+        }
     }
 }
 
@@ -93,8 +101,8 @@ impl FsVerifyingKey {
 
     /// Load from a hex-encoded string.
     pub fn from_hex(s: &str) -> Result<Self, FsError> {
-        let bytes = hex::decode(s)
-            .map_err(|e| FsError::parse(format!("verifying key hex decode: {e}")))?;
+        let bytes =
+            hex::decode(s).map_err(|e| FsError::parse(format!("verifying key hex decode: {e}")))?;
         let arr: [u8; 32] = bytes
             .try_into()
             .map_err(|_| FsError::parse("verifying key must be 32 bytes"))?;
@@ -132,8 +140,8 @@ impl PackageSignature {
 
     /// Load from a hex-encoded string.
     pub fn from_hex(s: &str) -> Result<Self, FsError> {
-        let bytes = hex::decode(s)
-            .map_err(|e| FsError::parse(format!("signature hex decode: {e}")))?;
+        let bytes =
+            hex::decode(s).map_err(|e| FsError::parse(format!("signature hex decode: {e}")))?;
         let arr: [u8; 64] = bytes
             .try_into()
             .map_err(|_| FsError::parse("signature must be 64 bytes"))?;

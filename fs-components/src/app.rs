@@ -20,7 +20,12 @@ pub struct AppEntry {
 impl AppEntry {
     /// Construct an `AppEntry` without a description.
     pub fn new(id: impl Into<String>, name: impl Into<String>, icon: impl Into<String>) -> Self {
-        Self { id: id.into(), name: name.into(), icon: icon.into(), description: None }
+        Self {
+            id: id.into(),
+            name: name.into(),
+            icon: icon.into(),
+            description: None,
+        }
     }
 
     /// Attach a description.
@@ -126,7 +131,11 @@ impl ThemeOption {
         name: impl Into<String>,
         preview_color: impl Into<String>,
     ) -> Self {
-        Self { id: id.into(), name: name.into(), preview_color: preview_color.into() }
+        Self {
+            id: id.into(),
+            name: name.into(),
+            preview_color: preview_color.into(),
+        }
     }
 }
 
@@ -226,7 +235,11 @@ impl LangOption {
         name: impl Into<String>,
         native_name: impl Into<String>,
     ) -> Self {
-        Self { code: code.into(), name: name.into(), native_name: native_name.into() }
+        Self {
+            code: code.into(),
+            name: name.into(),
+            native_name: native_name.into(),
+        }
     }
 }
 

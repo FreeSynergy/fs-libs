@@ -66,12 +66,12 @@ fn get_at_path<'a>(root: &'a Value, path: &str) -> Option<&'a Value> {
 /// Human-readable TOML kind name for error messages.
 fn toml_kind_name(value: &Value) -> &'static str {
     match value {
-        Value::String(_)   => "string",
-        Value::Integer(_)  => "integer",
-        Value::Float(_)    => "float",
-        Value::Boolean(_)  => "boolean",
-        Value::Array(_)    => "array",
-        Value::Table(_)    => "table",
+        Value::String(_) => "string",
+        Value::Integer(_) => "integer",
+        Value::Float(_) => "float",
+        Value::Boolean(_) => "boolean",
+        Value::Array(_) => "array",
+        Value::Table(_) => "table",
         Value::Datetime(_) => "datetime",
     }
 }
@@ -84,7 +84,7 @@ mod tests {
     use crate::schema::{ConfigSchema, FieldKind, FieldSchema};
 
     fn parse(s: &str) -> Value {
-        s.parse().unwrap()
+        toml::from_str(s).unwrap()
     }
 
     #[test]
@@ -93,8 +93,10 @@ mod tests {
             .field(FieldSchema::required("name", FieldKind::String, ""))
             .field(FieldSchema::required("port", FieldKind::Integer, ""));
 
-        let value = parse(r#"name = "my-project"
-port = 8080"#);
+        let value = parse(
+            r#"name = "my-project"
+port = 8080"#,
+        );
 
         let issues = SchemaValidator::validate(&schema, &value);
         assert!(issues.is_empty());
@@ -102,8 +104,8 @@ port = 8080"#);
 
     #[test]
     fn missing_required_field() {
-        let schema = ConfigSchema::new()
-            .field(FieldSchema::required("name", FieldKind::String, ""));
+        let schema =
+            ConfigSchema::new().field(FieldSchema::required("name", FieldKind::String, ""));
 
         let value = parse("other = 1");
         let issues = SchemaValidator::validate(&schema, &value);
@@ -113,8 +115,8 @@ port = 8080"#);
 
     #[test]
     fn wrong_type_detected() {
-        let schema = ConfigSchema::new()
-            .field(FieldSchema::required("port", FieldKind::Integer, ""));
+        let schema =
+            ConfigSchema::new().field(FieldSchema::required("port", FieldKind::Integer, ""));
 
         let value = parse(r#"port = "not-a-number""#);
         let issues = SchemaValidator::validate(&schema, &value);
@@ -124,8 +126,8 @@ port = 8080"#);
 
     #[test]
     fn optional_missing_field_no_issue() {
-        let schema = ConfigSchema::new()
-            .field(FieldSchema::optional("debug", FieldKind::Boolean, ""));
+        let schema =
+            ConfigSchema::new().field(FieldSchema::optional("debug", FieldKind::Boolean, ""));
 
         let value = parse("name = \"x\"");
         let issues = SchemaValidator::validate(&schema, &value);
@@ -134,8 +136,8 @@ port = 8080"#);
 
     #[test]
     fn nested_path_validated() {
-        let schema = ConfigSchema::new()
-            .field(FieldSchema::required("server.host", FieldKind::String, ""));
+        let schema =
+            ConfigSchema::new().field(FieldSchema::required("server.host", FieldKind::String, ""));
 
         let ok = parse("[server]\nhost = \"localhost\"");
         assert!(SchemaValidator::validate(&schema, &ok).is_empty());

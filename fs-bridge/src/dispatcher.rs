@@ -8,11 +8,7 @@
 //! The Bus (Phase J) will use `BridgeDispatcher` to route role-addressed
 //! messages to the correct concrete service.
 
-use crate::{
-    catalog::BuiltinCatalog,
-    error::BridgeError,
-    executor::BridgeExecutor,
-};
+use crate::{catalog::BuiltinCatalog, error::BridgeError, executor::BridgeExecutor};
 use fs_inventory::{models::BridgeStatus, Inventory};
 use fs_types::resources::bridge::BridgeResource;
 use serde_json::Value;
@@ -33,13 +29,16 @@ pub trait BridgeCatalog: Send + Sync {
 /// Routes a standardized role API call through the Inventory to the right bridge.
 pub struct BridgeDispatcher {
     inventory: Arc<Inventory>,
-    catalog:   Arc<dyn BridgeCatalog>,
+    catalog: Arc<dyn BridgeCatalog>,
 }
 
 impl BridgeDispatcher {
     /// Create a dispatcher with the built-in bridge catalog.
     pub fn new(inventory: Arc<Inventory>) -> Self {
-        Self { inventory, catalog: Arc::new(BuiltinCatalog) }
+        Self {
+            inventory,
+            catalog: Arc::new(BuiltinCatalog),
+        }
     }
 
     /// Create a dispatcher with a custom catalog (e.g. loaded from disk or the store).
@@ -68,19 +67,21 @@ impl BridgeDispatcher {
         let instance = bridges
             .into_iter()
             .find(|b| b.status == BridgeStatus::Active)
-            .ok_or_else(|| BridgeError::NoBridgeForRole { role: role.to_owned() })?;
+            .ok_or_else(|| BridgeError::NoBridgeForRole {
+                role: role.to_owned(),
+            })?;
 
         // 2. Load the bridge resource definition from the catalog.
-        let resource = self.catalog.load(&instance.bridge_id).ok_or_else(|| {
-            BridgeError::MethodNotFound {
-                method: method.to_owned(),
-                bridge_id: instance.bridge_id.clone(),
-            }
-        })?;
+        let resource =
+            self.catalog
+                .load(&instance.bridge_id)
+                .ok_or_else(|| BridgeError::MethodNotFound {
+                    method: method.to_owned(),
+                    bridge_id: instance.bridge_id.clone(),
+                })?;
 
         // 3. Execute via BridgeExecutor.
         let executor = BridgeExecutor::new(resource, &instance.api_base_url);
         executor.execute(method, params).await
     }
 }
-

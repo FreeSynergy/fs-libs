@@ -42,8 +42,8 @@ impl TomlRepair {
 
         for action in actions {
             match action {
-                RepairAction::SetDefault { field, value } |
-                RepairAction::Insert { field, value } => {
+                RepairAction::SetDefault { field, value }
+                | RepairAction::Insert { field, value } => {
                     if let Some(parsed) = parse_toml_value(value) {
                         if set_at_path(root, field, parsed) {
                             applied.push(action.to_string());
@@ -143,7 +143,7 @@ fn rename_path(root: &mut Value, from: &str, to: &str) -> bool {
     // Clone the value at `from` first.
     let val = match get_at_path_cloned(root, from) {
         Some(v) => v,
-        None    => return false,
+        None => return false,
     };
     let inserted = set_at_path(root, to, val);
     if inserted {
@@ -204,14 +204,13 @@ mod tests {
     use crate::validator::SchemaValidator;
 
     fn parse(s: &str) -> Value {
-        s.parse().unwrap()
+        toml::from_str(s).unwrap()
     }
 
     #[test]
     fn suggest_set_default_for_missing_field() {
         let schema = ConfigSchema::new().field(
-            FieldSchema::required("name", FieldKind::String, "")
-                .with_default(r#""unnamed""#),
+            FieldSchema::required("name", FieldKind::String, "").with_default(r#""unnamed""#),
         );
 
         let value = parse("other = 1");
@@ -230,8 +229,8 @@ mod tests {
 
     #[test]
     fn suggest_no_action_when_no_default() {
-        let schema = ConfigSchema::new()
-            .field(FieldSchema::required("name", FieldKind::String, ""));
+        let schema =
+            ConfigSchema::new().field(FieldSchema::required("name", FieldKind::String, ""));
 
         let value = parse("other = 1");
         let issues = SchemaValidator::validate(&schema, &value);
@@ -254,7 +253,9 @@ mod tests {
     #[test]
     fn apply_remove_deletes_field() {
         let mut value = parse("junk = true\nkeep = 1");
-        let actions = vec![RepairAction::Remove { field: "junk".into() }];
+        let actions = vec![RepairAction::Remove {
+            field: "junk".into(),
+        }];
         TomlRepair::apply(&mut value, &actions);
         assert!(value.get("junk").is_none());
         assert!(value.get("keep").is_some());
@@ -275,7 +276,9 @@ mod tests {
     #[test]
     fn apply_trim_strips_whitespace() {
         let mut value = parse(r#"name = "  hello  ""#);
-        let actions = vec![RepairAction::Trim { field: "name".into() }];
+        let actions = vec![RepairAction::Trim {
+            field: "name".into(),
+        }];
         TomlRepair::apply(&mut value, &actions);
         assert_eq!(value.get("name").and_then(|v| v.as_str()), Some("hello"));
     }
@@ -319,7 +322,10 @@ mod tests {
 
         // 4. Re-validate — should now pass
         let issues_after = SchemaValidator::validate(&schema, &value);
-        assert!(issues_after.is_empty(), "no issues should remain after repair");
+        assert!(
+            issues_after.is_empty(),
+            "no issues should remain after repair"
+        );
         assert_eq!(
             value.get("name").and_then(|v| v.as_str()),
             Some("default-project"),

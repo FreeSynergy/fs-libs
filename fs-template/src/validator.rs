@@ -90,11 +90,7 @@ impl TemplateValidator {
     ///
     /// Returns `Err` if there are unknown variables in the template OR if
     /// required variables are missing from the context.
-    pub fn validate_all(
-        &self,
-        template: &str,
-        ctx: &TemplateContext,
-    ) -> Result<(), FsError> {
+    pub fn validate_all(&self, template: &str, ctx: &TemplateContext) -> Result<(), FsError> {
         let unknown = self.validate_str(template)?;
         if !unknown.is_empty() {
             return Err(FsError::internal(format!(
@@ -138,10 +134,8 @@ fn extract_variables(template: &str) -> Vec<String> {
             .unwrap_or("")
             .trim();
 
-        if !name.is_empty() && is_ident(name) {
-            if !vars.contains(&name.to_string()) {
-                vars.push(name.to_string());
-            }
+        if !name.is_empty() && is_ident(name) && !vars.contains(&name.to_string()) {
+            vars.push(name.to_string());
         }
     }
 
@@ -151,7 +145,10 @@ fn extract_variables(template: &str) -> Vec<String> {
 /// Return `true` when `s` is a valid identifier (letters, digits, `_`).
 fn is_ident(s: &str) -> bool {
     !s.is_empty()
-        && s.chars().next().map(|c| c.is_alphabetic() || c == '_').unwrap_or(false)
+        && s.chars()
+            .next()
+            .map(|c| c.is_alphabetic() || c == '_')
+            .unwrap_or(false)
         && s.chars().all(|c| c.is_alphanumeric() || c == '_')
 }
 
@@ -246,7 +243,9 @@ mod tests {
         let mut ctx = TemplateContext::new();
         ctx.set_str("name", "zentinel");
 
-        let err = v.validate_all("{{ name }} {{ unknown }}", &ctx).unwrap_err();
+        let err = v
+            .validate_all("{{ name }} {{ unknown }}", &ctx)
+            .unwrap_err();
         assert!(err.to_string().contains("unknown"));
     }
 }

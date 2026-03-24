@@ -1,6 +1,7 @@
 //! `AppResource` — a native FreeSynergy binary application.
 
 use super::meta::{ResourceMeta, Role};
+use crate::primitives::LanguageCode;
 use serde::{Deserialize, Serialize};
 
 // ── Platform ──────────────────────────────────────────────────────────────────
@@ -20,11 +21,11 @@ impl Platform {
     /// The canonical target triple string.
     pub fn target_triple(&self) -> &'static str {
         match self {
-            Platform::LinuxX86_64    => "x86_64-unknown-linux-gnu",
-            Platform::LinuxAarch64   => "aarch64-unknown-linux-gnu",
-            Platform::MacosX86_64    => "x86_64-apple-darwin",
-            Platform::MacosAarch64   => "aarch64-apple-darwin",
-            Platform::WindowsX86_64  => "x86_64-pc-windows-msvc",
+            Platform::LinuxX86_64 => "x86_64-unknown-linux-gnu",
+            Platform::LinuxAarch64 => "aarch64-unknown-linux-gnu",
+            Platform::MacosX86_64 => "x86_64-apple-darwin",
+            Platform::MacosAarch64 => "aarch64-apple-darwin",
+            Platform::WindowsX86_64 => "x86_64-pc-windows-msvc",
         }
     }
 }
@@ -75,8 +76,8 @@ pub struct AppResource {
     pub platforms: Vec<Platform>,
     /// Name of the main binary file, e.g. `"fs-node"`.
     pub binary_name: String,
-    /// Locale codes bundled with this app, e.g. `["en", "de"]`.
-    pub locales: Vec<String>,
+    /// Language codes bundled with this app, e.g. `["en", "de", "ar"]`.
+    pub locales: Vec<LanguageCode>,
     /// JSON Schema string describing the app's configuration file.
     pub config_schema: Option<String>,
     /// CLI sub-commands exposed by this app.

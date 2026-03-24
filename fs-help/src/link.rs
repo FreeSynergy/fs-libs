@@ -22,8 +22,8 @@ impl HelpLinkKind {
     pub fn default_label_key(&self) -> &'static str {
         match self {
             Self::Website => "help.link.website",
-            Self::Docs    => "help.link.docs",
-            Self::Git     => "help.link.git",
+            Self::Docs => "help.link.docs",
+            Self::Git => "help.link.git",
         }
     }
 
@@ -31,8 +31,8 @@ impl HelpLinkKind {
     pub fn icon(&self) -> &'static str {
         match self {
             Self::Website => "🌐",
-            Self::Docs    => "📖",
-            Self::Git     => "⑂",
+            Self::Docs => "📖",
+            Self::Git => "⑂",
         }
     }
 }

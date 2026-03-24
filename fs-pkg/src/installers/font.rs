@@ -56,9 +56,8 @@ impl Installer for FontInstaller {
         if let Some(src) = source {
             copy_source_to_dir(src, &dest)?;
         } else {
-            std::fs::create_dir_all(&dest).map_err(|e| {
-                FsError::internal(format!("cannot create {}: {e}", dest.display()))
-            })?;
+            std::fs::create_dir_all(&dest)
+                .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dest.display())))?;
         }
 
         // Refresh the system font cache — non-fatal if fc-cache is unavailable.
@@ -81,13 +80,21 @@ impl Uninstaller for FontInstaller {
         ResourceType::FontSet
     }
 
-    fn uninstall(&self, name: &str, paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         let dest = paths
             .dir_for(ResourceType::FontSet, name)
             .expect("FontInstaller: dir_for returned None");
 
         if opts.dry_run {
-            println!("[dry-run] would remove {} (then run fc-cache -f)", dest.display());
+            println!(
+                "[dry-run] would remove {} (then run fc-cache -f)",
+                dest.display()
+            );
             return Ok(());
         }
         remove_path(&dest, opts.dry_run)?;

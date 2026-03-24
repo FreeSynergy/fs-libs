@@ -12,7 +12,10 @@ use super::{
     container::ContainerResource,
     messenger_adapter::MessengerAdapterResource,
     meta::ValidationStatus,
-    theme::{AnimationSet, ButtonStyle, ColorScheme, CursorSet, FontSet, IconSet, StyleResource, TokenSet, WindowChrome},
+    theme::{
+        AnimationSet, ButtonStyle, ColorScheme, CursorSet, FontSet, IconSet, StyleResource,
+        TokenSet, WindowChrome,
+    },
     widget::WidgetResource,
 };
 
@@ -31,8 +34,7 @@ impl Validate for AppResource {
         if matches!(self.meta.status, ValidationStatus::Broken) {
             return;
         }
-        let incomplete = self.platforms.is_empty()
-            || self.binary_name.trim().is_empty();
+        let incomplete = self.platforms.is_empty() || self.binary_name.trim().is_empty();
         if incomplete {
             self.meta.status = ValidationStatus::Incomplete;
         }
@@ -64,9 +66,11 @@ impl Validate for ContainerResource {
             .filter(|s| s.is_main)
             .all(|s| s.healthcheck.is_some());
         // All required variables must have a description
-        let vars_ok = self.variables.iter().filter(|v| v.required).all(|v| {
-            !v.description.trim().is_empty()
-        });
+        let vars_ok = self
+            .variables
+            .iter()
+            .filter(|v| v.required)
+            .all(|v| !v.description.trim().is_empty());
         if !main_has_healthcheck || !vars_ok {
             self.meta.status = ValidationStatus::Incomplete;
         }
@@ -119,8 +123,11 @@ impl Validate for BridgeResource {
         }
         // Check all required standard methods are mapped
         let required = self.target_role.required_bridge_methods();
-        let mapped: std::collections::HashSet<&str> =
-            self.methods.iter().map(|m| m.standard_name.as_str()).collect();
+        let mapped: std::collections::HashSet<&str> = self
+            .methods
+            .iter()
+            .map(|m| m.standard_name.as_str())
+            .collect();
         let missing_required = required.iter().any(|m| !mapped.contains(m));
         if missing_required {
             self.meta.status = ValidationStatus::Incomplete;
@@ -138,8 +145,8 @@ impl Validate for BundleResource {
         if matches!(self.meta.status, ValidationStatus::Broken) {
             return;
         }
-        let has_content =
-            !self.packages.is_empty() || self.theme.as_ref().is_some_and(|t| {
+        let has_content = !self.packages.is_empty()
+            || self.theme.as_ref().is_some_and(|t| {
                 t.color_scheme.is_some()
                     || t.style.is_some()
                     || t.font_set.is_some()
@@ -283,11 +290,11 @@ mod tests {
             summary: "A sufficiently long summary for store listings.".into(),
             description: "A medium-length description shown in the store detail view.".into(),
             description_file: PathBuf::from("help/en/description.ftl"),
-            version: "1.0.0".into(),
+            version: "1.0.0".parse().unwrap(),
             author: "FreeSynergy".into(),
             license: "MIT".into(),
             icon: PathBuf::from("icon.svg"),
-            tags: vec!["tag".into()],
+            tags: vec![crate::tags::FsTag::new("test")],
             resource_type: rt,
             dependencies: Vec::<Dependency>::new(),
             signature: None,
@@ -299,20 +306,21 @@ mod tests {
 
     #[test]
     fn bridge_validate_ok_with_all_iam_methods() {
-        let methods: Vec<BridgeMethod> = Role::new("iam").required_bridge_methods()
+        let methods: Vec<BridgeMethod> = Role::new("iam")
+            .required_bridge_methods()
             .iter()
             .map(|name| BridgeMethod {
-                standard_name:    name.to_string(),
-                http_method:      HttpMethod::Post,
-                endpoint:         "/v1/test".into(),
-                request_mapping:  FieldMapping::identity(),
+                standard_name: name.to_string(),
+                http_method: HttpMethod::Post,
+                endpoint: "/v1/test".into(),
+                request_mapping: FieldMapping::identity(),
                 response_mapping: FieldMapping::identity(),
             })
             .collect();
 
         let mut bridge = BridgeResource {
-            meta:           base_meta(ResourceType::Bridge),
-            target_role:    Role::new("iam"),
+            meta: base_meta(ResourceType::Bridge),
+            target_role: Role::new("iam"),
             target_service: "kanidm".into(),
             methods,
         };
@@ -323,10 +331,10 @@ mod tests {
     #[test]
     fn bridge_validate_incomplete_when_methods_missing() {
         let mut bridge = BridgeResource {
-            meta:           base_meta(ResourceType::Bridge),
-            target_role:    Role::new("iam"),
+            meta: base_meta(ResourceType::Bridge),
+            target_role: Role::new("iam"),
             target_service: "kanidm".into(),
-            methods:        vec![],
+            methods: vec![],
         };
         bridge.validate();
         assert_eq!(bridge.meta.status, ValidationStatus::Incomplete);
@@ -335,9 +343,9 @@ mod tests {
     #[test]
     fn bundle_validate_broken_when_empty() {
         let mut bundle = BundleResource {
-            meta:     base_meta(ResourceType::Bundle),
+            meta: base_meta(ResourceType::Bundle),
             packages: vec![],
-            theme:    None,
+            theme: None,
         };
         bundle.validate();
         assert_eq!(bundle.meta.status, ValidationStatus::Broken);

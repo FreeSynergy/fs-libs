@@ -53,9 +53,8 @@ impl PluginHandle {
     /// Returns `Err` if the WASM call fails or the plugin returns an error response.
     pub fn execute(&mut self, input: &PluginContext) -> Result<PluginResponse, FsError> {
         let command = input.command.clone();
-        let context_json = serde_json::to_string(input).map_err(|e| {
-            FsError::Plugin(format!("failed to serialize PluginContext: {e}"))
-        })?;
+        let context_json = serde_json::to_string(input)
+            .map_err(|e| FsError::Plugin(format!("failed to serialize PluginContext: {e}")))?;
 
         let store = &mut self.state.store;
         let instance = self.state.instance;
@@ -101,9 +100,8 @@ impl PluginHandle {
         // Free the result buffer
         wasm_free(&mut *store, &instance, result_ptr, json_len);
 
-        let response: PluginResponse = serde_json::from_str(&json_str).map_err(|e| {
-            FsError::Plugin(format!("invalid JSON from plugin_execute: {e}"))
-        })?;
+        let response: PluginResponse = serde_json::from_str(&json_str)
+            .map_err(|e| FsError::Plugin(format!("invalid JSON from plugin_execute: {e}")))?;
 
         if response.has_error() {
             return Err(FsError::Plugin(format!(
@@ -119,7 +117,11 @@ impl PluginHandle {
 // ── WASM memory helpers ───────────────────────────────────────────────────────
 
 /// Allocate `len` bytes in the WASM module's linear memory via `plugin_alloc`.
-fn wasm_alloc(store: &mut Store<WasiP1Ctx>, instance: &Instance, len: usize) -> Result<usize, FsError> {
+fn wasm_alloc(
+    store: &mut Store<WasiP1Ctx>,
+    instance: &Instance,
+    len: usize,
+) -> Result<usize, FsError> {
     let alloc_fn = instance
         .get_func(&mut *store, "plugin_alloc")
         .ok_or_else(|| FsError::Plugin("WASM export `plugin_alloc` not found".into()))?;

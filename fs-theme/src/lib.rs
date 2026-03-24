@@ -29,7 +29,7 @@ pub use provider::{HighContrastTheme, SystemTheme, ThemeProvider, TomlTheme};
 pub use registry::ThemeRegistry;
 pub use store::{prefix_theme_css, validate_theme_vars, REQUIRED_VARS};
 pub use theme::Theme;
-pub use types::{Animation, AnimationKind, Glass, Shadows, ShadowLevel, Spacing, Typography};
+pub use types::{Animation, AnimationKind, Glass, ShadowLevel, Shadows, Spacing, Typography};
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -62,7 +62,10 @@ mod tests {
     fn css_output_no_duplicate_bg_surface() {
         let css = ThemeEngine::default().to_css();
         let count = css.matches("--bg-surface:").count();
-        assert_eq!(count, 1, "--bg-surface must appear exactly once, found {count}");
+        assert_eq!(
+            count, 1,
+            "--bg-surface must appear exactly once, found {count}"
+        );
     }
 
     #[test]
@@ -103,7 +106,10 @@ mod tests {
         assert_eq!(engine.theme().colors.bg_base, "#111111");
         assert_eq!(engine.theme().colors.error, "#cc0000");
         // untouched values stay as default
-        assert_eq!(engine.theme().colors.success, ColorPalette::default().success);
+        assert_eq!(
+            engine.theme().colors.success,
+            ColorPalette::default().success
+        );
     }
 
     #[test]
@@ -117,8 +123,8 @@ mod tests {
     #[test]
     fn to_tailwind_config_is_valid_json() {
         let json_str = ThemeEngine::default().to_tailwind_config();
-        let parsed: serde_json::Value = serde_json::from_str(&json_str)
-            .expect("to_tailwind_config must produce valid JSON");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&json_str).expect("to_tailwind_config must produce valid JSON");
         assert_eq!(parsed["colors"]["primary"], "#00BCD4");
         assert!(parsed["fontFamily"]["base"].is_array());
         assert!(parsed["spacing"]["md"].is_string());
@@ -142,7 +148,10 @@ mod tests {
     #[test]
     fn registry_register_and_switch() {
         let mut reg = ThemeRegistry::default();
-        reg.register(Theme { name: "Dark Amber".into(), ..Theme::default() });
+        reg.register(Theme {
+            name: "Dark Amber".into(),
+            ..Theme::default()
+        });
         assert!(reg.names().contains(&"Dark Amber"));
         reg.set_active("Dark Amber").unwrap();
         assert_eq!(reg.active().name, "Dark Amber");
@@ -209,11 +218,13 @@ xl = 32
 
     #[test]
     fn to_full_css_emits_dark_media_when_dark_colors_set() {
-        let mut theme = Theme::default();
-        theme.dark_colors = Some(ColorPalette {
-            primary: "#ffffff".into(),
-            ..ColorPalette::default()
-        });
+        let theme = Theme {
+            dark_colors: Some(ColorPalette {
+                primary: "#ffffff".into(),
+                ..ColorPalette::default()
+            }),
+            ..Theme::default()
+        };
         let full = ThemeEngine::new(theme).to_full_css();
         assert!(full.contains("@media (prefers-color-scheme: dark)"));
         assert!(full.contains("#ffffff"));
@@ -248,7 +259,10 @@ xl = 32
     fn system_theme_provider_returns_var_references() {
         let provider = SystemTheme;
         assert_eq!(provider.shadow(ShadowLevel::Sm), "var(--shadow-sm)");
-        assert_eq!(provider.animation(AnimationKind::Fast), "var(--transition-fast)");
+        assert_eq!(
+            provider.animation(AnimationKind::Fast),
+            "var(--transition-fast)"
+        );
     }
 
     #[test]
@@ -284,7 +298,7 @@ xl = 32
     #[test]
     fn prefix_injection() {
         let css = ":root { --bg-base: #000; --text-primary: #fff; }";
-        let out = prefix_theme_css(css, "fsn");
+        let out = prefix_theme_css(css, "fs");
         assert!(out.contains("--fs-bg-base: #000"), "got: {out}");
         assert!(out.contains("--fs-text-primary: #fff"), "got: {out}");
     }
@@ -292,7 +306,7 @@ xl = 32
     #[test]
     fn no_double_prefix() {
         let css = ":root { --fs-bg-base: #000; }";
-        let out = prefix_theme_css(css, "fsn");
+        let out = prefix_theme_css(css, "fs");
         assert!(!out.contains("--fs-fs-"), "got: {out}");
         assert!(out.contains("--fs-bg-base: #000"), "got: {out}");
     }
@@ -301,7 +315,10 @@ xl = 32
     fn validate_missing_vars() {
         let css = "--bg-base: #0c1222; --text-primary: #e8edf5;";
         let missing = validate_theme_vars(css);
-        assert!(missing.contains(&"bg-surface"), "expected bg-surface missing");
+        assert!(
+            missing.contains(&"bg-surface"),
+            "expected bg-surface missing"
+        );
         assert!(!missing.contains(&"bg-base"), "bg-base should be present");
     }
 }

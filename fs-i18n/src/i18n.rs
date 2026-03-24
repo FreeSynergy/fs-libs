@@ -23,10 +23,14 @@ use crate::locale::Locale;
 pub struct Translation(String);
 
 impl Translation {
-    pub(crate) fn new(s: String) -> Self { Self(s) }
+    pub(crate) fn new(s: String) -> Self {
+        Self(s)
+    }
 
     /// Borrows the translated text as a `&str`.
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl std::fmt::Display for Translation {
@@ -37,27 +41,46 @@ impl std::fmt::Display for Translation {
 
 impl std::ops::Deref for Translation {
     type Target = str;
-    fn deref(&self) -> &str { &self.0 }
+    fn deref(&self) -> &str {
+        &self.0
+    }
 }
 
 impl AsRef<str> for Translation {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 impl PartialEq<str> for Translation {
-    fn eq(&self, other: &str) -> bool { self.0 == other }
+    fn eq(&self, other: &str) -> bool {
+        self.0 == other
+    }
 }
 
 impl PartialEq<&str> for Translation {
-    fn eq(&self, other: &&str) -> bool { self.0 == *other }
+    fn eq(&self, other: &&str) -> bool {
+        self.0 == *other
+    }
 }
 
 impl PartialEq<String> for Translation {
-    fn eq(&self, other: &String) -> bool { self.0 == *other }
+    fn eq(&self, other: &String) -> bool {
+        self.0 == *other
+    }
 }
 
 impl From<Translation> for String {
-    fn from(t: Translation) -> String { t.0 }
+    fn from(t: Translation) -> String {
+        t.0
+    }
+}
+
+#[cfg(feature = "dioxus")]
+impl dioxus_core::IntoDynNode for Translation {
+    fn into_dyn_node(self) -> dioxus_core::DynamicNode {
+        dioxus_core::DynamicNode::Text(dioxus_core::VText { value: self.0 })
+    }
 }
 
 // ── LanguageCode ──────────────────────────────────────────────────────────────
@@ -70,10 +93,14 @@ impl From<Translation> for String {
 pub struct LanguageCode(String);
 
 impl LanguageCode {
-    pub(crate) fn new(s: impl Into<String>) -> Self { Self(s.into()) }
+    pub(crate) fn new(s: impl Into<String>) -> Self {
+        Self(s.into())
+    }
 
     /// Borrows the language code as a `&str`.
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl std::fmt::Display for LanguageCode {
@@ -84,11 +111,15 @@ impl std::fmt::Display for LanguageCode {
 
 impl std::ops::Deref for LanguageCode {
     type Target = str;
-    fn deref(&self) -> &str { &self.0 }
+    fn deref(&self) -> &str {
+        &self.0
+    }
 }
 
 impl AsRef<str> for LanguageCode {
-    fn as_ref(&self) -> &str { &self.0 }
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
 }
 
 // ── I18n ──────────────────────────────────────────────────────────────────────
@@ -131,11 +162,7 @@ impl I18n {
     }
 
     /// Load from a directory with an explicit active and fallback language.
-    pub fn load_dir_with_lang(
-        dir: &Path,
-        active: &str,
-        fallback: &str,
-    ) -> Result<Self, FsError> {
+    pub fn load_dir_with_lang(dir: &Path, active: &str, fallback: &str) -> Result<Self, FsError> {
         let mut instance = Self::new(active, fallback);
 
         let entries = std::fs::read_dir(dir).map_err(|e| {
@@ -231,16 +258,28 @@ impl I18n {
             return Translation::new(v);
         }
         // active TOML
-        if let Some(v) = self.toml_maps.get(&self.active_lang).and_then(|m| m.get(key)) {
+        if let Some(v) = self
+            .toml_maps
+            .get(&self.active_lang)
+            .and_then(|m| m.get(key))
+        {
             return Translation::new(v.clone());
         }
         if self.active_lang != self.fallback_lang {
             // fallback Fluent
-            if let Some(v) = self.bundles.get(&self.fallback_lang).and_then(|b| b.get(key)) {
+            if let Some(v) = self
+                .bundles
+                .get(&self.fallback_lang)
+                .and_then(|b| b.get(key))
+            {
                 return Translation::new(v);
             }
             // fallback TOML
-            if let Some(v) = self.toml_maps.get(&self.fallback_lang).and_then(|m| m.get(key)) {
+            if let Some(v) = self
+                .toml_maps
+                .get(&self.fallback_lang)
+                .and_then(|m| m.get(key))
+            {
                 return Translation::new(v.clone());
             }
         }
@@ -269,7 +308,11 @@ impl I18n {
             return Translation::new(v);
         }
         // active TOML
-        if let Some(template) = self.toml_maps.get(&self.active_lang).and_then(|m| m.get(key)) {
+        if let Some(template) = self
+            .toml_maps
+            .get(&self.active_lang)
+            .and_then(|m| m.get(key))
+        {
             return Translation::new(apply_args(template, args));
         }
         if self.active_lang != self.fallback_lang {
@@ -282,8 +325,10 @@ impl I18n {
                 return Translation::new(v);
             }
             // fallback TOML
-            if let Some(template) =
-                self.toml_maps.get(&self.fallback_lang).and_then(|m| m.get(key))
+            if let Some(template) = self
+                .toml_maps
+                .get(&self.fallback_lang)
+                .and_then(|m| m.get(key))
             {
                 return Translation::new(apply_args(template, args));
             }
@@ -342,18 +387,16 @@ impl I18n {
 fn collect_ftl_sources(dir: &Path) -> Result<Vec<String>, FsError> {
     let mut sources = Vec::new();
 
-    let entries = std::fs::read_dir(dir).map_err(|e| {
-        FsError::config(format!("cannot read directory `{}`: {e}", dir.display()))
-    })?;
+    let entries = std::fs::read_dir(dir)
+        .map_err(|e| FsError::config(format!("cannot read directory `{}`: {e}", dir.display())))?;
 
     for entry in entries.flatten() {
         let path = entry.path();
         if path.extension().and_then(|e| e.to_str()) != Some("ftl") {
             continue;
         }
-        let src = std::fs::read_to_string(&path).map_err(|e| {
-            FsError::config(format!("cannot read `{}`: {e}", path.display()))
-        })?;
+        let src = std::fs::read_to_string(&path)
+            .map_err(|e| FsError::config(format!("cannot read `{}`: {e}", path.display())))?;
         sources.push(src);
     }
 
@@ -439,7 +482,8 @@ mod tests {
     fn toml_active_lang_wins_over_fallback() {
         let mut i = I18n::new("de", "en");
         i.add_toml_str("en", "action-save = \"Save\"\n").unwrap();
-        i.add_toml_str("de", "action-save = \"Speichern\"\n").unwrap();
+        i.add_toml_str("de", "action-save = \"Speichern\"\n")
+            .unwrap();
         assert_eq!(i.t("action-save"), "Speichern");
     }
 
@@ -501,7 +545,8 @@ mod tests {
         // Both Fluent and TOML define the same key — Fluent wins.
         i.add_ftl("en", &["action-save = FluentSave\n".to_string()])
             .unwrap();
-        i.add_toml_str("en", "action-save = \"TomlSave\"\n").unwrap();
+        i.add_toml_str("en", "action-save = \"TomlSave\"\n")
+            .unwrap();
         assert_eq!(i.t("action-save"), "FluentSave");
     }
 }

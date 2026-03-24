@@ -44,7 +44,10 @@ pub struct PluginResponse {
 impl PluginResponse {
     /// Construct an error response with the given message.
     pub fn err(message: impl Into<String>) -> Self {
-        Self { error: message.into(), ..Default::default() }
+        Self {
+            error: message.into(),
+            ..Default::default()
+        }
     }
 
     /// `true` when the plugin reported an error (i.e. `error` is non-empty).

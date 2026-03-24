@@ -32,7 +32,9 @@ impl SysInfoCache {
     /// Create a cache manager pointing to `~/.config/fsn/sysinfo.toml`.
     pub fn default_path() -> Self {
         let home = home_dir();
-        Self { path: home.join(".config").join("fsn").join("sysinfo.toml") }
+        Self {
+            path: home.join(".config").join("fsn").join("sysinfo.toml"),
+        }
     }
 
     /// Create a cache manager with a custom path (useful for testing).
@@ -45,7 +47,9 @@ impl SysInfoCache {
         let content = std::fs::read_to_string(&self.path).ok()?;
         let data: SysInfoCacheData = toml::from_str(&content).ok()?;
         let age = now_unix() - data.cached_at_unix;
-        if age > CACHE_TTL_SECS { return None; }
+        if age > CACHE_TTL_SECS {
+            return None;
+        }
         Some(data)
     }
 
@@ -55,7 +59,11 @@ impl SysInfoCache {
         if let Some(parent) = self.path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        let data = SysInfoCacheData { cached_at_unix: now_unix(), os_info, features };
+        let data = SysInfoCacheData {
+            cached_at_unix: now_unix(),
+            os_info,
+            features,
+        };
         let content = toml::to_string_pretty(&data)?;
         std::fs::write(&self.path, content)?;
         Ok(())
@@ -74,7 +82,7 @@ impl SysInfoCache {
         if let Some(cached) = self.load() {
             return (cached.os_info, cached.features);
         }
-        let os_info  = OsInfo::detect();
+        let os_info = OsInfo::detect();
         let features = DetectedFeatures::detect();
         if let Err(e) = self.save(os_info.clone(), features.clone()) {
             tracing::warn!("Could not write sysinfo cache: {e}");

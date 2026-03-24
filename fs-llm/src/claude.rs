@@ -108,7 +108,7 @@ impl LlmProvider for ClaudeProvider {
             .iter()
             .filter(|m| m.role != Role::System)
             .map(|m| ClaudeMessage {
-                role:    m.role.as_str(),
+                role: m.role.as_str(),
                 content: &m.content,
             })
             .collect();
@@ -156,6 +156,10 @@ impl LlmProvider for ClaudeProvider {
             completion_tokens: u.output_tokens,
         });
 
-        Ok(LlmResponse { content, model: body.model, usage })
+        Ok(LlmResponse {
+            content,
+            model: body.model,
+            usage,
+        })
     }
 }

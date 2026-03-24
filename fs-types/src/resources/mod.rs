@@ -19,25 +19,25 @@ pub mod validator;
 pub mod widget;
 
 pub use app::AppResource;
-pub use messenger_adapter::{
-    AdapterAuthMethod, ChannelFeature, MessengerAdapterResource, MessengerKind,
-};
 pub use bot::BotResource;
 pub use bridge::BridgeResource;
 pub use bundle::BundleResource;
 pub use container::ContainerResource;
-pub use meta::{Dependency, PackageSource, ResourceMeta, ResourceType, Role, ValidationStatus};
-pub use platform::{OsFamily, PlatformFilter, RequiredFeature, platform_filter_from_tags};
-pub use theme::{
-    AnimationSet, ButtonStyle, ColorScheme, CursorSet, FontSet, IconSet, StyleResource,
-    WindowChrome,
+pub use messenger_adapter::{
+    AdapterAuthMethod, ChannelFeature, MessengerAdapterResource, MessengerKind,
 };
+pub use meta::{Dependency, PackageSource, ResourceMeta, ResourceType, Role, ValidationStatus};
+pub use platform::{platform_filter_from_tags, OsFamily, PlatformFilter, RequiredFeature};
 pub use role_api::{
     Alert, CacheEntry, CacheSet, ChatChannel, ChatMessageSend, DbQueryRequest, DbQueryResult,
     DbSchemaTable, GeoLocation, GitCommit, GitRepo, GitRepoCreate, IamGroup, IamGroupAddMember,
     IamGroupCreate, IamUser, IamUserCreate, IamUserUpdate, LlmCompletionRequest,
     LlmCompletionResponse, LlmModel, MailSend, MapTileRequest, MetricPoint, MetricQuery, Task,
     TaskCreate, TaskUpdate, WikiPage, WikiPageCreate, WikiPageSummary, WikiSearchResult,
+};
+pub use theme::{
+    AnimationSet, ButtonStyle, ColorScheme, CursorSet, FontSet, IconSet, StyleResource,
+    WindowChrome,
 };
 pub use validator::Validate;
 pub use widget::WidgetResource;

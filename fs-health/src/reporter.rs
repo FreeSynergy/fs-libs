@@ -20,8 +20,8 @@ pub enum HealthLevel {
 /// All presentation metadata for a [`HealthLevel`] in one place.
 pub struct LevelData {
     pub indicator: &'static str,
-    pub text:      &'static str,
-    pub i18n_key:  &'static str,
+    pub text: &'static str,
+    pub i18n_key: &'static str,
 }
 
 /// OOP interface for health-level presentation metadata.
@@ -30,9 +30,15 @@ pub struct LevelData {
 /// `match` in `level_data()` — no duplicate match blocks.
 pub trait LevelMeta {
     fn level_data(&self) -> LevelData;
-    fn indicator(&self) -> &'static str      { self.level_data().indicator }
-    fn indicator_text(&self) -> &'static str { self.level_data().text }
-    fn i18n_key(&self) -> &'static str       { self.level_data().i18n_key }
+    fn indicator(&self) -> &'static str {
+        self.level_data().indicator
+    }
+    fn indicator_text(&self) -> &'static str {
+        self.level_data().text
+    }
+    fn i18n_key(&self) -> &'static str {
+        self.level_data().i18n_key
+    }
     fn indicator_with_text(&self) -> String {
         format!("{} ({})", self.indicator(), self.indicator_text())
     }
@@ -41,22 +47,42 @@ pub trait LevelMeta {
 impl LevelMeta for HealthLevel {
     fn level_data(&self) -> LevelData {
         match self {
-            HealthLevel::Ok      => LevelData { indicator: "✓", text: "ok",      i18n_key: "health.ok"      },
-            HealthLevel::Warning => LevelData { indicator: "⚠", text: "warning", i18n_key: "health.warning" },
-            HealthLevel::Error   => LevelData { indicator: "✗", text: "error",   i18n_key: "health.error"   },
+            HealthLevel::Ok => LevelData {
+                indicator: "✓",
+                text: "ok",
+                i18n_key: "health.ok",
+            },
+            HealthLevel::Warning => LevelData {
+                indicator: "⚠",
+                text: "warning",
+                i18n_key: "health.warning",
+            },
+            HealthLevel::Error => LevelData {
+                indicator: "✗",
+                text: "error",
+                i18n_key: "health.error",
+            },
         }
     }
 }
 
 impl HealthLevel {
     /// Single-character Unicode indicator for compact TUI display.
-    pub fn indicator(self) -> &'static str      { LevelMeta::indicator(&self) }
+    pub fn indicator(self) -> &'static str {
+        LevelMeta::indicator(&self)
+    }
     /// Plain-text label for accessibility / screenreaders.
-    pub fn indicator_text(self) -> &'static str { LevelMeta::indicator_text(&self) }
+    pub fn indicator_text(self) -> &'static str {
+        LevelMeta::indicator_text(&self)
+    }
     /// i18n key for the level label.
-    pub fn i18n_key(self) -> &'static str       { LevelMeta::i18n_key(&self) }
+    pub fn i18n_key(self) -> &'static str {
+        LevelMeta::i18n_key(&self)
+    }
     /// Combined indicator: `"✓ (ok)"`.
-    pub fn indicator_with_text(self) -> String  { LevelMeta::indicator_with_text(&self) }
+    pub fn indicator_with_text(self) -> String {
+        LevelMeta::indicator_with_text(&self)
+    }
 
     /// `true` when the level indicates the resource is fully operational.
     pub fn is_ok(self) -> bool {
@@ -78,17 +104,26 @@ pub struct HealthIssue {
 impl HealthIssue {
     /// Construct an Error-level issue.
     pub fn error(msg_key: &'static str) -> Self {
-        Self { level: HealthLevel::Error, msg_key: msg_key.to_string() }
+        Self {
+            level: HealthLevel::Error,
+            msg_key: msg_key.to_string(),
+        }
     }
 
     /// Construct a Warning-level issue.
     pub fn warning(msg_key: &'static str) -> Self {
-        Self { level: HealthLevel::Warning, msg_key: msg_key.to_string() }
+        Self {
+            level: HealthLevel::Warning,
+            msg_key: msg_key.to_string(),
+        }
     }
 
     /// Construct an info issue (level = Ok — informational only).
     pub fn info(msg_key: &'static str) -> Self {
-        Self { level: HealthLevel::Ok, msg_key: msg_key.to_string() }
+        Self {
+            level: HealthLevel::Ok,
+            msg_key: msg_key.to_string(),
+        }
     }
 }
 

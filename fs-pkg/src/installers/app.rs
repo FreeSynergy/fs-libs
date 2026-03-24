@@ -60,15 +60,14 @@ impl Installer for AppInstaller {
             set_executables_in_dir(&dest);
         } else {
             // No source yet — create the directory as a placeholder.
-            std::fs::create_dir_all(&dest).map_err(|e| {
-                FsError::internal(format!("cannot create {}: {e}", dest.display()))
-            })?;
+            std::fs::create_dir_all(&dest)
+                .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dest.display())))?;
         }
 
         Ok(InstallReport {
             install_path: dest.to_string_lossy().into_owned(),
-            summary:      format!("installed app '{}' to {}", meta.id, dest.display()),
-            dry_run:      false,
+            summary: format!("installed app '{}' to {}", meta.id, dest.display()),
+            dry_run: false,
         })
     }
 }
@@ -108,7 +107,9 @@ impl Uninstaller for AppInstaller {
 #[cfg(unix)]
 fn set_executables_in_dir(dir: &std::path::PathBuf) {
     use std::os::unix::fs::PermissionsExt;
-    let Ok(entries) = std::fs::read_dir(dir) else { return };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_file() && path.extension().is_none() {

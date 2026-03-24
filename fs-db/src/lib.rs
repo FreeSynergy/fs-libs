@@ -29,8 +29,8 @@ pub use entity::{Auditable, FsEntity};
 pub use manager::DbManager;
 pub use migration::Migrator;
 pub use repository::{
-    AuditRepo, HostRepo, InstalledPackageRepo, ModuleRepo, PermissionRepo, PluginRepo,
-    ProjectRepo, ResourceRepo, ServiceRegistryRepo,
+    AuditRepo, HostRepo, InstalledPackageRepo, ModuleRepo, PermissionRepo, PluginRepo, ProjectRepo,
+    ResourceRepo, ServiceRegistryRepo,
 };
 pub use write_buffer::{BufferedWrite, FlushResult, WriteBuffer};
 

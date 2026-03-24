@@ -15,7 +15,7 @@ pub mod store;
 pub use action::{FormAction, SelectionResult};
 pub use error::ManagerError;
 pub use manager::{FsManager, SelectableManager};
-pub use manifest::{ManifestBuilder, SetBase, kv, parse_manifest_sections};
+pub use manifest::{kv, parse_manifest_sections, ManifestBuilder, SetBase};
 pub use registry::{HealthStatus, ManagerRegistry};
 pub use repository::{Repository, RepositoryError, RepositoryManager};
 pub use store::{ManagerStore, NoopStore};

@@ -44,7 +44,11 @@ impl WellKnownPath {
     /// ```
     pub fn url(host: &str, path: &str) -> String {
         let host = host.trim_end_matches('/');
-        let path = if path.starts_with('/') { path } else { &format!("/{path}") };
+        let path = if path.starts_with('/') {
+            path
+        } else {
+            &format!("/{path}")
+        };
         format!("https://{host}{path}")
     }
 
@@ -244,7 +248,11 @@ mod tests {
         let link = &hm.links[0];
         assert_eq!(link.rel, "lrdd");
         assert!(link.template.as_deref().unwrap().contains("example.com"));
-        assert!(link.template.as_deref().unwrap().contains(".well-known/webfinger"));
+        assert!(link
+            .template
+            .as_deref()
+            .unwrap()
+            .contains(".well-known/webfinger"));
     }
 
     #[test]

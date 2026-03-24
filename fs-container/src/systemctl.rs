@@ -33,12 +33,12 @@ pub enum UnitActiveState {
 impl StrLabel for UnitActiveState {
     fn label(&self) -> &'static str {
         match self {
-            Self::Active       => "active",
-            Self::Inactive     => "inactive",
-            Self::Activating   => "activating",
+            Self::Active => "active",
+            Self::Inactive => "inactive",
+            Self::Activating => "activating",
             Self::Deactivating => "deactivating",
-            Self::Failed       => "failed",
-            Self::Unknown      => "unknown",
+            Self::Failed => "failed",
+            Self::Unknown => "unknown",
         }
     }
 }
@@ -50,12 +50,12 @@ impl FromStr for UnitActiveState {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "active"       => Self::Active,
-            "inactive"     => Self::Inactive,
-            "activating"   => Self::Activating,
+            "active" => Self::Active,
+            "inactive" => Self::Inactive,
+            "activating" => Self::Activating,
             "deactivating" => Self::Deactivating,
-            "failed"       => Self::Failed,
-            _              => Self::Unknown,
+            "failed" => Self::Failed,
+            _ => Self::Unknown,
         })
     }
 }
@@ -110,16 +110,26 @@ impl SystemctlManager {
     /// Query the runtime status of a unit.
     pub async fn service_status(&self, unit: &str) -> Result<ServiceStatus, FsError> {
         let out = self
-            .run(&["show", unit, "--property=ActiveState,SubState,Description", "--value"])
+            .run(&[
+                "show",
+                unit,
+                "--property=ActiveState,SubState,Description",
+                "--value",
+            ])
             .await?;
         let mut lines = out.lines();
-        let active_raw  = lines.next().unwrap_or("").trim().to_string();
-        let sub_raw     = lines.next().unwrap_or("").trim().to_string();
+        let active_raw = lines.next().unwrap_or("").trim().to_string();
+        let sub_raw = lines.next().unwrap_or("").trim().to_string();
         let description = lines.next().unwrap_or("").trim().to_string();
 
         let active_state: UnitActiveState = active_raw.parse().unwrap_or(UnitActiveState::Unknown);
 
-        Ok(ServiceStatus { name: unit.to_string(), active_state, sub_state: sub_raw, description })
+        Ok(ServiceStatus {
+            name: unit.to_string(),
+            active_state,
+            sub_state: sub_raw,
+            description,
+        })
     }
 
     /// Start a unit.

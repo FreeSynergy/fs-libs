@@ -127,7 +127,7 @@ mod tests {
     #[test]
     fn blocking_only_for_mandatory_unfulfilled() {
         let mandatory = Requirement::required("smtp");
-        let optional  = Requirement::optional("monitoring");
+        let optional = Requirement::optional("monitoring");
         let available: Vec<String> = vec![];
         assert!(mandatory.is_blocking(&available));
         assert!(!optional.is_blocking(&available));
@@ -136,7 +136,10 @@ mod tests {
     #[test]
     fn with_description() {
         let r = Requirement::required("smtp").with_description("Needed for email notifications");
-        assert_eq!(r.description.as_deref(), Some("Needed for email notifications"));
+        assert_eq!(
+            r.description.as_deref(),
+            Some("Needed for email notifications")
+        );
     }
 
     struct OutlineManifest;

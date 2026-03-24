@@ -14,9 +14,9 @@ use crate::manager::FsManager;
 #[derive(Debug, Clone)]
 pub struct HealthStatus {
     /// Stable manager ID (e.g. `"theme"`, `"language"`).
-    pub id:      String,
+    pub id: String,
     /// Human-readable manager name.
-    pub name:    String,
+    pub name: String,
     /// `true` when the manager reports itself as fully operational.
     pub healthy: bool,
 }
@@ -77,8 +77,8 @@ impl ManagerRegistry {
         self.managers
             .iter()
             .map(|m| HealthStatus {
-                id:      m.id().to_owned(),
-                name:    m.name().to_owned(),
+                id: m.id().to_owned(),
+                name: m.name().to_owned(),
                 healthy: m.is_healthy(),
             })
             .collect()

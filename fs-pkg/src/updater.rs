@@ -62,7 +62,7 @@ pub struct UpdateOutcome {
 /// ```
 pub struct Updater {
     registry: InstallerRegistry,
-    paths:    InstallPaths,
+    paths: InstallPaths,
 }
 
 impl Updater {
@@ -88,17 +88,14 @@ impl Updater {
         let rt = meta.resource_type;
 
         // 1. Skip if already at the target version.
-        if meta.version == current_version {
+        if meta.version.to_string() == current_version {
             return Ok(UpdateOutcome {
-                id:          meta.id.clone(),
+                id: meta.id.clone(),
                 old_version: current_version.to_owned(),
-                new_version: meta.version.clone(),
+                new_version: meta.version.to_string(),
                 report: InstallReport {
                     install_path: self.paths.install_path_for(rt, &meta.id),
-                    summary: format!(
-                        "'{}' is already at version {}",
-                        meta.id, meta.version
-                    ),
+                    summary: format!("'{}' is already at version {}", meta.id, meta.version),
                     dry_run,
                 },
             });
@@ -111,22 +108,31 @@ impl Updater {
         if dry_run {
             let report = self.registry.install(meta, source, &self.paths, true)?;
             return Ok(UpdateOutcome {
-                id:          meta.id.clone(),
+                id: meta.id.clone(),
                 old_version: current_version.to_owned(),
-                new_version: meta.version.clone(),
+                new_version: meta.version.to_string(),
                 report,
             });
         }
 
         // 3. Uninstall old version (keep data so user config is preserved).
-        let uninstall_opts = UninstallOptions { keep_data: true, dry_run: false };
-        self.registry.uninstall(rt, &meta.id, &self.paths, &uninstall_opts)
+        let uninstall_opts = UninstallOptions {
+            keep_data: true,
+            dry_run: false,
+        };
+        self.registry
+            .uninstall(rt, &meta.id, &self.paths, &uninstall_opts)
             .map_err(|e| {
-                FsError::internal(format!("uninstall failed during update of '{}': {e}", meta.id))
+                FsError::internal(format!(
+                    "uninstall failed during update of '{}': {e}",
+                    meta.id
+                ))
             })?;
 
         // 4. Install new version.
-        let report = self.registry.install(meta, source, &self.paths, false)
+        let report = self
+            .registry
+            .install(meta, source, &self.paths, false)
             .map_err(|e| {
                 FsError::internal(format!(
                     "install of '{}' v{} failed: {e}\n\
@@ -148,9 +154,9 @@ impl Updater {
         }
 
         Ok(UpdateOutcome {
-            id:          meta.id.clone(),
+            id: meta.id.clone(),
             old_version: current_version.to_owned(),
-            new_version: meta.version.clone(),
+            new_version: meta.version.to_string(),
             report,
         })
     }
@@ -161,8 +167,8 @@ impl Updater {
 /// Result of a batch update (`fsn update --all`).
 #[derive(Debug, Default)]
 pub struct BatchUpdateOutcome {
-    pub updated:  Vec<UpdateOutcome>,
-    pub skipped:  Vec<String>,
+    pub updated: Vec<UpdateOutcome>,
+    pub skipped: Vec<String>,
     pub failures: Vec<(String, String)>,
 }
 
@@ -202,10 +208,10 @@ pub fn record_version(
         .unwrap_or(0);
 
     manager.register(VersionRecord {
-        package_id:   PackageId::new(id),
-        version:      version.to_owned(),
+        package_id: PackageId::new(id),
+        version: version.to_owned(),
         channel,
-        active:       true,
+        active: true,
         installed_at,
     });
 }

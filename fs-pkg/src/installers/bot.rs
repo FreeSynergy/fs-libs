@@ -57,15 +57,14 @@ impl Installer for BotInstaller {
             copy_source_to_dir(src, &dest)?;
             set_executables_in_dir(&dest);
         } else {
-            std::fs::create_dir_all(&dest).map_err(|e| {
-                FsError::internal(format!("cannot create {}: {e}", dest.display()))
-            })?;
+            std::fs::create_dir_all(&dest)
+                .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dest.display())))?;
         }
 
         Ok(InstallReport {
             install_path: dest.to_string_lossy().into_owned(),
-            summary:      format!("installed bot '{}' to {}", meta.id, dest.display()),
-            dry_run:      false,
+            summary: format!("installed bot '{}' to {}", meta.id, dest.display()),
+            dry_run: false,
         })
     }
 }
@@ -96,7 +95,9 @@ impl Uninstaller for BotInstaller {
 #[cfg(unix)]
 fn set_executables_in_dir(dir: &std::path::PathBuf) {
     use std::os::unix::fs::PermissionsExt;
-    let Ok(entries) = std::fs::read_dir(dir) else { return };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_file() && path.extension().is_none() {

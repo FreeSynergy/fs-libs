@@ -45,11 +45,7 @@ pub trait LlmProvider: Send + Sync {
     }
 
     /// Convenience: send system + user message.
-    async fn ask_with_system(
-        &self,
-        system: &str,
-        prompt: &str,
-    ) -> Result<String, LlmError> {
+    async fn ask_with_system(&self, system: &str, prompt: &str) -> Result<String, LlmError> {
         let msgs = vec![Message::system(system), Message::user(prompt)];
         Ok(self.complete(msgs).await?.content)
     }

@@ -42,7 +42,10 @@ pub struct SyncPeer {
 impl SyncPeer {
     /// Create a new peer tracker.
     pub fn new(peer_id: impl Into<String>) -> Self {
-        Self { state: automerge::sync::State::new(), peer_id: peer_id.into() }
+        Self {
+            state: automerge::sync::State::new(),
+            peer_id: peer_id.into(),
+        }
     }
 
     /// The peer's identifier.
@@ -74,7 +77,11 @@ impl<T: Serialize + for<'de> Deserialize<'de>> SyncDoc<T> {
     /// Create a new empty document.
     pub fn new(actor: ActorId) -> Self {
         let doc = AutoCommit::new();
-        Self { doc, actor, _marker: std::marker::PhantomData }
+        Self {
+            doc,
+            actor,
+            _marker: std::marker::PhantomData,
+        }
     }
 
     /// Create a document and initialize it with `value`.
@@ -86,7 +93,8 @@ impl<T: Serialize + for<'de> Deserialize<'de>> SyncDoc<T> {
 
     /// Deserialize the current value from the CRDT.
     pub fn get(&self) -> Result<T, FsError> {
-        let item = self.doc
+        let item = self
+            .doc
             .get(ROOT, VALUE_KEY)
             .map_err(|e| FsError::internal(e.to_string()))?
             .ok_or_else(|| FsError::NotFound("sync doc has no value".into()))?;
@@ -99,8 +107,7 @@ impl<T: Serialize + for<'de> Deserialize<'de>> SyncDoc<T> {
             other => return Err(FsError::Parse(format!("unexpected node: {other:?}"))),
         };
 
-        serde_json::from_str(&json)
-            .map_err(|e| FsError::Parse(format!("sync deserialize: {e}")))
+        serde_json::from_str(&json).map_err(|e| FsError::Parse(format!("sync deserialize: {e}")))
     }
 
     /// Update the value — creates a new CRDT change.
@@ -117,11 +124,18 @@ impl<T: Serialize + for<'de> Deserialize<'de>> SyncDoc<T> {
     /// Generate a sync message to send to `peer`. Returns `None` if nothing new.
     pub fn generate_sync_message(&mut self, peer: &mut SyncPeer) -> Option<Vec<u8>> {
         use automerge::sync::SyncDoc;
-        self.doc.sync().generate_sync_message(&mut peer.state).map(|msg| msg.encode())
+        self.doc
+            .sync()
+            .generate_sync_message(&mut peer.state)
+            .map(|msg| msg.encode())
     }
 
     /// Apply a sync message received from `peer`.
-    pub fn receive_sync_message(&mut self, peer: &mut SyncPeer, bytes: &[u8]) -> Result<(), FsError> {
+    pub fn receive_sync_message(
+        &mut self,
+        peer: &mut SyncPeer,
+        bytes: &[u8],
+    ) -> Result<(), FsError> {
         use automerge::sync::SyncDoc;
         let msg = automerge::sync::Message::decode(bytes)
             .map_err(|e| FsError::internal(format!("sync decode: {e}")))?;
@@ -138,9 +152,13 @@ impl<T: Serialize + for<'de> Deserialize<'de>> SyncDoc<T> {
 
     /// Load a document from previously saved bytes.
     pub fn load(actor: ActorId, bytes: &[u8]) -> Result<Self, FsError> {
-        let doc = AutoCommit::load(bytes)
-            .map_err(|e| FsError::internal(format!("sync load: {e}")))?;
-        Ok(Self { doc, actor, _marker: std::marker::PhantomData })
+        let doc =
+            AutoCommit::load(bytes).map_err(|e| FsError::internal(format!("sync load: {e}")))?;
+        Ok(Self {
+            doc,
+            actor,
+            _marker: std::marker::PhantomData,
+        })
     }
 
     /// The actor ID this document belongs to.
@@ -200,7 +218,12 @@ impl AuditEntry {
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_millis() as u64)
             .unwrap_or(0);
-        Self { actor, timestamp_ms, doc_id: doc_id.into(), description: description.into() }
+        Self {
+            actor,
+            timestamp_ms,
+            doc_id: doc_id.into(),
+            description: description.into(),
+        }
     }
 }
 
@@ -211,21 +234,33 @@ mod tests {
     use super::*;
 
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-    struct Cfg { name: String, port: u16 }
+    struct Cfg {
+        name: String,
+        port: u16,
+    }
 
     #[test]
     fn roundtrip() {
-        let cfg = Cfg { name: "test".into(), port: 8080 };
+        let cfg = Cfg {
+            name: "test".into(),
+            port: 8080,
+        };
         let mut doc: SyncDoc<Cfg> = SyncDoc::with_value("alice".into(), &cfg).unwrap();
         assert_eq!(doc.get().unwrap(), cfg);
-        let updated = Cfg { name: "updated".into(), port: 9090 };
+        let updated = Cfg {
+            name: "updated".into(),
+            port: 9090,
+        };
         doc.set(&updated).unwrap();
         assert_eq!(doc.get().unwrap(), updated);
     }
 
     #[test]
     fn save_and_load() {
-        let cfg = Cfg { name: "saved".into(), port: 1234 };
+        let cfg = Cfg {
+            name: "saved".into(),
+            port: 1234,
+        };
         let mut doc: SyncDoc<Cfg> = SyncDoc::with_value("bob".into(), &cfg).unwrap();
         let bytes = doc.save();
         let loaded: SyncDoc<Cfg> = SyncDoc::load("bob".into(), &bytes).unwrap();
@@ -234,8 +269,14 @@ mod tests {
 
     #[test]
     fn sync_two_peers() {
-        let cfg_a = Cfg { name: "from_alice".into(), port: 1 };
-        let cfg_b = Cfg { name: "from_bob".into(), port: 2 };
+        let cfg_a = Cfg {
+            name: "from_alice".into(),
+            port: 1,
+        };
+        let cfg_b = Cfg {
+            name: "from_bob".into(),
+            port: 2,
+        };
 
         let mut doc_a: SyncDoc<Cfg> = SyncDoc::with_value("alice".into(), &cfg_a).unwrap();
         let mut doc_b: SyncDoc<Cfg> = SyncDoc::new("bob".into());

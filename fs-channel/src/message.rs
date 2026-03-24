@@ -27,10 +27,10 @@ impl MessageKind {
     /// Renders `body` according to this kind (wraps code in fences, etc.).
     pub fn render_body<'a>(&self, body: &'a str) -> std::borrow::Cow<'a, str> {
         match self {
-            Self::Code { language: Some(lang) } =>
-                std::borrow::Cow::Owned(format!("```{lang}\n{body}\n```")),
-            Self::Code { language: None } =>
-                std::borrow::Cow::Owned(format!("```\n{body}\n```")),
+            Self::Code {
+                language: Some(lang),
+            } => std::borrow::Cow::Owned(format!("```{lang}\n{body}\n```")),
+            Self::Code { language: None } => std::borrow::Cow::Owned(format!("```\n{body}\n```")),
             _ => std::borrow::Cow::Borrowed(body),
         }
     }
@@ -65,23 +65,37 @@ pub struct ChannelMessage {
 impl ChannelMessage {
     /// Create a plain-text message.
     pub fn text(body: impl Into<String>) -> Self {
-        Self { kind: MessageKind::Text, body: body.into(), attachments: Vec::new() }
+        Self {
+            kind: MessageKind::Text,
+            body: body.into(),
+            attachments: Vec::new(),
+        }
     }
 
     /// Create a Markdown message.
     pub fn markdown(body: impl Into<String>) -> Self {
-        Self { kind: MessageKind::Markdown, body: body.into(), attachments: Vec::new() }
+        Self {
+            kind: MessageKind::Markdown,
+            body: body.into(),
+            attachments: Vec::new(),
+        }
     }
 
     /// Create a notice message.
     pub fn notice(body: impl Into<String>) -> Self {
-        Self { kind: MessageKind::Notice, body: body.into(), attachments: Vec::new() }
+        Self {
+            kind: MessageKind::Notice,
+            body: body.into(),
+            attachments: Vec::new(),
+        }
     }
 
     /// Create a code message.
     pub fn code(body: impl Into<String>, language: Option<impl Into<String>>) -> Self {
         Self {
-            kind: MessageKind::Code { language: language.map(Into::into) },
+            kind: MessageKind::Code {
+                language: language.map(Into::into),
+            },
             body: body.into(),
             attachments: Vec::new(),
         }

@@ -66,8 +66,8 @@ impl BadgeVariant {
             Self::Default => "var(--fs-color-text-secondary, #94a3b8)",
             Self::Success => "#22c55e",
             Self::Warning => "#f59e0b",
-            Self::Error   => "#ef4444",
-            Self::Info    => "var(--fs-color-primary, #06b6d4)",
+            Self::Error => "#ef4444",
+            Self::Info => "var(--fs-color-primary, #06b6d4)",
         }
     }
 }
@@ -78,8 +78,8 @@ impl VariantStyle for BadgeVariant {
             Self::Default => "background: rgba(100,116,139,0.2); color: #94a3b8;",
             Self::Success => "background: rgba(63,185,80,0.15);  color: #3fb950;",
             Self::Warning => "background: rgba(210,153,34,0.15);  color: #d29922;",
-            Self::Error   => "background: rgba(248,81,73,0.15);   color: #f85149;",
-            Self::Info    => "background: rgba(0,188,212,0.15);   color: #00bcd4;",
+            Self::Error => "background: rgba(248,81,73,0.15);   color: #f85149;",
+            Self::Info => "background: rgba(0,188,212,0.15);   color: #00bcd4;",
         }
     }
 }
@@ -218,10 +218,8 @@ impl SpinnerSize {
 /// ```
 #[component]
 pub fn LoadingSpinner(
-    #[props(default)]
-    size: SpinnerSize,
-    #[props(default = "Loading…".to_string())]
-    label: String,
+    #[props(default)] size: SpinnerSize,
+    #[props(default = "Loading…".to_string())] label: String,
 ) -> Element {
     rsx! { Spinner { size: size.px(), label } }
 }
@@ -231,8 +229,7 @@ pub fn LoadingSpinner(
 /// Centred loading overlay with spinner and optional text message.
 #[component]
 pub fn LoadingOverlay(
-    #[props(default = SpinnerSize::Lg)]
-    size: SpinnerSize,
+    #[props(default = SpinnerSize::Lg)] size: SpinnerSize,
     message: Option<String>,
 ) -> Element {
     rsx! {

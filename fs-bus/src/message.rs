@@ -24,15 +24,17 @@ impl DeliveryType {
     /// String form used in DB and config files.
     pub fn as_str(&self) -> &'static str {
         match self {
-            Self::FireAndForget  => "fire-and-forget",
-            Self::Guaranteed     => "guaranteed",
-            Self::StandingOrder  => "standing-order",
+            Self::FireAndForget => "fire-and-forget",
+            Self::Guaranteed => "guaranteed",
+            Self::StandingOrder => "standing-order",
         }
     }
 }
 
 impl StrLabel for DeliveryType {
-    fn label(&self) -> &'static str { self.as_str() }
+    fn label(&self) -> &'static str {
+        self.as_str()
+    }
 }
 
 fs_types::impl_str_label_display!(DeliveryType);
@@ -56,15 +58,17 @@ impl StorageType {
     /// String form used in DB and config files.
     pub fn as_str(&self) -> &'static str {
         match self {
-            Self::NoStore    => "no-store",
-            Self::UntilAck   => "until-ack",
+            Self::NoStore => "no-store",
+            Self::UntilAck => "until-ack",
             Self::Persistent => "persistent",
         }
     }
 }
 
 impl StrLabel for StorageType {
-    fn label(&self) -> &'static str { self.as_str() }
+    fn label(&self) -> &'static str {
+        self.as_str()
+    }
 }
 
 fs_types::impl_str_label_display!(StorageType);
@@ -89,22 +93,38 @@ pub struct BusMessage {
 impl BusMessage {
     /// Build a message with explicit delivery and storage policies.
     pub fn new(event: Event, delivery: DeliveryType, storage: StorageType) -> Self {
-        Self { event, delivery, storage }
+        Self {
+            event,
+            delivery,
+            storage,
+        }
     }
 
     /// Fire-and-forget convenience constructor (no storage).
     pub fn fire(event: Event) -> Self {
-        Self { event, delivery: DeliveryType::FireAndForget, storage: StorageType::NoStore }
+        Self {
+            event,
+            delivery: DeliveryType::FireAndForget,
+            storage: StorageType::NoStore,
+        }
     }
 
     /// Guaranteed delivery with until-ack storage.
     pub fn guaranteed(event: Event) -> Self {
-        Self { event, delivery: DeliveryType::Guaranteed, storage: StorageType::UntilAck }
+        Self {
+            event,
+            delivery: DeliveryType::Guaranteed,
+            storage: StorageType::UntilAck,
+        }
     }
 
     /// Persistent standing order.
     pub fn standing(event: Event) -> Self {
-        Self { event, delivery: DeliveryType::StandingOrder, storage: StorageType::Persistent }
+        Self {
+            event,
+            delivery: DeliveryType::StandingOrder,
+            storage: StorageType::Persistent,
+        }
     }
 
     /// Return the topic of the inner event.

@@ -20,6 +20,12 @@ async-trait = { workspace = true }
 chrono      = { workspace = true }
 
 # Optional adapters
+#
+# matrix-sdk intentionally uses the in-memory state store (no matrix-sdk-sqlite).
+# Reason: fs-db is migrating from SQLite → Postgres; adding matrix-sdk-sqlite now
+#         would introduce a sqlx-sqlite conflict. When fs-db is on Postgres, a
+#         custom Postgres state store for matrix-sdk should be implemented.
+# Known:  matrix feature causes recursion overflow in rustc ≥1.94 (upstream matrix-sdk 0.16 bug).
 matrix-sdk = { workspace = true, optional = true }
 teloxide   = { workspace = true, optional = true }
 tokio      = { workspace = true, optional = true }

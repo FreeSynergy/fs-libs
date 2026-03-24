@@ -46,19 +46,35 @@ pub enum ConfigValue {
 
 impl ConfigValue {
     pub fn as_text(&self) -> Option<&str> {
-        if let Self::Text(s) = self { Some(s) } else { None }
+        if let Self::Text(s) = self {
+            Some(s)
+        } else {
+            None
+        }
     }
 
     pub fn as_bool(&self) -> Option<bool> {
-        if let Self::Bool(b) = self { Some(*b) } else { None }
+        if let Self::Bool(b) = self {
+            Some(*b)
+        } else {
+            None
+        }
     }
 
     pub fn as_number(&self) -> Option<f64> {
-        if let Self::Number(n) = self { Some(*n) } else { None }
+        if let Self::Number(n) = self {
+            Some(*n)
+        } else {
+            None
+        }
     }
 
     pub fn as_port(&self) -> Option<u16> {
-        if let Self::Port(p) = self { Some(*p) } else { None }
+        if let Self::Port(p) = self {
+            Some(*p)
+        } else {
+            None
+        }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -69,6 +85,10 @@ impl ConfigValue {
 // ── ConfigFieldKind ───────────────────────────────────────────────────────────
 
 /// Widget type for a config field — the Manager selects the right input.
+///
+/// The typed variants (`Url`, `LanguageCode`, `SemVer`, `Tag`) carry the
+/// `FsValue` contract: the GUI gets built-in placeholder, help text, and
+/// validation without any field-specific code.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConfigFieldKind {
     /// Single-line text input.
@@ -82,11 +102,50 @@ pub enum ConfigFieldKind {
     /// Dropdown with a fixed set of choices.
     Select { options: Vec<SelectOption> },
     /// Port number (validated as 1–65535).
+    ///
+    /// Uses `FsPort` semantics — `0` is rejected, 1–65535 accepted.
     Port,
     /// File system path with optional picker.
     Path,
     /// Multi-line text area.
     Textarea,
+    // ── Typed value fields (FsValue) ──────────────────────────────────────────
+    /// A URL with an optional display label (`FsUrl`).
+    ///
+    /// The GUI renders an HTTP/HTTPS URL input field.
+    /// Built-in placeholder: `"placeholder.url"`, help: `"help.url"`.
+    Url,
+    /// A BCP-47 language code (`LanguageCode`).
+    ///
+    /// The GUI renders a language picker pre-populated from the `LanguageRegistry`.
+    /// Built-in placeholder: `"placeholder.language_code"`, help: `"help.language_code"`.
+    LanguageCode,
+    /// A semantic version string (`SemVer`).
+    ///
+    /// The GUI renders a structured version input (`MAJOR.MINOR.PATCH[-PRE]`).
+    /// Built-in placeholder: `"placeholder.semver"`, help: `"help.semver"`.
+    SemVer,
+    /// A tag from a known tag library (`FsTag`).
+    ///
+    /// The GUI renders an auto-complete tag picker limited to `library`.
+    /// Built-in help: `"help.tag"`.
+    Tag {
+        /// Which tag library to draw suggestions from.
+        library: TagLibraryKind,
+    },
+}
+
+/// Identifies which tag library a [`ConfigFieldKind::Tag`] field draws from.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TagLibraryKind {
+    /// Content and function tags (`PackageTags`).
+    Package,
+    /// OS and system requirement tags (`PlatformTags`).
+    Platform,
+    /// Protocol and API integration tags (`ApiTags`).
+    Api,
+    /// Any known tag library (union of all three built-in libraries).
+    Any,
 }
 
 /// One option in a [`ConfigFieldKind::Select`] field.
@@ -98,7 +157,10 @@ pub struct SelectOption {
 
 impl SelectOption {
     pub fn new(value: impl Into<String>, label: impl Into<String>) -> Self {
-        Self { value: value.into(), label: label.into() }
+        Self {
+            value: value.into(),
+            label: label.into(),
+        }
     }
 }
 
@@ -139,18 +201,18 @@ pub struct ConfigField {
 impl ConfigField {
     /// Build a config field. `help` is required by convention.
     pub fn new(
-        key:   impl Into<String>,
+        key: impl Into<String>,
         label: impl Into<String>,
-        help:  impl Into<String>,
-        kind:  ConfigFieldKind,
+        help: impl Into<String>,
+        kind: ConfigFieldKind,
     ) -> Self {
         Self {
-            key:           key.into(),
-            label:         label.into(),
-            help:          help.into(),
+            key: key.into(),
+            label: label.into(),
+            help: help.into(),
             kind,
-            value:         ConfigValue::Empty,
-            required:      false,
+            value: ConfigValue::Empty,
+            required: false,
             needs_restart: false,
         }
     }
@@ -194,15 +256,27 @@ pub struct HealthCheck {
 
 impl HealthCheck {
     pub fn ok(name: impl Into<String>) -> Self {
-        Self { name: name.into(), passed: true, message: None }
+        Self {
+            name: name.into(),
+            passed: true,
+            message: None,
+        }
     }
 
     pub fn ok_with(name: impl Into<String>, msg: impl Into<String>) -> Self {
-        Self { name: name.into(), passed: true, message: Some(msg.into()) }
+        Self {
+            name: name.into(),
+            passed: true,
+            message: Some(msg.into()),
+        }
     }
 
     pub fn fail(name: impl Into<String>, msg: impl Into<String>) -> Self {
-        Self { name: name.into(), passed: false, message: Some(msg.into()) }
+        Self {
+            name: name.into(),
+            passed: false,
+            message: Some(msg.into()),
+        }
     }
 }
 
@@ -213,7 +287,9 @@ pub struct PackageHealth {
 }
 
 impl PackageHealth {
-    pub fn new(checks: Vec<HealthCheck>) -> Self { Self { checks } }
+    pub fn new(checks: Vec<HealthCheck>) -> Self {
+        Self { checks }
+    }
 
     /// Returns `true` when every individual check passed.
     pub fn is_healthy(&self) -> bool {
@@ -227,7 +303,9 @@ impl PackageHealth {
 
     /// A single "not installed" health result.
     pub fn not_installed() -> Self {
-        Self { checks: vec![HealthCheck::fail("installed", "Package is not installed")] }
+        Self {
+            checks: vec![HealthCheck::fail("installed", "Package is not installed")],
+        }
     }
 }
 
@@ -254,10 +332,18 @@ pub enum RunStatus {
 }
 
 impl RunStatus {
-    pub fn is_running(&self)  -> bool { matches!(self, Self::Running) }
-    pub fn is_stopped(&self)  -> bool { matches!(self, Self::Stopped) }
-    pub fn is_error(&self)    -> bool { matches!(self, Self::Error(_)) }
-    pub fn is_setup_required(&self) -> bool { matches!(self, Self::SetupRequired) }
+    pub fn is_running(&self) -> bool {
+        matches!(self, Self::Running)
+    }
+    pub fn is_stopped(&self) -> bool {
+        matches!(self, Self::Stopped)
+    }
+    pub fn is_error(&self) -> bool {
+        matches!(self, Self::Error(_))
+    }
+    pub fn is_setup_required(&self) -> bool {
+        matches!(self, Self::SetupRequired)
+    }
     pub fn in_transition(&self) -> bool {
         matches!(self, Self::Starting | Self::Stopping)
     }
@@ -265,25 +351,25 @@ impl RunStatus {
     /// Short human-readable label for display.
     pub fn label(&self) -> &str {
         match self {
-            Self::Running        => "Running",
-            Self::Stopped        => "Stopped",
-            Self::Starting       => "Starting",
-            Self::Stopping       => "Stopping",
-            Self::Error(_)       => "Error",
-            Self::NotInstalled   => "Not installed",
-            Self::SetupRequired  => "Setup required",
+            Self::Running => "Running",
+            Self::Stopped => "Stopped",
+            Self::Starting => "Starting",
+            Self::Stopping => "Stopping",
+            Self::Error(_) => "Error",
+            Self::NotInstalled => "Not installed",
+            Self::SetupRequired => "Setup required",
         }
     }
 
     /// CSS class for status badges in the Manager UI.
     pub fn css_class(&self) -> &str {
         match self {
-            Self::Running                   => "fs-status--running",
-            Self::Stopped                   => "fs-status--stopped",
+            Self::Running => "fs-status--running",
+            Self::Stopped => "fs-status--stopped",
             Self::Starting | Self::Stopping => "fs-status--transitioning",
-            Self::Error(_)                  => "fs-status--error",
-            Self::NotInstalled              => "fs-status--not-installed",
-            Self::SetupRequired             => "fs-status--setup-required",
+            Self::Error(_) => "fs-status--error",
+            Self::NotInstalled => "fs-status--not-installed",
+            Self::SetupRequired => "fs-status--setup-required",
         }
     }
 }
@@ -305,12 +391,12 @@ pub struct InstanceRef {
 }
 
 impl InstanceRef {
-    pub fn new(
-        id:     impl Into<String>,
-        name:   impl Into<String>,
-        status: RunStatus,
-    ) -> Self {
-        Self { id: id.into(), name: name.into(), status }
+    pub fn new(id: impl Into<String>, name: impl Into<String>, status: RunStatus) -> Self {
+        Self {
+            id: id.into(),
+            name: name.into(),
+            status,
+        }
     }
 }
 
@@ -395,7 +481,9 @@ pub trait Manageable {
     ///
     /// Returns an empty vec for single-instance packages (App, Theme, Widget).
     /// The Manager sidebar shows these as collapsible sub-entries.
-    fn instances(&self) -> Vec<InstanceRef> { vec![] }
+    fn instances(&self) -> Vec<InstanceRef> {
+        vec![]
+    }
 
     // ── Builder tab ───────────────────────────────────────────────────────────
 
@@ -403,7 +491,9 @@ pub trait Manageable {
     ///
     /// Replaces the standalone fs-builder. The package knows what it needs
     /// in order to be built/created — the Manager renders the form.
-    fn build_fields(&self) -> Vec<ConfigField> { vec![] }
+    fn build_fields(&self) -> Vec<ConfigField> {
+        vec![]
+    }
 
     // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -425,7 +515,9 @@ pub trait Manageable {
     /// Whether the package can be registered as a persistent systemd service.
     ///
     /// Returns `false` by default — only container/service packages override this.
-    fn can_persist(&self) -> bool { false }
+    fn can_persist(&self) -> bool {
+        false
+    }
 
     // ── Setup flow ────────────────────────────────────────────────────────────
 
@@ -482,7 +574,7 @@ mod tests {
     fn config_value_accessors() {
         assert_eq!(ConfigValue::Text("hi".into()).as_text(), Some("hi"));
         assert_eq!(ConfigValue::Bool(true).as_bool(), Some(true));
-        assert_eq!(ConfigValue::Number(3.14).as_number(), Some(3.14));
+        assert_eq!(ConfigValue::Number(2.5).as_number(), Some(2.5));
         assert_eq!(ConfigValue::Port(8080).as_port(), Some(8080));
         assert!(ConfigValue::Empty.is_empty());
     }
@@ -506,28 +598,22 @@ mod tests {
 
     #[test]
     fn package_health_is_healthy() {
-        let h = PackageHealth::new(vec![
-            HealthCheck::ok("a"),
-            HealthCheck::ok("b"),
-        ]);
+        let h = PackageHealth::new(vec![HealthCheck::ok("a"), HealthCheck::ok("b")]);
         assert!(h.is_healthy());
         assert_eq!(h.failures().count(), 0);
     }
 
     #[test]
     fn package_health_failures() {
-        let h = PackageHealth::new(vec![
-            HealthCheck::ok("a"),
-            HealthCheck::fail("b", "broken"),
-        ]);
+        let h = PackageHealth::new(vec![HealthCheck::ok("a"), HealthCheck::fail("b", "broken")]);
         assert!(!h.is_healthy());
         assert_eq!(h.failures().count(), 1);
     }
 
     #[test]
     fn run_status_css_classes() {
-        assert_eq!(RunStatus::Running.css_class(),       "fs-status--running");
+        assert_eq!(RunStatus::Running.css_class(), "fs-status--running");
         assert_eq!(RunStatus::Error("x".into()).css_class(), "fs-status--error");
-        assert_eq!(RunStatus::Starting.css_class(),      "fs-status--transitioning");
+        assert_eq!(RunStatus::Starting.css_class(), "fs-status--transitioning");
     }
 }

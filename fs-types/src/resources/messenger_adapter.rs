@@ -61,27 +61,27 @@ impl MessengerKind {
     /// Human-readable display name.
     pub fn label(self) -> &'static str {
         match self {
-            MessengerKind::Telegram      => "Telegram",
-            MessengerKind::Matrix        => "Matrix",
-            MessengerKind::Discord       => "Discord",
-            MessengerKind::RocketChat    => "Rocket.Chat",
-            MessengerKind::Mattermost    => "Mattermost",
-            MessengerKind::Xmpp          => "XMPP",
-            MessengerKind::Zulip         => "Zulip",
-            MessengerKind::Revolt        => "Revolt",
+            MessengerKind::Telegram => "Telegram",
+            MessengerKind::Matrix => "Matrix",
+            MessengerKind::Discord => "Discord",
+            MessengerKind::RocketChat => "Rocket.Chat",
+            MessengerKind::Mattermost => "Mattermost",
+            MessengerKind::Xmpp => "XMPP",
+            MessengerKind::Zulip => "Zulip",
+            MessengerKind::Revolt => "Revolt",
             MessengerKind::NextcloudTalk => "Nextcloud Talk",
-            MessengerKind::Irc           => "IRC",
-            MessengerKind::Slack         => "Slack",
-            MessengerKind::Teams         => "Microsoft Teams",
-            MessengerKind::Viber         => "Viber",
-            MessengerKind::Line          => "LINE",
-            MessengerKind::WhatsApp      => "WhatsApp",
-            MessengerKind::Signal        => "Signal",
-            MessengerKind::Threema       => "Threema",
-            MessengerKind::Wire          => "Wire",
-            MessengerKind::Discourse     => "Discourse",
-            MessengerKind::Lemmy         => "Lemmy",
-            MessengerKind::Mastodon      => "Mastodon",
+            MessengerKind::Irc => "IRC",
+            MessengerKind::Slack => "Slack",
+            MessengerKind::Teams => "Microsoft Teams",
+            MessengerKind::Viber => "Viber",
+            MessengerKind::Line => "LINE",
+            MessengerKind::WhatsApp => "WhatsApp",
+            MessengerKind::Signal => "Signal",
+            MessengerKind::Threema => "Threema",
+            MessengerKind::Wire => "Wire",
+            MessengerKind::Discourse => "Discourse",
+            MessengerKind::Lemmy => "Lemmy",
+            MessengerKind::Mastodon => "Mastodon",
         }
     }
 
@@ -107,14 +107,14 @@ impl MessengerKind {
     /// Returns `None` for REST-only adapters that compile without extra dependencies.
     pub fn required_feature(self) -> Option<&'static str> {
         match self {
-            MessengerKind::Telegram      => Some("telegram"),
-            MessengerKind::Matrix        => Some("matrix"),
-            MessengerKind::Discord       => Some("discord"),
-            MessengerKind::Xmpp          => Some("xmpp"),
-            MessengerKind::Irc           => Some("irc"),
-            MessengerKind::Slack         => Some("slack"),
-            MessengerKind::Signal        => Some("signal"),
-            MessengerKind::Mastodon      => Some("mastodon"),
+            MessengerKind::Telegram => Some("telegram"),
+            MessengerKind::Matrix => Some("matrix"),
+            MessengerKind::Discord => Some("discord"),
+            MessengerKind::Xmpp => Some("xmpp"),
+            MessengerKind::Irc => Some("irc"),
+            MessengerKind::Slack => Some("slack"),
+            MessengerKind::Signal => Some("signal"),
+            MessengerKind::Mastodon => Some("mastodon"),
             _ => None, // REST adapters compile without extra features
         }
     }
@@ -144,11 +144,11 @@ impl AdapterAuthMethod {
     /// Human-readable label.
     pub fn label(self) -> &'static str {
         match self {
-            AdapterAuthMethod::BotToken           => "Bot Token",
-            AdapterAuthMethod::OAuth2             => "OAuth 2.0",
-            AdapterAuthMethod::ApiKey             => "API Key",
-            AdapterAuthMethod::UserPassword       => "Username + Password",
-            AdapterAuthMethod::MtProto            => "MTProto Session",
+            AdapterAuthMethod::BotToken => "Bot Token",
+            AdapterAuthMethod::OAuth2 => "OAuth 2.0",
+            AdapterAuthMethod::ApiKey => "API Key",
+            AdapterAuthMethod::UserPassword => "Username + Password",
+            AdapterAuthMethod::MtProto => "MTProto Session",
             AdapterAuthMethod::GatewayCredentials => "Gateway Credentials",
         }
     }
@@ -182,9 +182,9 @@ impl ChannelFeature {
     pub fn label(self) -> &'static str {
         match self {
             ChannelFeature::CreateRoom => "Create Room",
-            ChannelFeature::Invite     => "Invite",
-            ChannelFeature::Kick       => "Kick",
-            ChannelFeature::Send       => "Send Message",
+            ChannelFeature::Invite => "Invite",
+            ChannelFeature::Kick => "Kick",
+            ChannelFeature::Send => "Send Message",
             ChannelFeature::DeleteRoom => "Delete Room",
             ChannelFeature::GetMembers => "Get Members",
         }

@@ -65,7 +65,10 @@ impl TeraTransform {
         engine
             .add_raw_template(&name, template)
             .map_err(|e| BusError::transform(e.to_string()))?;
-        Ok(Self { engine, template_name: name })
+        Ok(Self {
+            engine,
+            template_name: name,
+        })
     }
 }
 
@@ -120,6 +123,9 @@ mod tests {
         let t = TeraTransform::new("greet", "Hello {{ name }}!").unwrap();
         let ev = Event::new("greet", "test", serde_json::json!({ "name": "World" })).unwrap();
         let out = t.transform(&ev).unwrap();
-        assert_eq!(out.payload, serde_json::Value::String("Hello World!".into()));
+        assert_eq!(
+            out.payload,
+            serde_json::Value::String("Hello World!".into())
+        );
     }
 }

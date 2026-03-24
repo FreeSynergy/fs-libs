@@ -11,11 +11,9 @@ use fs_error::FsError;
 /// finalize — returns the armored ciphertext bytes.
 fn finish_armored_write(encryptor: age::Encryptor, plaintext: &[u8]) -> Result<Vec<u8>, FsError> {
     let mut output = Vec::new();
-    let armored = age::armor::ArmoredWriter::wrap_output(
-        &mut output,
-        age::armor::Format::AsciiArmor,
-    )
-    .map_err(|e| FsError::internal(format!("age armored writer failed: {e}")))?;
+    let armored =
+        age::armor::ArmoredWriter::wrap_output(&mut output, age::armor::Format::AsciiArmor)
+            .map_err(|e| FsError::internal(format!("age armored writer failed: {e}")))?;
 
     let mut writer = encryptor
         .wrap_output(armored)
@@ -146,7 +144,7 @@ impl AgePassphraseDecryptor {
         let passphrase = self.passphrase.clone();
         let mut reader = decryptor
             .decrypt(std::iter::once(
-                &age::scrypt::Identity::new(passphrase) as &dyn age::Identity,
+                &age::scrypt::Identity::new(passphrase) as &dyn age::Identity
             ))
             .map_err(|e| FsError::internal(format!("age passphrase decrypt failed: {e}")))?;
 
@@ -185,7 +183,7 @@ mod tests {
 
         let plaintext = b"hello freeSynergy";
         let ciphertext = enc.encrypt(plaintext).unwrap();
-        let recovered  = dec.decrypt(&ciphertext).unwrap();
+        let recovered = dec.decrypt(&ciphertext).unwrap();
 
         assert_eq!(recovered, plaintext);
     }
@@ -253,7 +251,10 @@ mod tests {
     #[test]
     fn keypair_keys_start_with_age_prefix() {
         let (pub_key, priv_key) = generate_age_keypair();
-        assert!(pub_key.starts_with("age1"), "public key should start with 'age1'");
+        assert!(
+            pub_key.starts_with("age1"),
+            "public key should start with 'age1'"
+        );
         assert!(
             priv_key.starts_with("AGE-SECRET-KEY-"),
             "private key should start with 'AGE-SECRET-KEY-'"

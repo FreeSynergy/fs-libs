@@ -144,16 +144,16 @@ impl StoreClient {
     /// ```text
     /// catalog_dir = "packages/apps/kanidm"
     /// locale      = "de"
-    /// → fetches "packages/apps/kanidm/help/de/description.ftl"
-    ///   (fallback: "packages/apps/kanidm/help/en/description.ftl")
+    /// → fetches "packages/apps/kanidm/de/description.ftl"
+    ///   (fallback: "packages/apps/kanidm/en/description.ftl")
     /// ```
     pub async fn fetch_ftl(&mut self, catalog_dir: &str, locale: &str) -> Result<String> {
-        let primary = format!("{catalog_dir}/help/{locale}/description.ftl");
+        let primary = format!("{catalog_dir}/{locale}/description.ftl");
         match self.fetch_text(&primary).await {
             Ok(text) => Ok(text),
             Err(_) if locale != "en" => {
                 debug!("StoreClient: FTL locale '{locale}' not found, falling back to 'en'");
-                let fallback = format!("{catalog_dir}/help/en/description.ftl");
+                let fallback = format!("{catalog_dir}/en/description.ftl");
                 self.fetch_text(&fallback)
                     .await
                     .with_context(|| format!("FTL fallback 'en' not found for {catalog_dir}"))

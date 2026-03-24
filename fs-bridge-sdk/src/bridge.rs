@@ -1,7 +1,7 @@
 // Bridge trait and core types for FreeSynergy service connectors.
 
-use serde::{Deserialize, Serialize};
 use fs_error::FsError;
+use serde::{Deserialize, Serialize};
 
 // ── BridgeInfo ────────────────────────────────────────────────────────────────
 
@@ -26,8 +26,15 @@ impl BridgeInfo {
 
     /// Human-readable summary: `"<service_id> <version> @ <base_url> (healthy/unreachable)"`.
     pub fn summary(&self) -> String {
-        let health = if self.healthy { "healthy" } else { "unreachable" };
-        format!("{} {} @ {} ({})", self.service_id, self.version, self.base_url, health)
+        let health = if self.healthy {
+            "healthy"
+        } else {
+            "unreachable"
+        };
+        format!(
+            "{} {} @ {} ({})",
+            self.service_id, self.version, self.base_url, health
+        )
     }
 }
 

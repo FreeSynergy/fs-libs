@@ -307,8 +307,8 @@ impl AlertSeverity {
     pub fn label(self) -> &'static str {
         match self {
             AlertSeverity::Critical => "critical",
-            AlertSeverity::Warning  => "warning",
-            AlertSeverity::Info     => "info",
+            AlertSeverity::Warning => "warning",
+            AlertSeverity::Info => "info",
         }
     }
 }
@@ -327,7 +327,7 @@ impl AlertState {
     /// Human-readable label.
     pub fn label(self) -> &'static str {
         match self {
-            AlertState::Firing   => "firing",
+            AlertState::Firing => "firing",
             AlertState::Resolved => "resolved",
         }
     }

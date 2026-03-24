@@ -18,20 +18,20 @@ fn next_id() -> u64 {
 /// A live toast entry managed by the provider.
 #[derive(Clone, PartialEq)]
 pub struct ToastEntry {
-    pub id:      u64,
-    pub level:   ToastLevel,
-    pub title:   String,
-    pub body:    Option<String>,
+    pub id: u64,
+    pub level: ToastLevel,
+    pub title: String,
+    pub body: Option<String>,
     pub timeout: Option<u32>,
 }
 
 impl ToastEntry {
     fn from_message(msg: ToastMessage) -> Self {
         Self {
-            id:      next_id(),
-            level:   msg.level,
-            title:   msg.title,
-            body:    msg.body,
+            id: next_id(),
+            level: msg.level,
+            title: msg.title,
+            body: msg.body,
             timeout: msg.timeout,
         }
     }
@@ -153,12 +153,12 @@ fn ToastStack(props: ToastStackProps) -> Element {
 #[derive(Props, Clone, PartialEq)]
 struct ToastItemProps {
     entry: ToastEntry,
-    ctx:   ToastContext,
+    ctx: ToastContext,
 }
 
 #[component]
 fn ToastItem(props: ToastItemProps) -> Element {
-    let id  = props.entry.id;
+    let id = props.entry.id;
     let ctx = props.ctx;
     let style = format!(
         "display: flex; align-items: flex-start; gap: 10px; \

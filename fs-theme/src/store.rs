@@ -2,12 +2,23 @@
 
 /// CSS variable names (without `--` and without prefix) that every Store theme must define.
 pub const REQUIRED_VARS: &[&str] = &[
-    "bg-base", "bg-surface", "bg-elevated", "bg-card", "bg-input",
-    "text-primary", "text-secondary", "text-muted",
-    "primary", "primary-hover", "primary-text",
+    "bg-base",
+    "bg-surface",
+    "bg-elevated",
+    "bg-card",
+    "bg-input",
+    "text-primary",
+    "text-secondary",
+    "text-muted",
+    "primary",
+    "primary-hover",
+    "primary-text",
     "accent",
-    "success", "warning", "error",
-    "border", "border-focus",
+    "success",
+    "warning",
+    "error",
+    "border",
+    "border-focus",
 ];
 
 /// Injects a CSS variable prefix into all `--` declarations in `css`.
@@ -18,7 +29,7 @@ pub const REQUIRED_VARS: &[&str] = &[
 /// # Example
 /// ```
 /// let store_css = ":root { --bg-base: #0c1222; --text-primary: #e8edf5; }";
-/// let desktop_css = fs_theme::prefix_theme_css(store_css, "fsn");
+/// let desktop_css = fs_theme::prefix_theme_css(store_css, "fs");
 /// assert!(desktop_css.contains("--fs-bg-base: #0c1222"));
 /// ```
 pub fn prefix_theme_css(css: &str, prefix: &str) -> String {
@@ -30,7 +41,7 @@ pub fn prefix_theme_css(css: &str, prefix: &str) -> String {
         out.push(c);
         if c == '-' && chars.peek() == Some(&'-') {
             out.push(chars.next().unwrap()); // second `-`
-            // Read ahead to check if already prefixed.
+                                             // Read ahead to check if already prefixed.
             let mut ahead = String::new();
             for _ in 0..guard_inner.len() {
                 if let Some(nc) = chars.next() {

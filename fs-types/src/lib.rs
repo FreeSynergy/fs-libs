@@ -11,6 +11,8 @@
 //!
 //! | Module | Contents |
 //! |---|---|
+//! | [`primitives`] | `FsValue` trait, `FsUrl`, `LanguageCode`, `SemVer`, `FsPort` |
+//! | [`tags`] | `FsTag`, `TagLibrary`, `PackageTags`, `PlatformTags`, `ApiTags` |
 //! | [`resource`] | `Resource` trait, `ResourceKind`, `Meta` |
 //! | [`resources`] | `ResourceMeta` struct, `ResourceType` enum, all resource types |
 //! | [`host`] | `HostMode`, `HostStatus` |
@@ -26,10 +28,12 @@ pub mod host;
 pub mod label;
 pub mod module;
 pub mod permission;
+pub mod primitives;
 pub mod project;
 pub mod requirement;
 pub mod resource;
 pub mod resources;
+pub mod tags;
 pub mod type_system;
 
 // ── Flat re-exports ───────────────────────────────────────────────────────────
@@ -39,17 +43,18 @@ pub use host::{HostMode, HostStatus};
 pub use label::StrLabel;
 pub use module::{ModuleSource, ModuleStatus};
 pub use permission::{Action, Scope};
+pub use primitives::FsValue;
+pub use primitives::{FsPort, FsUrl, LanguageCode, SemVer};
 pub use project::{ProjectStatus, ProjectVisibility};
 pub use requirement::{DeclareRequirements, Requirement};
 pub use resource::{Meta, Resource, ResourceKind};
 pub use resources::{
-    AnimationSet, AppResource, BotResource, BridgeResource, BundleResource,
-    ColorScheme, ContainerResource, CursorSet, FontSet, IconSet, ButtonStyle,
-    StyleResource, WidgetResource, WindowChrome,
-    Dependency, PackageSource, ResourceMeta, ResourceType, Role, ValidationStatus,
-    OsFamily, PlatformFilter, RequiredFeature, platform_filter_from_tags,
-    Validate,
+    platform_filter_from_tags, AnimationSet, AppResource, BotResource, BridgeResource,
+    BundleResource, ButtonStyle, ColorScheme, ContainerResource, CursorSet, Dependency, FontSet,
+    IconSet, OsFamily, PackageSource, PlatformFilter, RequiredFeature, ResourceMeta, ResourceType,
+    Role, StyleResource, Validate, ValidationStatus, WidgetResource, WindowChrome,
 };
+pub use tags::{ApiTags, FsTag, PackageTags, PlatformTags, TagLibrary};
 pub use type_system::{ContainerPurpose, ServiceType, TypeEntry, TypeRegistry};
 
 // ── Tracing conventions (doc-only) ────────────────────────────────────────────

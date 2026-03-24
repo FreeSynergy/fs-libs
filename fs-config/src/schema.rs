@@ -21,12 +21,12 @@ impl FieldKind {
     /// Human-readable name for error messages.
     pub fn name(&self) -> &'static str {
         match self {
-            FieldKind::String  => "string",
+            FieldKind::String => "string",
             FieldKind::Integer => "integer",
-            FieldKind::Float   => "float",
+            FieldKind::Float => "float",
             FieldKind::Boolean => "boolean",
-            FieldKind::Array   => "array",
-            FieldKind::Table   => "table",
+            FieldKind::Array => "array",
+            FieldKind::Table => "table",
         }
     }
 
@@ -34,12 +34,12 @@ impl FieldKind {
     pub fn matches(&self, value: &Value) -> bool {
         matches!(
             (value, self),
-            (Value::String(_),  FieldKind::String)
-            | (Value::Integer(_), FieldKind::Integer)
-            | (Value::Float(_),   FieldKind::Float)
-            | (Value::Boolean(_), FieldKind::Boolean)
-            | (Value::Array(_),   FieldKind::Array)
-            | (Value::Table(_),   FieldKind::Table)
+            (Value::String(_), FieldKind::String)
+                | (Value::Integer(_), FieldKind::Integer)
+                | (Value::Float(_), FieldKind::Float)
+                | (Value::Boolean(_), FieldKind::Boolean)
+                | (Value::Array(_), FieldKind::Array)
+                | (Value::Table(_), FieldKind::Table)
         )
     }
 }
@@ -161,7 +161,11 @@ mod tests {
     #[test]
     fn schema_builder() {
         let schema = ConfigSchema::new()
-            .field(FieldSchema::required("name", FieldKind::String, "project name"))
+            .field(FieldSchema::required(
+                "name",
+                FieldKind::String,
+                "project name",
+            ))
             .field(
                 FieldSchema::optional("port", FieldKind::Integer, "port number")
                     .with_default("8080"),
@@ -170,7 +174,10 @@ mod tests {
         assert_eq!(schema.fields.len(), 2);
         assert!(schema.get("name").unwrap().required);
         assert!(!schema.get("port").unwrap().required);
-        assert_eq!(schema.get("port").unwrap().default_value.as_deref(), Some("8080"));
+        assert_eq!(
+            schema.get("port").unwrap().default_value.as_deref(),
+            Some("8080")
+        );
         assert!(schema.get("missing").is_none());
     }
 

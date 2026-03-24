@@ -37,184 +37,175 @@ pub struct RoleMeta {
 pub const KNOWN_ROLES: &[RoleMeta] = &[
     // ── IAM ───────────────────────────────────────────────────────────────
     RoleMeta {
-        role:         "iam.oidc-discovery-url",
-        label:        "IAM OIDC Discovery URL",
+        role: "iam.oidc-discovery-url",
+        label: "IAM OIDC Discovery URL",
         service_type: "iam",
-        example:      "https://auth.example.com/.well-known/openid-configuration",
+        example: "https://auth.example.com/.well-known/openid-configuration",
     },
     RoleMeta {
-        role:         "iam.client-id",
-        label:        "IAM Client ID",
+        role: "iam.client-id",
+        label: "IAM Client ID",
         service_type: "iam",
-        example:      "my-app-client",
+        example: "my-app-client",
     },
     RoleMeta {
-        role:         "iam.client-secret",
-        label:        "IAM Client Secret",
+        role: "iam.client-secret",
+        label: "IAM Client Secret",
         service_type: "iam",
-        example:      "(generated)",
+        example: "(generated)",
     },
     RoleMeta {
-        role:         "iam.issuer-url",
-        label:        "IAM Issuer URL",
+        role: "iam.issuer-url",
+        label: "IAM Issuer URL",
         service_type: "iam",
-        example:      "https://auth.example.com",
+        example: "https://auth.example.com",
     },
     RoleMeta {
-        role:         "iam.admin-token",
-        label:        "IAM Admin Token",
+        role: "iam.admin-token",
+        label: "IAM Admin Token",
         service_type: "iam",
-        example:      "(generated)",
+        example: "(generated)",
     },
-
     // ── SMTP ──────────────────────────────────────────────────────────────
     RoleMeta {
-        role:         "smtp.host",
-        label:        "SMTP Hostname",
+        role: "smtp.host",
+        label: "SMTP Hostname",
         service_type: "smtp",
-        example:      "mail.example.com",
+        example: "mail.example.com",
     },
     RoleMeta {
-        role:         "smtp.port",
-        label:        "SMTP Port",
+        role: "smtp.port",
+        label: "SMTP Port",
         service_type: "smtp",
-        example:      "587",
+        example: "587",
     },
     RoleMeta {
-        role:         "smtp.username",
-        label:        "SMTP Username",
+        role: "smtp.username",
+        label: "SMTP Username",
         service_type: "smtp",
-        example:      "noreply@example.com",
+        example: "noreply@example.com",
     },
     RoleMeta {
-        role:         "smtp.password",
-        label:        "SMTP Password",
+        role: "smtp.password",
+        label: "SMTP Password",
         service_type: "smtp",
-        example:      "(generated)",
+        example: "(generated)",
     },
     RoleMeta {
-        role:         "smtp.from-address",
-        label:        "SMTP From Address",
+        role: "smtp.from-address",
+        label: "SMTP From Address",
         service_type: "smtp",
-        example:      "noreply@example.com",
+        example: "noreply@example.com",
     },
-
     // ── Database / PostgreSQL ──────────────────────────────────────────────
     RoleMeta {
-        role:         "database.postgres.url",
-        label:        "PostgreSQL Connection URL",
+        role: "database.postgres.url",
+        label: "PostgreSQL Connection URL",
         service_type: "database",
-        example:      "postgres://user:pass@localhost/dbname",
+        example: "postgres://user:pass@localhost/dbname",
     },
     RoleMeta {
-        role:         "database.postgres.host",
-        label:        "PostgreSQL Host",
+        role: "database.postgres.host",
+        label: "PostgreSQL Host",
         service_type: "database",
-        example:      "localhost",
+        example: "localhost",
     },
     RoleMeta {
-        role:         "database.postgres.port",
-        label:        "PostgreSQL Port",
+        role: "database.postgres.port",
+        label: "PostgreSQL Port",
         service_type: "database",
-        example:      "5432",
+        example: "5432",
     },
     RoleMeta {
-        role:         "database.postgres.user",
-        label:        "PostgreSQL User",
+        role: "database.postgres.user",
+        label: "PostgreSQL User",
         service_type: "database",
-        example:      "appuser",
+        example: "appuser",
     },
     RoleMeta {
-        role:         "database.postgres.password",
-        label:        "PostgreSQL Password",
+        role: "database.postgres.password",
+        label: "PostgreSQL Password",
         service_type: "database",
-        example:      "(generated)",
+        example: "(generated)",
     },
     RoleMeta {
-        role:         "database.postgres.name",
-        label:        "PostgreSQL Database Name",
+        role: "database.postgres.name",
+        label: "PostgreSQL Database Name",
         service_type: "database",
-        example:      "myapp",
+        example: "myapp",
     },
-
     // ── Database / MySQL ───────────────────────────────────────────────────
     RoleMeta {
-        role:         "database.mysql.url",
-        label:        "MySQL Connection URL",
+        role: "database.mysql.url",
+        label: "MySQL Connection URL",
         service_type: "database",
-        example:      "mysql://user:pass@localhost/dbname",
+        example: "mysql://user:pass@localhost/dbname",
     },
-
     // ── Cache / Redis ──────────────────────────────────────────────────────
     RoleMeta {
-        role:         "cache.redis.url",
-        label:        "Redis Connection URL",
+        role: "cache.redis.url",
+        label: "Redis Connection URL",
         service_type: "cache",
-        example:      "redis://localhost:6379",
+        example: "redis://localhost:6379",
     },
-
     // ── Git ────────────────────────────────────────────────────────────────
     RoleMeta {
-        role:         "git.api-url",
-        label:        "Git API URL",
+        role: "git.api-url",
+        label: "Git API URL",
         service_type: "git",
-        example:      "https://git.example.com/api/v1",
+        example: "https://git.example.com/api/v1",
     },
     RoleMeta {
-        role:         "git.base-url",
-        label:        "Git Base URL",
+        role: "git.base-url",
+        label: "Git Base URL",
         service_type: "git",
-        example:      "https://git.example.com",
+        example: "https://git.example.com",
     },
     RoleMeta {
-        role:         "git.admin-token",
-        label:        "Git Admin Token",
+        role: "git.admin-token",
+        label: "Git Admin Token",
         service_type: "git",
-        example:      "(generated)",
+        example: "(generated)",
     },
-
     // ── Wiki ───────────────────────────────────────────────────────────────
     RoleMeta {
-        role:         "wiki.api-url",
-        label:        "Wiki API URL",
+        role: "wiki.api-url",
+        label: "Wiki API URL",
         service_type: "wiki",
-        example:      "https://wiki.example.com/api",
+        example: "https://wiki.example.com/api",
     },
     RoleMeta {
-        role:         "wiki.base-url",
-        label:        "Wiki Base URL",
+        role: "wiki.base-url",
+        label: "Wiki Base URL",
         service_type: "wiki",
-        example:      "https://wiki.example.com",
+        example: "https://wiki.example.com",
     },
-
     // ── Map ────────────────────────────────────────────────────────────────
     RoleMeta {
-        role:         "map.api-url",
-        label:        "Map API URL",
+        role: "map.api-url",
+        label: "Map API URL",
         service_type: "map",
-        example:      "https://map.example.com/api",
+        example: "https://map.example.com/api",
     },
-
     // ── Chat ───────────────────────────────────────────────────────────────
     RoleMeta {
-        role:         "chat.homeserver-url",
-        label:        "Matrix Homeserver URL",
+        role: "chat.homeserver-url",
+        label: "Matrix Homeserver URL",
         service_type: "chat",
-        example:      "https://matrix.example.com",
+        example: "https://matrix.example.com",
     },
     RoleMeta {
-        role:         "chat.admin-token",
-        label:        "Matrix Admin Token",
+        role: "chat.admin-token",
+        label: "Matrix Admin Token",
         service_type: "chat",
-        example:      "(generated)",
+        example: "(generated)",
     },
-
     // ── Monitoring ─────────────────────────────────────────────────────────
     RoleMeta {
-        role:         "monitoring.api-url",
-        label:        "Monitoring API URL",
+        role: "monitoring.api-url",
+        label: "Monitoring API URL",
         service_type: "monitoring",
-        example:      "https://metrics.example.com",
+        example: "https://metrics.example.com",
     },
 ];
 
@@ -251,17 +242,24 @@ impl VariableRole {
     pub fn parse(role: &str) -> Option<Self> {
         let dot = role.find('.')?;
         let service_type = role[..dot].to_string();
-        let capability   = role[dot + 1..].to_string();
+        let capability = role[dot + 1..].to_string();
         if service_type.is_empty() || capability.is_empty() {
             return None;
         }
-        Some(Self { service_type, capability, role: role.to_string() })
+        Some(Self {
+            service_type,
+            capability,
+            role: role.to_string(),
+        })
     }
 
     /// Returns `true` if this is an encrypted role (password / secret / token).
     pub fn is_sensitive(&self) -> bool {
         let cap = self.capability.as_str();
-        cap.contains("password") || cap.contains("secret") || cap.contains("token") || cap.contains("key")
+        cap.contains("password")
+            || cap.contains("secret")
+            || cap.contains("token")
+            || cap.contains("key")
     }
 }
 
@@ -278,7 +276,10 @@ impl RoleRegistry {
 
     /// All roles for a given service type, e.g. `"iam"`.
     pub fn roles_for_service(service_type: &str) -> Vec<&'static RoleMeta> {
-        KNOWN_ROLES.iter().filter(|r| r.service_type == service_type).collect()
+        KNOWN_ROLES
+            .iter()
+            .filter(|r| r.service_type == service_type)
+            .collect()
     }
 
     /// All known service types.
@@ -318,9 +319,13 @@ mod tests {
 
     #[test]
     fn sensitive_roles() {
-        assert!(VariableRole::parse("iam.client-secret").unwrap().is_sensitive());
+        assert!(VariableRole::parse("iam.client-secret")
+            .unwrap()
+            .is_sensitive());
         assert!(VariableRole::parse("smtp.password").unwrap().is_sensitive());
-        assert!(VariableRole::parse("git.admin-token").unwrap().is_sensitive());
+        assert!(VariableRole::parse("git.admin-token")
+            .unwrap()
+            .is_sensitive());
         assert!(!VariableRole::parse("smtp.host").unwrap().is_sensitive());
     }
 
@@ -353,7 +358,11 @@ mod tests {
         // Make sure all service types from the workpackage are present.
         let types = RoleRegistry::service_types();
         for expected in &["iam", "smtp", "database", "git", "wiki", "map", "chat"] {
-            assert!(types.contains(expected), "missing service type: {}", expected);
+            assert!(
+                types.contains(expected),
+                "missing service type: {}",
+                expected
+            );
         }
     }
 }

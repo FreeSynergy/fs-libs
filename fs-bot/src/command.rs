@@ -31,13 +31,19 @@ pub trait BotCommand: Send + Sync {
     fn name(&self) -> &str;
 
     /// Short human-readable description shown in /help output.
-    fn description(&self) -> &str { "" }
+    fn description(&self) -> &str {
+        ""
+    }
 
     /// Minimum access level required to run this command.
-    fn required_right(&self) -> Right { Right::None }
+    fn required_right(&self) -> Right {
+        Right::None
+    }
 
     /// Usage hint, e.g. `Some("subscribe <topic>")`. `None` means no args.
-    fn usage(&self) -> Option<&str> { None }
+    fn usage(&self) -> Option<&str> {
+        None
+    }
 
     /// Execute the command and return a response.
     async fn execute(&self, ctx: CommandContext) -> BotResponse;

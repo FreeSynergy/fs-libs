@@ -107,7 +107,8 @@ impl StandingOrdersEngine {
     /// Call this when a service advertising `role` connects or is installed.
     /// Returns one [`Event`] per enabled matching order.
     pub fn trigger_for_role(&self, role: &str, source: &str) -> Vec<Result<Event, BusError>> {
-        self.orders.iter()
+        self.orders
+            .iter()
             .filter(|o| o.enabled && o.trigger_role == role)
             .map(|o| o.to_event(source))
             .collect()
@@ -118,7 +119,8 @@ impl StandingOrdersEngine {
     /// Used for recurring triggers: when an event on `topic` arrives the engine
     /// may fire additional orders that react to it.
     pub fn trigger_for_topic(&self, topic: &str, source: &str) -> Vec<Result<Event, BusError>> {
-        self.orders.iter()
+        self.orders
+            .iter()
             .filter(|o| o.enabled && topic_matches(&o.topic, topic))
             .map(|o| o.to_event(source))
             .collect()

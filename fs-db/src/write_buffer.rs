@@ -27,12 +27,18 @@ pub struct BufferedWrite {
 impl BufferedWrite {
     /// Create a new buffered write from a SQL statement and bound values.
     pub fn new(sql: impl Into<String>, values: Vec<serde_json::Value>) -> Self {
-        Self { sql: sql.into(), values }
+        Self {
+            sql: sql.into(),
+            values,
+        }
     }
 
     /// Create a parameterless write (no bound values).
     pub fn statement(sql: impl Into<String>) -> Self {
-        Self { sql: sql.into(), values: vec![] }
+        Self {
+            sql: sql.into(),
+            values: vec![],
+        }
     }
 
     /// The SQL statement for this write.
@@ -71,11 +77,11 @@ pub struct FlushResult {
 /// buf.run_auto_flush().await;
 /// ```
 pub struct WriteBuffer {
-    queue:          Mutex<Vec<BufferedWrite>>,
+    queue: Mutex<Vec<BufferedWrite>>,
     flush_interval: Duration,
     max_batch_size: usize,
-    last_flush:     Mutex<Instant>,
-    conn:           DatabaseConnection,
+    last_flush: Mutex<Instant>,
+    conn: DatabaseConnection,
 }
 
 impl WriteBuffer {
@@ -116,7 +122,10 @@ impl WriteBuffer {
     pub async fn flush(&self) -> Result<FlushResult, FsError> {
         let mut queue = self.queue.lock().await;
         if queue.is_empty() {
-            return Ok(FlushResult { count: 0, duration: Duration::ZERO });
+            return Ok(FlushResult {
+                count: 0,
+                duration: Duration::ZERO,
+            });
         }
 
         let writes: Vec<BufferedWrite> = queue.drain(..).collect();
@@ -143,7 +152,10 @@ impl WriteBuffer {
 
         *self.last_flush.lock().await = Instant::now();
 
-        Ok(FlushResult { count, duration: start.elapsed() })
+        Ok(FlushResult {
+            count,
+            duration: start.elapsed(),
+        })
     }
 
     /// `true` when a flush is overdue (interval elapsed) or the batch is full.

@@ -41,7 +41,11 @@ impl Installer for ContainerInstaller {
             install_path: String::new(),
             summary: format!(
                 "{}registered container '{}' — run `fsn deploy` to start",
-                if dry_run { "[dry-run] would register" } else { "" },
+                if dry_run {
+                    "[dry-run] would register"
+                } else {
+                    ""
+                },
                 meta.id
             ),
             dry_run,
@@ -54,12 +58,21 @@ impl Uninstaller for ContainerInstaller {
         ResourceType::Container
     }
 
-    fn uninstall(&self, name: &str, _paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        _paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         // Actual container removal is via `fsn undeploy` / `fsn remove --service`.
         if opts.dry_run {
-            println!("[dry-run] would unregister container '{name}' — run `fsn undeploy` to stop first");
+            println!(
+                "[dry-run] would unregister container '{name}' — run `fsn undeploy` to stop first"
+            );
         } else {
-            println!("unregistered container '{name}' — run `fsn undeploy --service {name}` to stop");
+            println!(
+                "unregistered container '{name}' — run `fsn undeploy --service {name}` to stop"
+            );
         }
         Ok(())
     }

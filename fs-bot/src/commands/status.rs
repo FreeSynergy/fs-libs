@@ -1,5 +1,5 @@
-use async_trait::async_trait;
 use crate::{BotCommand, BotResponse, CommandContext, Right};
+use async_trait::async_trait;
 
 pub struct StatusCommand {
     provider: Box<dyn StatusProvider>,
@@ -31,10 +31,18 @@ impl Default for StatusCommand {
 
 #[async_trait]
 impl BotCommand for StatusCommand {
-    fn name(&self) -> &str { "status" }
-    fn description(&self) -> &str { "Show system status" }
-    fn usage(&self) -> Option<&str> { Some("status") }
-    fn required_right(&self) -> Right { Right::Member }
+    fn name(&self) -> &str {
+        "status"
+    }
+    fn description(&self) -> &str {
+        "Show system status"
+    }
+    fn usage(&self) -> Option<&str> {
+        Some("status")
+    }
+    fn required_right(&self) -> Right {
+        Right::Member
+    }
 
     async fn execute(&self, _ctx: CommandContext) -> BotResponse {
         BotResponse::text(self.provider.status())

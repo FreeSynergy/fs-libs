@@ -41,7 +41,10 @@ impl QuadletManager {
     pub fn user_default() -> Self {
         let home = std::env::var("HOME").unwrap_or_else(|_| "/root".to_string());
         let quadlet_dir = PathBuf::from(home).join(".config/containers/systemd");
-        Self { quadlet_dir, systemctl: SystemctlManager::user() }
+        Self {
+            quadlet_dir,
+            systemctl: SystemctlManager::user(),
+        }
     }
 
     /// Create a manager with a custom Quadlet directory (useful for testing).
@@ -64,7 +67,9 @@ impl QuadletManager {
         self.ensure_quadlet_dir().await?;
 
         let file_path = self.quadlet_dir.join(service.quadlet_filename());
-        let bak_path  = self.quadlet_dir.join(format!("{}.bak", service.quadlet_filename()));
+        let bak_path = self
+            .quadlet_dir
+            .join(format!("{}.bak", service.quadlet_filename()));
 
         // Backup existing file if present
         if file_path.exists() {
@@ -74,9 +79,9 @@ impl QuadletManager {
         }
 
         let content = render_quadlet(service);
-        tokio::fs::write(&file_path, content)
-            .await
-            .map_err(|e| FsError::internal(format!("write quadlet {}: {e}", file_path.display())))?;
+        tokio::fs::write(&file_path, content).await.map_err(|e| {
+            FsError::internal(format!("write quadlet {}: {e}", file_path.display()))
+        })?;
 
         tracing::info!(service = %service.name, path = %file_path.display(), "Quadlet written");
         Ok(file_path)
@@ -98,12 +103,14 @@ impl QuadletManager {
     ///
     /// Call this when a newly deployed service is unhealthy.
     pub async fn rollback(&self, name: &str) -> Result<(), FsError> {
-        let filename     = format!("fs-{}.container", name);
-        let file_path    = self.quadlet_dir.join(&filename);
-        let bak_path     = self.quadlet_dir.join(format!("{}.bak", filename));
+        let filename = format!("fs-{}.container", name);
+        let file_path = self.quadlet_dir.join(&filename);
+        let bak_path = self.quadlet_dir.join(format!("{}.bak", filename));
 
         if !bak_path.exists() {
-            return Err(FsError::not_found(format!("no backup found for service {name}")));
+            return Err(FsError::not_found(format!(
+                "no backup found for service {name}"
+            )));
         }
 
         tokio::fs::copy(&bak_path, &file_path)
@@ -281,7 +288,11 @@ mod tests {
         svc.volumes = vec![Volume::bind("/data/zentinel", "/data")];
         svc.environment.insert("LOG_LEVEL".into(), "info".into());
         svc.healthcheck = Some(HealthCheck {
-            test: vec!["curl".into(), "-fs".into(), "http://localhost/health".into()],
+            test: vec![
+                "curl".into(),
+                "-fs".into(),
+                "http://localhost/health".into(),
+            ],
             interval: "30s".into(),
             timeout: "10s".into(),
             retries: 3,

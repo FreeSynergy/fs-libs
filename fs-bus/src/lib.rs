@@ -43,7 +43,7 @@ pub use message_bus::{MessageBus, PublishedEvent};
 pub use router::Router;
 pub use standing_order::{StandingOrder, StandingOrdersEngine};
 pub use subscription::{Subscription, SubscriptionManager};
-pub use topic::{TopicHandler, topic_matches};
+pub use topic::{topic_matches, TopicHandler};
 pub use transform::{ChainTransform, Transform};
 
 #[cfg(feature = "tera-transform")]

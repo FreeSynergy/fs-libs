@@ -107,12 +107,15 @@ impl LlmProvider for OpenAiCompatProvider {
         let wire_msgs: Vec<OaiMessage<'_>> = messages
             .iter()
             .map(|m| OaiMessage {
-                role:    m.role.as_str(),
+                role: m.role.as_str(),
                 content: &m.content,
             })
             .collect();
 
-        let req = OaiRequest { model: &self.model, messages: wire_msgs };
+        let req = OaiRequest {
+            model: &self.model,
+            messages: wire_msgs,
+        };
         let url = format!("{}/v1/chat/completions", self.base_url);
 
         debug!(url = %url, model = %self.model, "openai-compat request");
@@ -122,7 +125,10 @@ impl LlmProvider for OpenAiCompatProvider {
             builder = builder.bearer_auth(key);
         }
 
-        let resp = builder.send().await.map_err(|e| LlmError::network(e.to_string()))?;
+        let resp = builder
+            .send()
+            .await
+            .map_err(|e| LlmError::network(e.to_string()))?;
 
         let status = resp.status().as_u16();
         if !resp.status().is_success() {
@@ -147,6 +153,10 @@ impl LlmProvider for OpenAiCompatProvider {
             completion_tokens: u.completion_tokens,
         });
 
-        Ok(LlmResponse { content, model: body.model, usage })
+        Ok(LlmResponse {
+            content,
+            model: body.model,
+            usage,
+        })
     }
 }

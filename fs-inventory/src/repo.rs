@@ -7,8 +7,8 @@ use crate::{
 };
 use fs_types::Role;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, Database,
-    DatabaseConnection, EntityTrait, QueryFilter,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, Database, DatabaseConnection,
+    EntityTrait, QueryFilter,
 };
 use tracing::instrument;
 
@@ -68,8 +68,7 @@ impl Inventory {
     pub async fn open(path: &str) -> Result<Self, InventoryError> {
         let url = format!("sqlite://{}?mode=rwc", path);
         let db = Database::connect(&url).await?;
-        db.execute_unprepared(SCHEMA)
-        .await?;
+        db.execute_unprepared(SCHEMA).await?;
         Ok(Self { db })
     }
 
@@ -83,18 +82,20 @@ impl Inventory {
             .await?
             .is_some()
         {
-            return Err(InventoryError::AlreadyInstalled { id: resource.id.clone() });
+            return Err(InventoryError::AlreadyInstalled {
+                id: resource.id.clone(),
+            });
         }
         installed_resource::ActiveModel {
-            id:            Set(resource.id.clone()),
+            id: Set(resource.id.clone()),
             resource_type: Set(serde_json::to_string(&resource.resource_type)?),
-            version:       Set(resource.version.clone()),
-            channel:       Set(serde_json::to_string(&resource.channel)?),
-            installed_at:  Set(resource.installed_at.clone()),
-            status:        Set(serde_json::to_string(&resource.status)?),
-            config_path:   Set(resource.config_path.clone()),
-            data_path:     Set(resource.data_path.clone()),
-            validation:    Set(serde_json::to_string(&resource.validation)?),
+            version: Set(resource.version.clone()),
+            channel: Set(serde_json::to_string(&resource.channel)?),
+            installed_at: Set(resource.installed_at.clone()),
+            status: Set(serde_json::to_string(&resource.status)?),
+            config_path: Set(resource.config_path.clone()),
+            data_path: Set(resource.data_path.clone()),
+            validation: Set(serde_json::to_string(&resource.validation)?),
         }
         .insert(&self.db)
         .await?;
@@ -121,7 +122,9 @@ impl Inventory {
 
     /// Find an installed resource by id.
     pub async fn resource(&self, id: &str) -> Result<Option<InstalledResource>, InventoryError> {
-        let row = installed_resource::Entity::find_by_id(id).one(&self.db).await?;
+        let row = installed_resource::Entity::find_by_id(id)
+            .one(&self.db)
+            .await?;
         row.map(model_to_installed_resource).transpose()
     }
 
@@ -131,17 +134,17 @@ impl Inventory {
     #[instrument(name = "inventory.add_service", skip(self, svc))]
     pub async fn add_service(&self, svc: &ServiceInstance) -> Result<(), InventoryError> {
         service_instance::ActiveModel {
-            id:             Set(svc.id.clone()),
-            resource_id:    Set(svc.resource_id.clone()),
-            instance_name:  Set(svc.instance_name.clone()),
+            id: Set(svc.id.clone()),
+            resource_id: Set(svc.resource_id.clone()),
+            instance_name: Set(svc.instance_name.clone()),
             roles_provided: Set(serde_json::to_string(&svc.roles_provided)?),
             roles_required: Set(serde_json::to_string(&svc.roles_required)?),
-            bridges:        Set(serde_json::to_string(&svc.bridges)?),
-            variables:      Set(serde_json::to_string(&svc.variables)?),
-            network:        Set(svc.network.clone()),
-            status:         Set(serde_json::to_string(&svc.status)?),
-            port:           Set(svc.port.map(|p| p as i32)),
-            s3_paths:       Set(serde_json::to_string(&svc.s3_paths)?),
+            bridges: Set(serde_json::to_string(&svc.bridges)?),
+            variables: Set(serde_json::to_string(&svc.variables)?),
+            network: Set(svc.network.clone()),
+            status: Set(serde_json::to_string(&svc.status)?),
+            port: Set(svc.port.map(|p| p as i32)),
+            s3_paths: Set(serde_json::to_string(&svc.s3_paths)?),
         }
         .insert(&self.db)
         .await?;
@@ -156,7 +159,7 @@ impl Inventory {
     ) -> Result<Vec<ServiceInstance>, InventoryError> {
         // roles_provided is stored as JSON array; use LIKE for a simple search.
         // For production, a join table would be cleaner — acceptable for Phase G.
-        let pattern = format!("%\"{}\"%" , role);
+        let pattern = format!("%\"{}\"%", role);
         let rows = service_instance::Entity::find()
             .filter(service_instance::Column::RolesProvided.like(pattern))
             .all(&self.db)
@@ -176,12 +179,12 @@ impl Inventory {
     #[instrument(name = "inventory.add_bridge", skip(self, bridge))]
     pub async fn add_bridge(&self, bridge: &BridgeInstance) -> Result<(), InventoryError> {
         bridge_instance::ActiveModel {
-            id:               Set(bridge.id.clone()),
-            bridge_id:        Set(bridge.bridge_id.clone()),
-            role:             Set(bridge.role.as_str().to_owned()),
+            id: Set(bridge.id.clone()),
+            bridge_id: Set(bridge.bridge_id.clone()),
+            role: Set(bridge.role.as_str().to_owned()),
             service_instance: Set(bridge.service_instance.clone()),
-            api_base_url:     Set(bridge.api_base_url.clone()),
-            status:           Set(serde_json::to_string(&bridge.status)?),
+            api_base_url: Set(bridge.api_base_url.clone()),
+            status: Set(serde_json::to_string(&bridge.status)?),
         }
         .insert(&self.db)
         .await?;
@@ -237,7 +240,9 @@ impl Inventory {
             .filter(service_instance::Column::InstanceName.eq(instance_name))
             .one(&self.db)
             .await?
-            .ok_or_else(|| InventoryError::NotFound { id: instance_name.to_owned() })?;
+            .ok_or_else(|| InventoryError::NotFound {
+                id: instance_name.to_owned(),
+            })?;
         let mut active: service_instance::ActiveModel = model.into();
         active.status = Set(serde_json::to_string(status)?);
         active.update(&self.db).await?;
@@ -250,11 +255,15 @@ impl Inventory {
     ///
     /// Idempotent: calling this on every deploy is safe.
     #[instrument(name = "inventory.upsert_resource", skip(self, resource))]
-    pub async fn upsert_resource(&self, resource: &InstalledResource) -> Result<(), InventoryError> {
+    pub async fn upsert_resource(
+        &self,
+        resource: &InstalledResource,
+    ) -> Result<(), InventoryError> {
         match self.install(resource).await {
             Ok(()) => Ok(()),
             Err(InventoryError::AlreadyInstalled { .. }) => {
-                self.set_resource_status(&resource.id, &resource.status).await
+                self.set_resource_status(&resource.id, &resource.status)
+                    .await
             }
             Err(e) => Err(e),
         }
@@ -273,11 +282,11 @@ impl Inventory {
 
         if let Some(model) = existing {
             let mut active: service_instance::ActiveModel = model.into();
-            active.status         = Set(serde_json::to_string(&svc.status)?);
+            active.status = Set(serde_json::to_string(&svc.status)?);
             active.roles_provided = Set(serde_json::to_string(&svc.roles_provided)?);
             active.roles_required = Set(serde_json::to_string(&svc.roles_required)?);
-            active.network        = Set(svc.network.clone());
-            active.port           = Set(svc.port.map(|p| p as i32));
+            active.network = Set(svc.network.clone());
+            active.port = Set(svc.port.map(|p| p as i32));
             active.update(&self.db).await?;
         } else {
             self.add_service(svc).await?;
@@ -292,15 +301,15 @@ fn model_to_installed_resource(
     m: installed_resource::Model,
 ) -> Result<InstalledResource, InventoryError> {
     Ok(InstalledResource {
-        id:            m.id,
+        id: m.id,
         resource_type: serde_json::from_str(&m.resource_type)?,
-        version:       m.version,
-        channel:       serde_json::from_str(&m.channel)?,
-        installed_at:  m.installed_at,
-        status:        serde_json::from_str(&m.status)?,
-        config_path:   m.config_path,
-        data_path:     m.data_path,
-        validation:    serde_json::from_str(&m.validation)?,
+        version: m.version,
+        channel: serde_json::from_str(&m.channel)?,
+        installed_at: m.installed_at,
+        status: serde_json::from_str(&m.status)?,
+        config_path: m.config_path,
+        data_path: m.data_path,
+        validation: serde_json::from_str(&m.validation)?,
     })
 }
 
@@ -308,29 +317,27 @@ fn model_to_service_instance(
     m: service_instance::Model,
 ) -> Result<ServiceInstance, InventoryError> {
     Ok(ServiceInstance {
-        id:             m.id,
-        resource_id:    m.resource_id,
-        instance_name:  m.instance_name,
+        id: m.id,
+        resource_id: m.resource_id,
+        instance_name: m.instance_name,
         roles_provided: serde_json::from_str(&m.roles_provided)?,
         roles_required: serde_json::from_str(&m.roles_required)?,
-        bridges:        serde_json::from_str(&m.bridges)?,
-        variables:      serde_json::from_str(&m.variables)?,
-        network:        m.network,
-        status:         serde_json::from_str(&m.status)?,
-        port:           m.port.map(|p| p as u16),
-        s3_paths:       serde_json::from_str(&m.s3_paths)?,
+        bridges: serde_json::from_str(&m.bridges)?,
+        variables: serde_json::from_str(&m.variables)?,
+        network: m.network,
+        status: serde_json::from_str(&m.status)?,
+        port: m.port.map(|p| p as u16),
+        s3_paths: serde_json::from_str(&m.s3_paths)?,
     })
 }
 
-fn model_to_bridge_instance(
-    m: bridge_instance::Model,
-) -> Result<BridgeInstance, InventoryError> {
+fn model_to_bridge_instance(m: bridge_instance::Model) -> Result<BridgeInstance, InventoryError> {
     Ok(BridgeInstance {
-        id:               m.id,
-        bridge_id:        m.bridge_id,
-        role:             Role::new(m.role),
+        id: m.id,
+        bridge_id: m.bridge_id,
+        role: Role::new(m.role),
         service_instance: m.service_instance,
-        api_base_url:     m.api_base_url,
-        status:           serde_json::from_str(&m.status)?,
+        api_base_url: m.api_base_url,
+        status: serde_json::from_str(&m.status)?,
     })
 }

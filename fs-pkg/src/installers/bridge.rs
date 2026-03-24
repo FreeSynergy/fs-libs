@@ -34,7 +34,11 @@ impl Installer for BridgeInstaller {
             install_path: String::new(),
             summary: format!(
                 "{}registered bridge '{}' (in-process, no files written)",
-                if dry_run { "[dry-run] would register" } else { "" },
+                if dry_run {
+                    "[dry-run] would register"
+                } else {
+                    ""
+                },
                 meta.id
             ),
             dry_run,
@@ -47,7 +51,12 @@ impl Uninstaller for BridgeInstaller {
         ResourceType::Bridge
     }
 
-    fn uninstall(&self, name: &str, _paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        _paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         if opts.dry_run {
             println!("[dry-run] would unregister bridge '{name}' (in-process, no files to remove)");
         } else {

@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use crate::kind::{HelpKind, HelpKindArc, InternalHelp};
+use crate::kind::{HelpKindArc, InternalHelp};
 
 // ── HelpTopic ─────────────────────────────────────────────────────────────────
 
@@ -34,17 +34,17 @@ impl HelpTopic {
     /// Construct a minimal help topic.
     /// Defaults to `InternalHelp` with no links — use `with_kind()` to override.
     pub fn new(
-        id:          impl Into<String>,
-        title_key:   impl Into<String>,
+        id: impl Into<String>,
+        title_key: impl Into<String>,
         content_key: impl Into<String>,
     ) -> Self {
         Self {
-            id:          id.into(),
-            title_key:   title_key.into(),
+            id: id.into(),
+            title_key: title_key.into(),
             content_key: content_key.into(),
-            related:     Vec::new(),
-            keywords:    Vec::new(),
-            kind:        Arc::new(InternalHelp::new()),
+            related: Vec::new(),
+            keywords: Vec::new(),
+            kind: Arc::new(InternalHelp::new()),
         }
     }
 

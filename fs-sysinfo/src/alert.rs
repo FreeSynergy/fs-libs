@@ -60,8 +60,8 @@ impl SysInfoAlert {
     /// Bus topic for this alert type, e.g. `"sysinfo.alert.disk"`.
     pub fn bus_topic(&self) -> &'static str {
         match self {
-            SysInfoAlert::DiskFull   { .. } => "sysinfo.alert.disk",
-            SysInfoAlert::CpuHot     { .. } => "sysinfo.alert.cpu",
+            SysInfoAlert::DiskFull { .. } => "sysinfo.alert.disk",
+            SysInfoAlert::CpuHot { .. } => "sysinfo.alert.cpu",
             SysInfoAlert::MemoryFull { .. } => "sysinfo.alert.memory",
             #[cfg(feature = "smart")]
             SysInfoAlert::SmartError { .. } => "sysinfo.alert.smart",
@@ -71,15 +71,23 @@ impl SysInfoAlert {
     /// Short human-readable description suitable for log output and notifications.
     pub fn description(&self) -> String {
         match self {
-            SysInfoAlert::DiskFull { mount_point, used_percent, .. } =>
-                format!("Disk {mount_point} is {used_percent:.1}% full"),
-            SysInfoAlert::CpuHot { sensor, temp_celsius, .. } =>
-                format!("CPU sensor '{sensor}' is {temp_celsius:.1}°C"),
-            SysInfoAlert::MemoryFull { used_percent, .. } =>
-                format!("Memory is {used_percent:.1}% used"),
+            SysInfoAlert::DiskFull {
+                mount_point,
+                used_percent,
+                ..
+            } => format!("Disk {mount_point} is {used_percent:.1}% full"),
+            SysInfoAlert::CpuHot {
+                sensor,
+                temp_celsius,
+                ..
+            } => format!("CPU sensor '{sensor}' is {temp_celsius:.1}°C"),
+            SysInfoAlert::MemoryFull { used_percent, .. } => {
+                format!("Memory is {used_percent:.1}% used")
+            }
             #[cfg(feature = "smart")]
-            SysInfoAlert::SmartError { device, assessment } =>
-                format!("SMART error on {device}: {assessment}"),
+            SysInfoAlert::SmartError { device, assessment } => {
+                format!("SMART error on {device}: {assessment}")
+            }
         }
     }
 }
@@ -100,8 +108,8 @@ pub struct AlertThresholds {
 impl Default for AlertThresholds {
     fn default() -> Self {
         Self {
-            disk_full_percent:   90.0,
-            cpu_hot_celsius:     85.0,
+            disk_full_percent: 90.0,
+            cpu_hot_celsius: 85.0,
             memory_full_percent: 90.0,
         }
     }
@@ -110,6 +118,7 @@ impl Default for AlertThresholds {
 // ── AlertChecker ──────────────────────────────────────────────────────────────
 
 /// Checks live system metrics against `AlertThresholds` and returns any alerts.
+#[derive(Default)]
 pub struct AlertChecker {
     /// Configured alert thresholds.
     pub thresholds: AlertThresholds,
@@ -122,10 +131,12 @@ impl AlertChecker {
     }
 
     /// Create a checker with default thresholds.
-    pub fn default() -> Self {
-        Self { thresholds: AlertThresholds::default() }
+    pub fn with_defaults() -> Self {
+        Self::default()
     }
+}
 
+impl AlertChecker {
     /// Run one check cycle: read disk, memory, and CPU temperature, return all triggered alerts.
     pub fn check_once(&self) -> Vec<SysInfoAlert> {
         let mut alerts = Vec::new();
@@ -135,8 +146,8 @@ impl AlertChecker {
         for part in &disk.partitions {
             if part.used_percent() >= self.thresholds.disk_full_percent {
                 alerts.push(SysInfoAlert::DiskFull {
-                    mount_point:       part.mount_point.clone(),
-                    used_percent:      part.used_percent(),
+                    mount_point: part.mount_point.clone(),
+                    used_percent: part.used_percent(),
                     threshold_percent: self.thresholds.disk_full_percent,
                 });
             }
@@ -146,7 +157,7 @@ impl AlertChecker {
         let mem = MemInfo::detect();
         if mem.used_percent() >= self.thresholds.memory_full_percent {
             alerts.push(SysInfoAlert::MemoryFull {
-                used_percent:      mem.used_percent(),
+                used_percent: mem.used_percent(),
                 threshold_percent: self.thresholds.memory_full_percent,
             });
         }
@@ -156,8 +167,8 @@ impl AlertChecker {
         for sensor in &thermal.sensors {
             if sensor.temp_celsius >= self.thresholds.cpu_hot_celsius {
                 alerts.push(SysInfoAlert::CpuHot {
-                    sensor:            sensor.label.clone(),
-                    temp_celsius:      sensor.temp_celsius,
+                    sensor: sensor.label.clone(),
+                    temp_celsius: sensor.temp_celsius,
                     threshold_celsius: self.thresholds.cpu_hot_celsius,
                 });
             }
@@ -170,7 +181,7 @@ impl AlertChecker {
             for drive in &smart.drives {
                 if !drive.passed {
                     alerts.push(SysInfoAlert::SmartError {
-                        device:     drive.device.clone(),
+                        device: drive.device.clone(),
                         assessment: drive.assessment.clone(),
                     });
                 }

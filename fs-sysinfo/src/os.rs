@@ -16,20 +16,28 @@ impl OsType {
     /// Detect the current OS at compile time.
     pub fn detect() -> Self {
         #[cfg(target_os = "linux")]
-        { OsType::Linux }
+        {
+            OsType::Linux
+        }
         #[cfg(target_os = "macos")]
-        { OsType::MacOs }
+        {
+            OsType::MacOs
+        }
         #[cfg(target_os = "windows")]
-        { OsType::Windows }
+        {
+            OsType::Windows
+        }
         #[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))]
-        { OsType::Unknown }
+        {
+            OsType::Unknown
+        }
     }
 
     /// Display label.
     pub fn label(&self) -> &'static str {
         match self {
-            OsType::Linux   => "Linux",
-            OsType::MacOs   => "macOS",
+            OsType::Linux => "Linux",
+            OsType::MacOs => "macOS",
             OsType::Windows => "Windows",
             OsType::Unknown => "Unknown",
         }
@@ -56,10 +64,16 @@ impl OsInfo {
     pub fn detect() -> Self {
         use sysinfo::System;
         let os_type = OsType::detect();
-        let version  = System::long_os_version().unwrap_or_else(|| "unknown".into());
-        let kernel   = System::kernel_version().unwrap_or_else(|| "unknown".into());
+        let version = System::long_os_version().unwrap_or_else(|| "unknown".into());
+        let kernel = System::kernel_version().unwrap_or_else(|| "unknown".into());
         let hostname = System::host_name().unwrap_or_else(|| "unknown".into());
-        let arch     = std::env::consts::ARCH.to_owned();
-        OsInfo { os_type, version, arch, kernel, hostname }
+        let arch = std::env::consts::ARCH.to_owned();
+        OsInfo {
+            os_type,
+            version,
+            arch,
+            kernel,
+            hostname,
+        }
     }
 }

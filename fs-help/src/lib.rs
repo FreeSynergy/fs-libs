@@ -64,17 +64,25 @@ impl HelpSystem {
 
     /// Retrieve related topics for a given topic id.
     pub fn related_for(&self, id: &str) -> Vec<&HelpTopic> {
-        let Some(topic) = self.topics.get(id) else { return vec![]; };
-        topic.related.iter()
+        let Some(topic) = self.topics.get(id) else {
+            return vec![];
+        };
+        topic
+            .related
+            .iter()
             .filter_map(|rid| self.topics.get(rid.as_str()))
             .collect()
     }
 
     /// Number of registered topics.
-    pub fn len(&self) -> usize { self.topics.len() }
+    pub fn len(&self) -> usize {
+        self.topics.len()
+    }
 
     /// `true` when no topics are registered.
-    pub fn is_empty(&self) -> bool { self.topics.is_empty() }
+    pub fn is_empty(&self) -> bool {
+        self.topics.is_empty()
+    }
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -87,12 +95,16 @@ mod tests {
         let mut h = HelpSystem::new();
         h.add_topic(
             HelpTopic::new("project", "help.project.title", "help.project.body")
-                .keywords(["project", "slug", "name"])
+                .keywords(["project", "slug", "name"]),
         );
         h.add_topic(
-            HelpTopic::new("project.create", "help.project.create.title", "help.project.create.body")
-                .related(["project"])
-                .keywords(["create", "new", "project"])
+            HelpTopic::new(
+                "project.create",
+                "help.project.create.title",
+                "help.project.create.body",
+            )
+            .related(["project"])
+            .keywords(["create", "new", "project"]),
         );
         h
     }
@@ -100,13 +112,19 @@ mod tests {
     #[test]
     fn exact_context_lookup() {
         let h = sample_system();
-        assert_eq!(h.help_for_context("project.create").unwrap().id, "project.create");
+        assert_eq!(
+            h.help_for_context("project.create").unwrap().id,
+            "project.create"
+        );
     }
 
     #[test]
     fn parent_context_fallback() {
         let h = sample_system();
-        assert_eq!(h.help_for_context("project.create.host").unwrap().id, "project.create");
+        assert_eq!(
+            h.help_for_context("project.create.host").unwrap().id,
+            "project.create"
+        );
     }
 
     #[test]

@@ -30,10 +30,7 @@ impl LocaleBundle {
 
         for source in ftl_sources {
             let resource = FluentResource::try_new(source.clone()).map_err(|(_, errors)| {
-                FsError::parse(format!(
-                    "FTL parse error in locale `{lang}`: {:?}",
-                    errors
-                ))
+                FsError::parse(format!("FTL parse error in locale `{lang}`: {:?}", errors))
             })?;
             // Duplicate message ids are skipped by fluent-bundle — ignore the
             // `Err` variant which only carries override errors, not fatal ones.
@@ -65,7 +62,9 @@ impl LocaleBundle {
         }
 
         let mut errors = vec![];
-        let value = self.bundle.format_pattern(pattern, Some(&fluent_args), &mut errors);
+        let value = self
+            .bundle
+            .format_pattern(pattern, Some(&fluent_args), &mut errors);
         Some(value.into_owned())
     }
 }

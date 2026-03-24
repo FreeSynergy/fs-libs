@@ -132,14 +132,19 @@ pub async fn interpret_command(
     provider: &dyn LlmProvider,
     command: &str,
 ) -> Result<InterpretedCommand, LlmError> {
-    LlmTaskRunner::new(provider).interpret_command(command).await
+    LlmTaskRunner::new(provider)
+        .interpret_command(command)
+        .await
 }
 
 pub async fn summarize_logs(provider: &dyn LlmProvider, logs: &str) -> Result<String, LlmError> {
     LlmTaskRunner::new(provider).summarize_logs(logs).await
 }
 
-pub async fn explain_error(provider: &dyn LlmProvider, error: &str) -> Result<ErrorExplanation, LlmError> {
+pub async fn explain_error(
+    provider: &dyn LlmProvider,
+    error: &str,
+) -> Result<ErrorExplanation, LlmError> {
     LlmTaskRunner::new(provider).explain_error(error).await
 }
 
@@ -148,7 +153,9 @@ pub async fn suggest_config(
     partial_toml: &str,
     schema_hint: &str,
 ) -> Result<String, LlmError> {
-    LlmTaskRunner::new(provider).suggest_config(partial_toml, schema_hint).await
+    LlmTaskRunner::new(provider)
+        .suggest_config(partial_toml, schema_hint)
+        .await
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -160,11 +167,15 @@ mod tests {
     use crate::request::{LlmResponse, Message};
     use async_trait::async_trait;
 
-    struct Stub { reply: &'static str }
+    struct Stub {
+        reply: &'static str,
+    }
 
     #[async_trait]
     impl LlmProvider for Stub {
-        fn name(&self) -> &str { "stub" }
+        fn name(&self) -> &str {
+            "stub"
+        }
         async fn complete(&self, _: Vec<Message>) -> Result<LlmResponse, LlmError> {
             Ok(LlmResponse::new(self.reply, "stub"))
         }
@@ -186,14 +197,18 @@ mod tests {
         let stub = Stub {
             reply: r#"{"summary":"Port in use","cause":"Another process","suggestions":["Check netstat"]}"#,
         };
-        let ex = explain_error(&stub, "bind: address already in use").await.unwrap();
+        let ex = explain_error(&stub, "bind: address already in use")
+            .await
+            .unwrap();
         assert_eq!(ex.summary, "Port in use");
         assert!(!ex.suggestions.is_empty());
     }
 
     #[tokio::test(flavor = "current_thread")]
     async fn summarize_logs_returns_string() {
-        let stub = Stub { reply: "All services started successfully." };
+        let stub = Stub {
+            reply: "All services started successfully.",
+        };
         let summary = summarize_logs(&stub, "INFO service started").await.unwrap();
         assert!(!summary.is_empty());
     }

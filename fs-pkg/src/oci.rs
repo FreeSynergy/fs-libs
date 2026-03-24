@@ -37,16 +37,16 @@ use serde::{Deserialize, Serialize};
 pub struct OciRef {
     /// Optional registry host (e.g. `"ghcr.io"`, `"docker.io"`).
     /// Absent for Docker Hub short-form refs (`ubuntu:22.04`).
-    registry:   Option<String>,
+    registry: Option<String>,
 
     /// Repository path (e.g. `"freesynergy/zentinel"` or `"library/ubuntu"`).
     repository: String,
 
     /// Optional tag (e.g. `"latest"`, `"0.1.0"`).
-    tag:        Option<String>,
+    tag: Option<String>,
 
     /// Optional content-addressable digest (e.g. `"sha256:abc123…"`).
-    digest:     Option<String>,
+    digest: Option<String>,
 }
 
 impl OciRef {
@@ -74,10 +74,17 @@ impl OciRef {
         let (registry, repository) = split_registry(without_tag);
 
         if repository.is_empty() {
-            return Err(FsError::parse("OCI reference: repository must not be empty"));
+            return Err(FsError::parse(
+                "OCI reference: repository must not be empty",
+            ));
         }
 
-        Ok(Self { registry, repository: repository.to_string(), tag, digest })
+        Ok(Self {
+            registry,
+            repository: repository.to_string(),
+            tag,
+            digest,
+        })
     }
 
     /// The registry host, if present (e.g. `"ghcr.io"`).
@@ -180,7 +187,10 @@ fn validate_tag(tag: &str) -> Result<(), FsError> {
             tag
         )));
     }
-    if !tag.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '.' || c == '-') {
+    if !tag
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '_' || c == '.' || c == '-')
+    {
         return Err(FsError::parse(format!(
             "OCI tag contains invalid chars: {tag:?}"
         )));
@@ -222,10 +232,8 @@ mod tests {
 
     #[test]
     fn ref_with_digest() {
-        let r = OciRef::parse(
-            "ghcr.io/freesynergy/zentinel:0.1.0@sha256:abcdef1234567890",
-        )
-        .unwrap();
+        let r =
+            OciRef::parse("ghcr.io/freesynergy/zentinel:0.1.0@sha256:abcdef1234567890").unwrap();
         assert_eq!(r.tag(), Some("0.1.0"));
         assert_eq!(r.digest(), Some("sha256:abcdef1234567890"));
         assert!(r.is_pinned());
@@ -254,10 +262,7 @@ mod tests {
 
     #[test]
     fn pull_url_pinned() {
-        let r = OciRef::parse(
-            "ghcr.io/freesynergy/zentinel@sha256:abc123",
-        )
-        .unwrap();
+        let r = OciRef::parse("ghcr.io/freesynergy/zentinel@sha256:abc123").unwrap();
         assert_eq!(r.pull_url(), "ghcr.io/freesynergy/zentinel@sha256:abc123");
     }
 

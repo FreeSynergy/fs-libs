@@ -46,7 +46,7 @@ pub fn ContextMenu(props: ContextMenuProps) -> Element {
             role: "menu",
             for item in &props.items {
                 {
-                    let handler = item.onclick.clone();
+                    let handler = item.onclick;
                     rsx! {
                         li { class: "fs-context-menu__item", role: "menuitem",
                             button {

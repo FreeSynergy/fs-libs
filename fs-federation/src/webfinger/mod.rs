@@ -70,11 +70,7 @@ impl WebFingerClient {
     /// (e.g. `"example.com"`).
     ///
     /// Queries `https://{host}/.well-known/webfinger?resource={resource}`.
-    pub async fn lookup(
-        &self,
-        host: &str,
-        resource: &str,
-    ) -> Result<WebFingerResponse, FsError> {
+    pub async fn lookup(&self, host: &str, resource: &str) -> Result<WebFingerResponse, FsError> {
         let url = format!(
             "https://{}/.well-known/webfinger?resource={}",
             host,
@@ -107,11 +103,7 @@ impl WebFingerClient {
     }
 
     /// Convenience helper: look up `acct:{user}@{host}` on `host`.
-    pub async fn lookup_acct(
-        &self,
-        user: &str,
-        host: &str,
-    ) -> Result<WebFingerResponse, FsError> {
+    pub async fn lookup_acct(&self, user: &str, host: &str) -> Result<WebFingerResponse, FsError> {
         let resource = format!("acct:{user}@{host}");
         self.lookup(host, &resource).await
     }
@@ -148,15 +140,11 @@ mod tests {
             ],
         };
 
-        assert_eq!(
-            resp.self_href(),
-            Some("https://example.com/users/alice")
-        );
-        assert_eq!(
-            resp.profile_href(),
-            Some("https://example.com/@alice")
-        );
-        assert!(resp.link("http://ostatus.org/schema/1.0/subscribe").is_none());
+        assert_eq!(resp.self_href(), Some("https://example.com/users/alice"));
+        assert_eq!(resp.profile_href(), Some("https://example.com/@alice"));
+        assert!(resp
+            .link("http://ostatus.org/schema/1.0/subscribe")
+            .is_none());
     }
 
     #[test]

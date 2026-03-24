@@ -24,17 +24,19 @@ impl MemInfo {
         let mut sys = System::new();
         sys.refresh_memory();
         MemInfo {
-            total_bytes:      sys.total_memory(),
-            available_bytes:  sys.available_memory(),
-            used_bytes:       sys.used_memory(),
+            total_bytes: sys.total_memory(),
+            available_bytes: sys.available_memory(),
+            used_bytes: sys.used_memory(),
             swap_total_bytes: sys.total_swap(),
-            swap_used_bytes:  sys.used_swap(),
+            swap_used_bytes: sys.used_swap(),
         }
     }
 
     /// Used memory as a percentage (0–100).
     pub fn used_percent(&self) -> f64 {
-        if self.total_bytes == 0 { return 0.0; }
+        if self.total_bytes == 0 {
+            return 0.0;
+        }
         (self.used_bytes as f64 / self.total_bytes as f64) * 100.0
     }
 }

@@ -20,12 +20,16 @@ pub trait PermissionResolver: Send + Sync {
 
 pub struct AllowAllPermissions;
 impl PermissionResolver for AllowAllPermissions {
-    fn resolve(&self, _sender_id: &str) -> Right { Right::Admin }
+    fn resolve(&self, _sender_id: &str) -> Right {
+        Right::Admin
+    }
 }
 
 pub struct DenyAllPermissions;
 impl PermissionResolver for DenyAllPermissions {
-    fn resolve(&self, _sender_id: &str) -> Right { Right::None }
+    fn resolve(&self, _sender_id: &str) -> Right {
+        Right::None
+    }
 }
 
 // ── BotRouter ─────────────────────────────────────────────────────────────────
@@ -36,27 +40,27 @@ impl PermissionResolver for DenyAllPermissions {
 /// the caller's right level, dispatches to the appropriate command, and sends
 /// the [`BotResponse`] back via the channel adapter.
 pub struct BotRouter {
-    prefix:      String,
-    registry:    CommandRegistry,
-    channel:     Arc<dyn Channel>,
+    prefix: String,
+    registry: CommandRegistry,
+    channel: Arc<dyn Channel>,
     permissions: Arc<dyn PermissionResolver>,
-    platform:    String,
+    platform: String,
 }
 
 impl BotRouter {
     pub fn new(
-        prefix:      impl Into<String>,
-        registry:    CommandRegistry,
-        channel:     Arc<dyn Channel>,
+        prefix: impl Into<String>,
+        registry: CommandRegistry,
+        channel: Arc<dyn Channel>,
         permissions: Arc<dyn PermissionResolver>,
-        platform:    impl Into<String>,
+        platform: impl Into<String>,
     ) -> Self {
         Self {
-            prefix:      prefix.into(),
+            prefix: prefix.into(),
             registry,
             channel,
             permissions,
-            platform:    platform.into(),
+            platform: platform.into(),
         }
     }
 
@@ -71,7 +75,7 @@ impl BotRouter {
         let mut tokens = after_prefix.split_whitespace();
         let cmd_name = match tokens.next() {
             Some(n) => n,
-            None    => return,
+            None => return,
         };
         let args: Vec<String> = tokens.map(String::from).collect();
 
@@ -90,7 +94,7 @@ impl BotRouter {
 
         let response = match self.registry.dispatch(ctx).await {
             Some(r) => r,
-            None    => return,
+            None => return,
         };
 
         if let Some(msg_out) = response.into_channel_message() {

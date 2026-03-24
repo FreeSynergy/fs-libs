@@ -85,9 +85,12 @@ impl Event {
         source: impl Into<String>,
         payload: impl Serialize,
     ) -> Result<Self, BusError> {
-        let payload = serde_json::to_value(payload)
-            .map_err(|e| BusError::serialization(e.to_string()))?;
-        Ok(Self { meta: EventMeta::new(topic, source), payload })
+        let payload =
+            serde_json::to_value(payload).map_err(|e| BusError::serialization(e.to_string()))?;
+        Ok(Self {
+            meta: EventMeta::new(topic, source),
+            payload,
+        })
     }
 
     /// Return the topic string.
@@ -114,11 +117,20 @@ mod tests {
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, PartialEq, Debug)]
-    struct Ping { message: String }
+    struct Ping {
+        message: String,
+    }
 
     #[test]
     fn event_round_trip() {
-        let ev = Event::new("ping", "test", Ping { message: "hello".into() }).unwrap();
+        let ev = Event::new(
+            "ping",
+            "test",
+            Ping {
+                message: "hello".into(),
+            },
+        )
+        .unwrap();
         assert_eq!(ev.topic(), "ping");
         let p: Ping = ev.parse_payload().unwrap();
         assert_eq!(p.message, "hello");

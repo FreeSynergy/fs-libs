@@ -30,28 +30,28 @@ impl Action {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            Action::Read      => "Read",
-            Action::Write     => "Write",
-            Action::Install   => "Install",
-            Action::Remove    => "Remove",
-            Action::Start     => "Start",
-            Action::Stop      => "Stop",
+            Action::Read => "Read",
+            Action::Write => "Write",
+            Action::Install => "Install",
+            Action::Remove => "Remove",
+            Action::Start => "Start",
+            Action::Stop => "Stop",
             Action::Configure => "Configure",
-            Action::Admin     => "Admin",
+            Action::Admin => "Admin",
         }
     }
 
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            Action::Read      => "permission.action.read",
-            Action::Write     => "permission.action.write",
-            Action::Install   => "permission.action.install",
-            Action::Remove    => "permission.action.remove",
-            Action::Start     => "permission.action.start",
-            Action::Stop      => "permission.action.stop",
+            Action::Read => "permission.action.read",
+            Action::Write => "permission.action.write",
+            Action::Install => "permission.action.install",
+            Action::Remove => "permission.action.remove",
+            Action::Start => "permission.action.start",
+            Action::Stop => "permission.action.stop",
             Action::Configure => "permission.action.configure",
-            Action::Admin     => "permission.action.admin",
+            Action::Admin => "permission.action.admin",
         }
     }
 
@@ -101,22 +101,21 @@ impl Scope {
     /// Return the contained resource ID, if any.
     pub fn resource_id(&self) -> Option<&str> {
         match self {
-            Scope::Global           => None,
-            Scope::Node(id)
-            | Scope::Project(id)
-            | Scope::Service(id)
-            | Scope::Plugin(id)     => Some(id.as_str()),
+            Scope::Global => None,
+            Scope::Node(id) | Scope::Project(id) | Scope::Service(id) | Scope::Plugin(id) => {
+                Some(id.as_str())
+            }
         }
     }
 
     /// Human-readable label for UI display.
     pub fn label(&self) -> String {
         match self {
-            Scope::Global        => "Global".to_owned(),
-            Scope::Node(id)      => format!("Node:{id}"),
-            Scope::Project(id)   => format!("Project:{id}"),
-            Scope::Service(id)   => format!("Service:{id}"),
-            Scope::Plugin(id)    => format!("Plugin:{id}"),
+            Scope::Global => "Global".to_owned(),
+            Scope::Node(id) => format!("Node:{id}"),
+            Scope::Project(id) => format!("Project:{id}"),
+            Scope::Service(id) => format!("Service:{id}"),
+            Scope::Plugin(id) => format!("Plugin:{id}"),
         }
     }
 }
@@ -150,7 +149,10 @@ mod tests {
     fn scope_resource_id() {
         assert_eq!(Scope::Global.resource_id(), None);
         assert_eq!(Scope::Project("proj1".into()).resource_id(), Some("proj1"));
-        assert_eq!(Scope::Service("kanidm".into()).resource_id(), Some("kanidm"));
+        assert_eq!(
+            Scope::Service("kanidm".into()).resource_id(),
+            Some("kanidm")
+        );
     }
 
     #[test]

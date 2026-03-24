@@ -6,7 +6,7 @@ use tracing::{debug, warn};
 
 use crate::error::BusError;
 use crate::event::Event;
-use crate::topic::{TopicHandler, topic_matches};
+use crate::topic::{topic_matches, TopicHandler};
 
 // ── Router ────────────────────────────────────────────────────────────────────
 
@@ -89,7 +89,9 @@ mod tests {
 
     #[async_trait]
     impl TopicHandler for Counter {
-        fn topic_pattern(&self) -> &str { self.pattern }
+        fn topic_pattern(&self) -> &str {
+            self.pattern
+        }
         async fn handle(&self, _event: &Event) -> Result<(), BusError> {
             self.count.fetch_add(1, Ordering::SeqCst);
             Ok(())
@@ -100,7 +102,10 @@ mod tests {
     async fn dispatch_to_matching_handler() {
         let count = Arc::new(AtomicU32::new(0));
         let mut router = Router::new();
-        router.register(Arc::new(Counter { pattern: "deploy.*", count: count.clone() }));
+        router.register(Arc::new(Counter {
+            pattern: "deploy.*",
+            count: count.clone(),
+        }));
 
         let ev = Event::new("deploy.started", "test", ()).unwrap();
         let results = router.dispatch(&ev).await;
@@ -112,7 +117,10 @@ mod tests {
     async fn no_dispatch_on_mismatch() {
         let count = Arc::new(AtomicU32::new(0));
         let mut router = Router::new();
-        router.register(Arc::new(Counter { pattern: "health.*", count: count.clone() }));
+        router.register(Arc::new(Counter {
+            pattern: "health.*",
+            count: count.clone(),
+        }));
 
         let ev = Event::new("deploy.started", "test", ()).unwrap();
         let results = router.dispatch(&ev).await;
@@ -125,8 +133,14 @@ mod tests {
         let c1 = Arc::new(AtomicU32::new(0));
         let c2 = Arc::new(AtomicU32::new(0));
         let mut router = Router::new();
-        router.register(Arc::new(Counter { pattern: "#", count: c1.clone() }));
-        router.register(Arc::new(Counter { pattern: "deploy.*", count: c2.clone() }));
+        router.register(Arc::new(Counter {
+            pattern: "#",
+            count: c1.clone(),
+        }));
+        router.register(Arc::new(Counter {
+            pattern: "deploy.*",
+            count: c2.clone(),
+        }));
 
         let ev = Event::new("deploy.started", "test", ()).unwrap();
         router.dispatch(&ev).await;

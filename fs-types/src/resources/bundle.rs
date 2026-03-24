@@ -16,11 +16,17 @@ pub struct BundleEntry {
 
 impl BundleEntry {
     pub fn required(id: impl Into<String>) -> Self {
-        Self { id: id.into(), optional: false }
+        Self {
+            id: id.into(),
+            optional: false,
+        }
     }
 
     pub fn optional(id: impl Into<String>) -> Self {
-        Self { id: id.into(), optional: true }
+        Self {
+            id: id.into(),
+            optional: true,
+        }
     }
 }
 
@@ -29,12 +35,12 @@ impl BundleEntry {
 /// Convenience struct for theme bundles — at most one resource per theme slot.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ThemeBundleRefs {
-    pub color_scheme:  Option<String>,
-    pub style:         Option<String>,
-    pub font_set:      Option<String>,
-    pub cursor_set:    Option<String>,
-    pub icon_set:      Option<String>,
-    pub button_style:  Option<String>,
+    pub color_scheme: Option<String>,
+    pub style: Option<String>,
+    pub font_set: Option<String>,
+    pub cursor_set: Option<String>,
+    pub icon_set: Option<String>,
+    pub button_style: Option<String>,
     pub window_chrome: Option<String>,
     pub animation_set: Option<String>,
 }

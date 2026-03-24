@@ -61,7 +61,7 @@ impl SmartInfo {
 
         let json: serde_json::Value = serde_json::from_slice(&out.stdout).ok()?;
 
-        let passed     = json["smart_status"]["passed"].as_bool().unwrap_or(false);
+        let passed = json["smart_status"]["passed"].as_bool().unwrap_or(false);
         let assessment = json["smart_status"]["string"]
             .as_str()
             .unwrap_or("unknown")

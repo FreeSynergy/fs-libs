@@ -21,8 +21,8 @@ impl HostMode {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            HostMode::Local   => "Local",
-            HostMode::Remote  => "Remote",
+            HostMode::Local => "Local",
+            HostMode::Remote => "Remote",
             HostMode::Managed => "Managed",
         }
     }
@@ -30,8 +30,8 @@ impl HostMode {
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            HostMode::Local   => "host.mode.local",
-            HostMode::Remote  => "host.mode.remote",
+            HostMode::Local => "host.mode.local",
+            HostMode::Remote => "host.mode.remote",
             HostMode::Managed => "host.mode.managed",
         }
     }
@@ -63,20 +63,20 @@ impl HostStatus {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            HostStatus::Online   => "Online",
-            HostStatus::Offline  => "Offline",
+            HostStatus::Online => "Online",
+            HostStatus::Offline => "Offline",
             HostStatus::Degraded => "Degraded",
-            HostStatus::Unknown  => "Unknown",
+            HostStatus::Unknown => "Unknown",
         }
     }
 
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            HostStatus::Online   => "host.status.online",
-            HostStatus::Offline  => "host.status.offline",
+            HostStatus::Online => "host.status.online",
+            HostStatus::Offline => "host.status.offline",
             HostStatus::Degraded => "host.status.degraded",
-            HostStatus::Unknown  => "host.status.unknown",
+            HostStatus::Unknown => "host.status.unknown",
         }
     }
 

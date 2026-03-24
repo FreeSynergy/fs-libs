@@ -17,50 +17,62 @@ use dioxus::prelude::Element;
 /// This is a pure domain type — no dioxus imports at the call site.
 #[derive(Clone, Default)]
 pub struct DesktopConfig {
-    title:          Option<String>,
-    width:          Option<f64>,
-    height:         Option<f64>,
-    min_size:       Option<(f64, f64)>,
-    decorations:    bool,
-    resizable:      bool,
-    background:     Option<(u8, u8, u8, u8)>,
+    title: Option<String>,
+    width: Option<f64>,
+    height: Option<f64>,
+    min_size: Option<(f64, f64)>,
+    decorations: bool,
+    resizable: bool,
+    background: Option<(u8, u8, u8, u8)>,
     all_navigation: bool,
 }
 
 impl DesktopConfig {
     pub fn new() -> Self {
-        Self { decorations: true, resizable: true, ..Default::default() }
+        Self {
+            decorations: true,
+            resizable: true,
+            ..Default::default()
+        }
     }
 
     pub fn with_title(mut self, title: impl Into<String>) -> Self {
-        self.title = Some(title.into()); self
+        self.title = Some(title.into());
+        self
     }
 
     pub fn with_size(mut self, width: f64, height: f64) -> Self {
-        self.width = Some(width); self.height = Some(height); self
+        self.width = Some(width);
+        self.height = Some(height);
+        self
     }
 
     pub fn with_min_size(mut self, width: f64, height: f64) -> Self {
-        self.min_size = Some((width, height)); self
+        self.min_size = Some((width, height));
+        self
     }
 
     pub fn without_decorations(mut self) -> Self {
-        self.decorations = false; self
+        self.decorations = false;
+        self
     }
 
     pub fn without_resizable(mut self) -> Self {
-        self.resizable = false; self
+        self.resizable = false;
+        self
     }
 
     pub fn with_background(mut self, r: u8, g: u8, b: u8, a: u8) -> Self {
-        self.background = Some((r, g, b, a)); self
+        self.background = Some((r, g, b, a));
+        self
     }
 
     /// Allow all WebView navigations (needed for the Browser app to load external URLs
     /// in iframes instead of opening the system browser).
     /// Tracking PR: https://github.com/DioxusLabs/dioxus/pull/5390
     pub fn with_all_navigation(mut self) -> Self {
-        self.all_navigation = true; self
+        self.all_navigation = true;
+        self
     }
 
     /// Convert into a Dioxus desktop `Config`.

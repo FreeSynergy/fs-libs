@@ -92,61 +92,60 @@ impl Locale {
         let base = lang.split('-').next().unwrap_or(lang);
         match base {
             // ── Germanic / Eastern-European: decimal comma, dot thousands, DD.MM.YYYY ──
-            "de" | "at" | "nl" | "da" | "no" | "nb" | "nn" | "sv" | "fi"
-            | "hu" | "pl" | "cs" | "sk" | "hr" | "sl" | "ro" | "bg" | "sr" | "mk"
-            | "bs" | "ka" | "az" | "kk" | "ky" | "uz" | "tk" | "mn" | "lv" | "lt"
-            | "et" => Self {
-                decimal_sep:  ',',
+            "de" | "at" | "nl" | "da" | "no" | "nb" | "nn" | "sv" | "fi" | "hu" | "pl" | "cs"
+            | "sk" | "hr" | "sl" | "ro" | "bg" | "sr" | "mk" | "bs" | "ka" | "az" | "kk" | "ky"
+            | "uz" | "tk" | "mn" | "lv" | "lt" | "et" => Self {
+                decimal_sep: ',',
                 thousands_sep: '.',
-                date_fmt:     DateFmt::DotDmY,
-                time_fmt:     TimeFmt::H24,
-                lang:         lang.to_string(),
+                date_fmt: DateFmt::DotDmY,
+                time_fmt: TimeFmt::H24,
+                lang: lang.to_string(),
             },
 
             // ── Romance / other European: decimal comma, dot thousands, DD/MM/YYYY ──
-            "fr" | "es" | "it" | "pt" | "ca" | "gl" | "eu" | "oc" | "el"
-            | "tr" | "he" | "fa" | "ar" | "ur" => Self {
-                decimal_sep:  ',',
+            "fr" | "es" | "it" | "pt" | "ca" | "gl" | "eu" | "oc" | "el" | "tr" | "he" | "fa"
+            | "ar" | "ur" => Self {
+                decimal_sep: ',',
                 thousands_sep: '.',
-                date_fmt:     DateFmt::DmY,
-                time_fmt:     TimeFmt::H24,
-                lang:         lang.to_string(),
+                date_fmt: DateFmt::DmY,
+                time_fmt: TimeFmt::H24,
+                lang: lang.to_string(),
             },
 
             // ── CJK Japanese / Chinese ────────────────────────────────────────────────
             "ja" | "zh" => Self {
-                decimal_sep:  '.',
+                decimal_sep: '.',
                 thousands_sep: ',',
-                date_fmt:     DateFmt::CjkYmd,
-                time_fmt:     TimeFmt::H24,
-                lang:         lang.to_string(),
+                date_fmt: DateFmt::CjkYmd,
+                time_fmt: TimeFmt::H24,
+                lang: lang.to_string(),
             },
 
             // ── Korean ────────────────────────────────────────────────────────────────
             "ko" => Self {
-                decimal_sep:  '.',
+                decimal_sep: '.',
                 thousands_sep: ',',
-                date_fmt:     DateFmt::KoreanYmd,
-                time_fmt:     TimeFmt::H24,
-                lang:         lang.to_string(),
+                date_fmt: DateFmt::KoreanYmd,
+                time_fmt: TimeFmt::H24,
+                lang: lang.to_string(),
             },
 
             // ── English (US): dot decimal, comma thousands, MM/DD/YYYY, 12h ─────────
             "en" => Self {
-                decimal_sep:  '.',
+                decimal_sep: '.',
                 thousands_sep: ',',
-                date_fmt:     DateFmt::MdY,
-                time_fmt:     TimeFmt::H12,
-                lang:         lang.to_string(),
+                date_fmt: DateFmt::MdY,
+                time_fmt: TimeFmt::H12,
+                lang: lang.to_string(),
             },
 
             // ── Everything else: ISO / technical defaults ─────────────────────────────
             _ => Self {
-                decimal_sep:  '.',
+                decimal_sep: '.',
                 thousands_sep: ',',
-                date_fmt:     DateFmt::Iso,
-                time_fmt:     TimeFmt::H24,
-                lang:         lang.to_string(),
+                date_fmt: DateFmt::Iso,
+                time_fmt: TimeFmt::H24,
+                lang: lang.to_string(),
             },
         }
     }
@@ -163,9 +162,13 @@ impl Locale {
     /// ```
     pub fn fmt_int(&self, n: i64) -> String {
         let negative = n < 0;
-        let abs      = n.unsigned_abs();
-        let grouped  = group_digits(abs, self.thousands_sep);
-        if negative { format!("-{grouped}") } else { grouped }
+        let abs = n.unsigned_abs();
+        let grouped = group_digits(abs, self.thousands_sep);
+        if negative {
+            format!("-{grouped}")
+        } else {
+            grouped
+        }
     }
 
     /// Format an unsigned integer with locale-appropriate thousands separators.
@@ -189,13 +192,13 @@ impl Locale {
     /// ```
     pub fn fmt_float(&self, n: f64, decimals: u8) -> String {
         let negative = n < 0.0;
-        let abs      = n.abs();
+        let abs = n.abs();
 
         // Round to the requested precision before splitting.
-        let factor  = 10f64.powi(decimals as i32);
+        let factor = 10f64.powi(decimals as i32);
         let rounded = (abs * factor).round() / factor;
 
-        let int_part  = rounded.trunc() as u64;
+        let int_part = rounded.trunc() as u64;
         let frac_part = ((rounded.fract() * factor).round()) as u64;
 
         let int_str = group_digits(int_part, self.thousands_sep);
@@ -207,7 +210,11 @@ impl Locale {
             format!("{int_str}{}{frac_str}", self.decimal_sep)
         };
 
-        if negative { format!("-{result}") } else { result }
+        if negative {
+            format!("-{result}")
+        } else {
+            result
+        }
     }
 
     // ── Derived formatters ────────────────────────────────────────────────────
@@ -264,11 +271,11 @@ impl Locale {
     /// ```
     pub fn fmt_date(&self, year: i32, month: u8, day: u8) -> String {
         match self.date_fmt {
-            DateFmt::MdY       => format!("{:02}/{:02}/{}", month, day, year),
-            DateFmt::DmY       => format!("{:02}/{:02}/{}", day, month, year),
-            DateFmt::DotDmY    => format!("{:02}.{:02}.{}", day, month, year),
-            DateFmt::Iso       => format!("{}-{:02}-{:02}", year, month, day),
-            DateFmt::CjkYmd    => format!("{}年{:02}月{:02}日", year, month, day),
+            DateFmt::MdY => format!("{:02}/{:02}/{}", month, day, year),
+            DateFmt::DmY => format!("{:02}/{:02}/{}", day, month, year),
+            DateFmt::DotDmY => format!("{:02}.{:02}.{}", day, month, year),
+            DateFmt::Iso => format!("{}-{:02}-{:02}", year, month, day),
+            DateFmt::CjkYmd => format!("{}年{:02}月{:02}日", year, month, day),
             DateFmt::KoreanYmd => format!("{}년 {:02}월 {:02}일", year, month, day),
         }
     }
@@ -322,9 +329,9 @@ fn group_digits(n: u64, sep: char) -> String {
         return n.to_string();
     }
 
-    let s    = n.to_string();
-    let len  = s.len();
-    let rem  = len % 3; // digits before the first separator
+    let s = n.to_string();
+    let len = s.len();
+    let rem = len % 3; // digits before the first separator
     let mut out = String::with_capacity(len + len / 3);
 
     for (i, ch) in s.chars().enumerate() {
@@ -347,18 +354,18 @@ mod tests {
     #[test]
     fn fmt_int_de() {
         let de = Locale::for_lang("de");
-        assert_eq!(de.fmt_int(0),           "0");
-        assert_eq!(de.fmt_int(999),         "999");
-        assert_eq!(de.fmt_int(1_000),       "1.000");
-        assert_eq!(de.fmt_int(1_234_567),   "1.234.567");
-        assert_eq!(de.fmt_int(-1_234_567),  "-1.234.567");
+        assert_eq!(de.fmt_int(0), "0");
+        assert_eq!(de.fmt_int(999), "999");
+        assert_eq!(de.fmt_int(1_000), "1.000");
+        assert_eq!(de.fmt_int(1_234_567), "1.234.567");
+        assert_eq!(de.fmt_int(-1_234_567), "-1.234.567");
     }
 
     #[test]
     fn fmt_int_en() {
         let en = Locale::for_lang("en");
-        assert_eq!(en.fmt_int(1_234_567),  "1,234,567");
-        assert_eq!(en.fmt_int(-42),        "-42");
+        assert_eq!(en.fmt_int(1_234_567), "1,234,567");
+        assert_eq!(en.fmt_int(-42), "-42");
     }
 
     // ── Float ─────────────────────────────────────────────────────────────────
@@ -366,17 +373,17 @@ mod tests {
     #[test]
     fn fmt_float_de() {
         let de = Locale::for_lang("de");
-        assert_eq!(de.fmt_float(1234.5,  2), "1.234,50");
-        assert_eq!(de.fmt_float(0.5,     2), "0,50");
-        assert_eq!(de.fmt_float(-99.9,   1), "-99,9");
-        assert_eq!(de.fmt_float(1000.0,  0), "1.000");
+        assert_eq!(de.fmt_float(1234.5, 2), "1.234,50");
+        assert_eq!(de.fmt_float(0.5, 2), "0,50");
+        assert_eq!(de.fmt_float(-99.9, 1), "-99,9");
+        assert_eq!(de.fmt_float(1000.0, 0), "1.000");
     }
 
     #[test]
     fn fmt_float_en() {
         let en = Locale::for_lang("en");
-        assert_eq!(en.fmt_float(1234.5,  2), "1,234.50");
-        assert_eq!(en.fmt_float(0.005,   2), "0.01"); // rounds up
+        assert_eq!(en.fmt_float(1234.5, 2), "1,234.50");
+        assert_eq!(en.fmt_float(0.005, 2), "0.01"); // rounds up
     }
 
     // ── Percent ───────────────────────────────────────────────────────────────
@@ -385,7 +392,7 @@ mod tests {
     fn fmt_percent_de() {
         let de = Locale::for_lang("de");
         assert_eq!(de.fmt_percent(0.756), "75,6 %");
-        assert_eq!(de.fmt_percent(1.0),   "100,0 %");
+        assert_eq!(de.fmt_percent(1.0), "100,0 %");
     }
 
     // ── Bytes ─────────────────────────────────────────────────────────────────
@@ -393,9 +400,9 @@ mod tests {
     #[test]
     fn fmt_bytes() {
         let de = Locale::for_lang("de");
-        assert_eq!(de.fmt_bytes(512),           "512 B");
-        assert_eq!(de.fmt_bytes(1536),          "1,5 KB");
-        assert_eq!(de.fmt_bytes(1_048_576),     "1,0 MB");
+        assert_eq!(de.fmt_bytes(512), "512 B");
+        assert_eq!(de.fmt_bytes(1536), "1,5 KB");
+        assert_eq!(de.fmt_bytes(1_048_576), "1,0 MB");
         assert_eq!(de.fmt_bytes(1_073_741_824), "1,0 GB");
     }
 
@@ -406,8 +413,14 @@ mod tests {
         assert_eq!(Locale::for_lang("de").fmt_date(2026, 3, 22), "22.03.2026");
         assert_eq!(Locale::for_lang("en").fmt_date(2026, 3, 22), "03/22/2026");
         assert_eq!(Locale::for_lang("fr").fmt_date(2026, 3, 22), "22/03/2026");
-        assert_eq!(Locale::for_lang("ja").fmt_date(2026, 3, 22), "2026年03月22日");
-        assert_eq!(Locale::for_lang("ko").fmt_date(2026, 3, 22), "2026년 03월 22일");
+        assert_eq!(
+            Locale::for_lang("ja").fmt_date(2026, 3, 22),
+            "2026年03月22日"
+        );
+        assert_eq!(
+            Locale::for_lang("ko").fmt_date(2026, 3, 22),
+            "2026년 03월 22일"
+        );
         assert_eq!(Locale::for_lang("xx").fmt_date(2026, 3, 22), "2026-03-22");
     }
 
@@ -417,23 +430,23 @@ mod tests {
     fn fmt_time_24h() {
         let de = Locale::for_lang("de");
         assert_eq!(de.fmt_time(14, 30, 0), "14:30");
-        assert_eq!(de.fmt_time(0,  0,  0), "00:00");
+        assert_eq!(de.fmt_time(0, 0, 0), "00:00");
     }
 
     #[test]
     fn fmt_time_12h() {
         let en = Locale::for_lang("en");
-        assert_eq!(en.fmt_time(0,  0,  0), "12:00 AM");
-        assert_eq!(en.fmt_time(12, 0,  0), "12:00 PM");
+        assert_eq!(en.fmt_time(0, 0, 0), "12:00 AM");
+        assert_eq!(en.fmt_time(12, 0, 0), "12:00 PM");
         assert_eq!(en.fmt_time(14, 30, 0), "2:30 PM");
-        assert_eq!(en.fmt_time(9,  5,  0), "9:05 AM");
+        assert_eq!(en.fmt_time(9, 5, 0), "9:05 AM");
     }
 
     // ── group_digits edge cases ───────────────────────────────────────────────
 
     #[test]
     fn group_digits_small() {
-        assert_eq!(group_digits(0,   ','), "0");
+        assert_eq!(group_digits(0, ','), "0");
         assert_eq!(group_digits(999, ','), "999");
     }
 

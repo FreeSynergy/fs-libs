@@ -39,17 +39,19 @@ impl WorkerMode {
     /// Human-readable description.
     pub fn description(&self) -> &'static str {
         match self {
-            Self::Stateless      => "Workers are stateless — any request can go to any instance",
-            Self::Stateful       => "Workers share state — session affinity may be required",
-            Self::LeaderFollower => "One leader, multiple followers — the leader coordinates writes",
+            Self::Stateless => "Workers are stateless — any request can go to any instance",
+            Self::Stateful => "Workers share state — session affinity may be required",
+            Self::LeaderFollower => {
+                "One leader, multiple followers — the leader coordinates writes"
+            }
         }
     }
 
     /// Short label for UI display.
     pub fn label(&self) -> &'static str {
         match self {
-            Self::Stateless      => "Stateless",
-            Self::Stateful       => "Stateful",
+            Self::Stateless => "Stateless",
+            Self::Stateful => "Stateful",
             Self::LeaderFollower => "Leader-Follower",
         }
     }
@@ -90,16 +92,18 @@ pub struct ScalingManifest {
     pub worker_mode: WorkerMode,
 }
 
-fn default_min_instances() -> u32 { 1 }
+fn default_min_instances() -> u32 {
+    1
+}
 
 impl Default for ScalingManifest {
     fn default() -> Self {
         Self {
-            supports_workers:            false,
+            supports_workers: false,
             supports_horizontal_scaling: false,
-            min_instances:               1,
-            max_instances:               0,
-            worker_mode:                 WorkerMode::Stateless,
+            min_instances: 1,
+            max_instances: 0,
+            worker_mode: WorkerMode::Stateless,
         }
     }
 }
@@ -148,18 +152,18 @@ impl InstanceRole {
     /// Human-readable label.
     pub fn label(&self) -> &'static str {
         match self {
-            Self::Worker     => "Worker (load sharing)",
+            Self::Worker => "Worker (load sharing)",
             Self::Standalone => "Standalone (independent)",
-            Self::Mirror     => "Mirror (read-only replica)",
+            Self::Mirror => "Mirror (read-only replica)",
         }
     }
 
     /// Short description shown in the installer UI.
     pub fn description(&self) -> &'static str {
         match self {
-            Self::Worker     => "Shares the workload with existing instances",
+            Self::Worker => "Shares the workload with existing instances",
             Self::Standalone => "Runs independently from other instances",
-            Self::Mirror     => "Read-only backup; follows the primary instance",
+            Self::Mirror => "Read-only backup; follows the primary instance",
         }
     }
 }
@@ -221,8 +225,16 @@ impl<'a> ScalingDialog<'a> {
     pub fn support_summary(&self) -> String {
         format!(
             "Worker {} Standalone ✓ Mirror {}",
-            if self.manifest.supports_workers { "✓" } else { "✗" },
-            if self.manifest.supports_horizontal_scaling { "✓" } else { "✗" },
+            if self.manifest.supports_workers {
+                "✓"
+            } else {
+                "✗"
+            },
+            if self.manifest.supports_horizontal_scaling {
+                "✓"
+            } else {
+                "✗"
+            },
         )
     }
 }
@@ -288,7 +300,7 @@ mod tests {
     #[test]
     fn dialog_worker_and_standalone() {
         let m = ScalingManifest {
-            supports_workers:            true,
+            supports_workers: true,
             supports_horizontal_scaling: false,
             ..ScalingManifest::default()
         };
@@ -301,7 +313,7 @@ mod tests {
     #[test]
     fn dialog_all_roles() {
         let m = ScalingManifest {
-            supports_workers:            true,
+            supports_workers: true,
             supports_horizontal_scaling: true,
             ..ScalingManifest::default()
         };
@@ -319,11 +331,11 @@ mod tests {
     #[test]
     fn serde_roundtrip() {
         let m = ScalingManifest {
-            supports_workers:            true,
+            supports_workers: true,
             supports_horizontal_scaling: true,
-            min_instances:               1,
-            max_instances:               5,
-            worker_mode:                 WorkerMode::LeaderFollower,
+            min_instances: 1,
+            max_instances: 5,
+            worker_mode: WorkerMode::LeaderFollower,
         };
         let toml_str = toml::to_string(&m).unwrap();
         let back: ScalingManifest = toml::from_str(&toml_str).unwrap();

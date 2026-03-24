@@ -34,7 +34,10 @@ impl ChannelError {
 
     /// Convenience constructor for send errors.
     pub fn send(room: impl Into<String>, message: impl Into<String>) -> Self {
-        Self::Send { room: room.into(), message: message.into() }
+        Self::Send {
+            room: room.into(),
+            message: message.into(),
+        }
     }
 
     /// Convenience constructor for receive errors.

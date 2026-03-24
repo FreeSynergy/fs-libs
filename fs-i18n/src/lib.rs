@@ -24,12 +24,14 @@ mod i18n;
 pub mod languages;
 pub mod locale;
 pub mod macros;
+pub mod provider;
 pub mod snippets;
 pub mod tools;
 
 pub use i18n::{I18n, LanguageCode, Translation};
-pub use languages::{language_meta, all_languages, LanguageMeta, TextDirection};
+pub use languages::{all_languages, language_meta, LanguageMeta, TextDirection};
 pub use locale::{DateFmt, Locale, TimeFmt};
+pub use provider::{BuiltinLanguageProvider, LanguageProvider, LanguageRegistry};
 pub use tools::SnippetPlugin;
 
 use std::path::Path;
@@ -153,7 +155,7 @@ pub fn locale() -> Locale {
     match GLOBAL_I18N.get() {
         Some(lock) => match lock.read() {
             Ok(i18n) => i18n.locale(),
-            Err(_)   => Locale::for_lang("en"),
+            Err(_) => Locale::for_lang("en"),
         },
         None => Locale::for_lang("en"),
     }
@@ -261,7 +263,8 @@ mod tests {
         let i = en_bundle("phrase-confirm-delete = Delete { $item }?\n");
         let result = i.t_with("phrase-confirm-delete", &[("item", "module")]);
         // Fluent wraps substituted values in Unicode bidi-isolation marks (\u{2068}/\u{2069})
-        let stripped: String = result.chars()
+        let stripped: String = result
+            .chars()
             .filter(|&c| c != '\u{2068}' && c != '\u{2069}')
             .collect();
         assert_eq!(stripped, "Delete module?");

@@ -24,7 +24,10 @@ pub enum UserEvent {
     /// A keyboard key was pressed.
     Key(KeyEvent),
     /// A mouse click or tap at the given coordinates.
-    Click { x: f64, y: f64 },
+    Click {
+        x: f64,
+        y: f64,
+    },
     /// A text change from an input element.
     TextChange(String),
     /// A navigation intent (tab focus order).
@@ -38,16 +41,21 @@ pub enum UserEvent {
 #[derive(Debug, Clone, PartialEq)]
 pub struct KeyEvent {
     /// Key name, e.g. `"Enter"`, `"Escape"`, `"Tab"`, `"a"`.
-    pub key:   String,
-    pub ctrl:  bool,
-    pub alt:   bool,
+    pub key: String,
+    pub ctrl: bool,
+    pub alt: bool,
     pub shift: bool,
 }
 
 impl KeyEvent {
     /// Convenience constructor for a plain key (no modifiers).
     pub fn plain(key: impl Into<String>) -> Self {
-        Self { key: key.into(), ctrl: false, alt: false, shift: false }
+        Self {
+            key: key.into(),
+            ctrl: false,
+            alt: false,
+            shift: false,
+        }
     }
 }
 
@@ -72,8 +80,8 @@ pub struct RenderCtx {
 impl Default for RenderCtx {
     fn default() -> Self {
         Self {
-            theme:    Theme::default(),
-            locale:   "en".into(),
+            theme: Theme::default(),
+            locale: "en".into(),
             features: FeatureFlags::default(),
         }
     }

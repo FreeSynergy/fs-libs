@@ -97,7 +97,15 @@ fn build_table() -> Vec<LanguageMeta> {
             } else {
                 TextDirection::Ltr
             };
-            LanguageMeta { code, name, native_name, script, direction, family, continent }
+            LanguageMeta {
+                code,
+                name,
+                native_name,
+                script,
+                direction,
+                family,
+                continent,
+            }
         })
         .collect()
 }

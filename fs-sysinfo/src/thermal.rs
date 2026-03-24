@@ -26,11 +26,17 @@ impl ThermalInfo {
     /// Read current CPU temperatures from the OS.
     pub fn detect() -> Self {
         #[cfg(target_os = "linux")]
-        { Self::detect_linux() }
+        {
+            Self::detect_linux()
+        }
         #[cfg(target_os = "macos")]
-        { Self::detect_smc() }
+        {
+            Self::detect_smc()
+        }
         #[cfg(not(any(target_os = "linux", target_os = "macos")))]
-        { ThermalInfo { sensors: vec![] } }
+        {
+            ThermalInfo { sensors: vec![] }
+        }
     }
 
     /// Maximum CPU temperature across all sensors (None if no sensors detected).
@@ -53,11 +59,15 @@ impl ThermalInfo {
         use std::{fs, path::Path};
         let mut out = Vec::new();
         let base = Path::new("/sys/class/thermal");
-        let Ok(entries) = fs::read_dir(base) else { return out };
+        let Ok(entries) = fs::read_dir(base) else {
+            return out;
+        };
         for entry in entries.flatten() {
             let path = entry.path();
             let name = path.file_name().unwrap_or_default().to_string_lossy();
-            if !name.starts_with("thermal_zone") { continue; }
+            if !name.starts_with("thermal_zone") {
+                continue;
+            }
             let temp_path = path.join("temp");
             let type_path = path.join("type");
             if let Ok(raw) = fs::read_to_string(&temp_path) {
@@ -65,7 +75,10 @@ impl ThermalInfo {
                     let label = fs::read_to_string(&type_path)
                         .map(|s| s.trim().to_owned())
                         .unwrap_or_else(|_| name.into_owned());
-                    out.push(CpuTemp { label, temp_celsius: millideg as f32 / 1000.0 });
+                    out.push(CpuTemp {
+                        label,
+                        temp_celsius: millideg as f32 / 1000.0,
+                    });
                 }
             }
         }
@@ -77,20 +90,27 @@ impl ThermalInfo {
         use std::{fs, path::Path};
         let mut out = Vec::new();
         let base = Path::new("/sys/class/hwmon");
-        let Ok(entries) = fs::read_dir(base) else { return out };
+        let Ok(entries) = fs::read_dir(base) else {
+            return out;
+        };
         for entry in entries.flatten() {
             let path = entry.path();
             let mut i = 1u32;
             loop {
                 let temp_input = path.join(format!("temp{i}_input"));
-                if !temp_input.exists() { break; }
+                if !temp_input.exists() {
+                    break;
+                }
                 let label_path = path.join(format!("temp{i}_label"));
                 if let Ok(raw) = fs::read_to_string(&temp_input) {
                     if let Ok(millideg) = raw.trim().parse::<i64>() {
                         let label = fs::read_to_string(&label_path)
                             .map(|s| s.trim().to_owned())
                             .unwrap_or_else(|_| format!("hwmon{i}"));
-                        out.push(CpuTemp { label, temp_celsius: millideg as f32 / 1000.0 });
+                        out.push(CpuTemp {
+                            label,
+                            temp_celsius: millideg as f32 / 1000.0,
+                        });
                     }
                 }
                 i += 1;
@@ -107,7 +127,10 @@ impl ThermalInfo {
         let components = Components::new_with_refreshed_list();
         let sensors = components
             .iter()
-            .map(|c| CpuTemp { label: c.label().to_owned(), temp_celsius: c.temperature() })
+            .map(|c| CpuTemp {
+                label: c.label().to_owned(),
+                temp_celsius: c.temperature(),
+            })
             .collect();
         ThermalInfo { sensors }
     }

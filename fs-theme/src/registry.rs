@@ -29,7 +29,10 @@ impl Default for ThemeRegistry {
         let name = default.name.clone();
         let mut themes = HashMap::new();
         themes.insert(name.clone(), default);
-        Self { themes, active: name }
+        Self {
+            themes,
+            active: name,
+        }
     }
 }
 
@@ -66,7 +69,9 @@ impl ThemeRegistry {
 
     /// The currently active [`Theme`].
     pub fn active(&self) -> &Theme {
-        self.themes.get(&self.active).expect("active theme always present")
+        self.themes
+            .get(&self.active)
+            .expect("active theme always present")
     }
 
     /// A [`ThemeEngine`] for the active theme (for CSS/Tailwind generation).
@@ -84,7 +89,9 @@ impl ThemeRegistry {
     /// Remove a theme by name. Fails if it is currently active.
     pub fn remove(&mut self, name: &str) -> Result<(), FsError> {
         if self.active == name {
-            return Err(FsError::Config(format!("cannot remove active theme '{name}'")));
+            return Err(FsError::Config(format!(
+                "cannot remove active theme '{name}'"
+            )));
         }
         self.themes.remove(name);
         Ok(())

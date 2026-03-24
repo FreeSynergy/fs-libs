@@ -18,12 +18,15 @@ pub struct TemplateContext {
 impl TemplateContext {
     /// Create an empty context.
     pub fn new() -> Self {
-        Self { vars: IndexMap::new() }
+        Self {
+            vars: IndexMap::new(),
+        }
     }
 
     /// Insert a string variable.
     pub fn set_str(&mut self, key: impl Into<String>, val: impl Into<String>) -> &mut Self {
-        self.vars.insert(key.into(), serde_json::Value::String(val.into()));
+        self.vars
+            .insert(key.into(), serde_json::Value::String(val.into()));
         self
     }
 
@@ -68,7 +71,8 @@ impl TemplateContext {
     /// Existing keys are overwritten.
     pub fn merge_str_map(&mut self, map: &HashMap<String, String>) -> &mut Self {
         for (k, v) in map {
-            self.vars.insert(k.clone(), serde_json::Value::String(v.clone()));
+            self.vars
+                .insert(k.clone(), serde_json::Value::String(v.clone()));
         }
         self
     }

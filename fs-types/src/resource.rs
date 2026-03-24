@@ -1,7 +1,7 @@
 //! Core resource abstraction — the base of all managed FreeSynergy entities.
 
-use serde::{Deserialize, Serialize};
 use crate::StrLabel;
+use serde::{Deserialize, Serialize};
 
 // ── ResourceKind ──────────────────────────────────────────────────────────────
 
@@ -25,10 +25,10 @@ impl StrLabel for ResourceKind {
     fn label(&self) -> &'static str {
         match self {
             Self::Project => "Project",
-            Self::Host    => "Host",
+            Self::Host => "Host",
             Self::Service => "Service",
-            Self::Plugin  => "Plugin",
-            Self::Theme   => "Theme",
+            Self::Plugin => "Plugin",
+            Self::Theme => "Theme",
         }
     }
 }
@@ -40,10 +40,10 @@ impl ResourceKind {
     pub fn i18n_key(self) -> &'static str {
         match self {
             ResourceKind::Project => "noun.project",
-            ResourceKind::Host    => "noun.host",
+            ResourceKind::Host => "noun.host",
             ResourceKind::Service => "noun.service",
-            ResourceKind::Plugin  => "noun.plugin",
-            ResourceKind::Theme   => "noun.theme",
+            ResourceKind::Plugin => "noun.plugin",
+            ResourceKind::Theme => "noun.theme",
         }
     }
 }
@@ -128,7 +128,10 @@ mod tests {
 
     #[test]
     fn meta_invalid_with_whitespace_id() {
-        let m = Meta { id: "  ".to_string(), ..Default::default() };
+        let m = Meta {
+            id: "  ".to_string(),
+            ..Default::default()
+        };
         assert!(!m.is_valid());
     }
 

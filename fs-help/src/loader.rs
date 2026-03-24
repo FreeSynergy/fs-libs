@@ -65,19 +65,19 @@ enum PackageKindTag {
 
 #[derive(Debug, Deserialize)]
 struct TopicDef {
-    id:          String,
-    title_key:   String,
+    id: String,
+    title_key: String,
     content_key: String,
 
     #[serde(default)]
-    keywords:    Vec<String>,
+    keywords: Vec<String>,
 
     #[serde(default)]
-    related:     Vec<String>,
+    related: Vec<String>,
 
     /// Links specific to this topic (overrides file-level links when set).
     #[serde(default, rename = "link")]
-    links:       Vec<LinkDef>,
+    links: Vec<LinkDef>,
 
     /// Tutorial search query (external packages only).
     #[serde(default)]
@@ -86,8 +86,8 @@ struct TopicDef {
 
 #[derive(Debug, Deserialize)]
 struct LinkDef {
-    kind:      LinkKindTag,
-    url:       String,
+    kind: LinkKindTag,
+    url: String,
     #[serde(default)]
     label_key: String,
 }
@@ -143,45 +143,44 @@ impl HelpLoader {
 
         let pkg_kind = file.package_kind;
 
-        file.topics.into_iter().map(|def| {
-            let links = build_links(def.links);
-            let kind: HelpKindArc = build_kind(pkg_kind, links, def.search_query);
+        file.topics
+            .into_iter()
+            .map(|def| {
+                let links = build_links(def.links);
+                let kind: HelpKindArc = build_kind(pkg_kind, links, def.search_query);
 
-            HelpTopic::new(def.id, def.title_key, def.content_key)
-                .related(def.related)
-                .keywords(def.keywords)
-                .with_kind(kind)
-        }).collect()
+                HelpTopic::new(def.id, def.title_key, def.content_key)
+                    .related(def.related)
+                    .keywords(def.keywords)
+                    .with_kind(kind)
+            })
+            .collect()
     }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 fn build_links(defs: Vec<LinkDef>) -> Vec<HelpLink> {
-    defs.into_iter().map(|l| {
-        let kind = match l.kind {
-            LinkKindTag::Website => HelpLinkKind::Website,
-            LinkKindTag::Docs    => HelpLinkKind::Docs,
-            LinkKindTag::Git     => HelpLinkKind::Git,
-        };
-        HelpLink::new(kind, l.url).with_label_key(l.label_key)
-    }).collect()
+    defs.into_iter()
+        .map(|l| {
+            let kind = match l.kind {
+                LinkKindTag::Website => HelpLinkKind::Website,
+                LinkKindTag::Docs => HelpLinkKind::Docs,
+                LinkKindTag::Git => HelpLinkKind::Git,
+            };
+            HelpLink::new(kind, l.url).with_label_key(l.label_key)
+        })
+        .collect()
 }
 
-fn build_kind(
-    tag:   PackageKindTag,
-    links: Vec<HelpLink>,
-    search: Option<String>,
-) -> HelpKindArc {
+fn build_kind(tag: PackageKindTag, links: Vec<HelpLink>, search: Option<String>) -> HelpKindArc {
     match tag {
         PackageKindTag::External => Arc::new(
             ExternalHelp::new()
                 .with_links(links)
                 .with_search_opt(search),
         ),
-        PackageKindTag::Internal => Arc::new(
-            InternalHelp::new().with_links(links),
-        ),
+        PackageKindTag::Internal => Arc::new(InternalHelp::new().with_links(links)),
     }
 }
 
@@ -261,7 +260,10 @@ content_key = "help-store-field-id-body"
         assert_eq!(root.links().len(), 2);
 
         // Field topic has no links
-        let field = topics.iter().find(|t| t.id == "store.install.package-id").unwrap();
+        let field = topics
+            .iter()
+            .find(|t| t.id == "store.install.package-id")
+            .unwrap();
         assert_eq!(field.links().len(), 0);
     }
 

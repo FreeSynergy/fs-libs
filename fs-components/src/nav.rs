@@ -19,8 +19,16 @@ use dioxus::prelude::*;
 /// Horizontal tab-bar button with a bottom-border active indicator.
 #[component]
 pub fn TabBtn(label: String, is_active: bool, on_click: EventHandler) -> Element {
-    let bg     = if is_active { "var(--fs-color-bg-base)" } else { "transparent" };
-    let border = if is_active { "var(--fs-color-primary)" } else { "transparent" };
+    let bg = if is_active {
+        "var(--fs-color-bg-base)"
+    } else {
+        "transparent"
+    };
+    let border = if is_active {
+        "var(--fs-color-primary)"
+    } else {
+        "transparent"
+    };
     rsx! {
         button {
             style: "padding: 10px 20px; border: none; cursor: pointer; font-size: 14px; \
@@ -69,45 +77,41 @@ pub enum SidebarMode {
 #[derive(Clone, PartialEq, Debug)]
 pub struct SidebarItem {
     /// Stable identifier — passed to `on_select`.
-    pub id:       String,
+    pub id: String,
     /// Icon: inline SVG markup, emoji, HTTP(S) URL, or empty string.
-    pub icon:     String,
+    pub icon: String,
     /// Display label.
-    pub label:    String,
+    pub label: String,
     /// Optional badge (e.g. a count or status indicator).
-    pub badge:    Option<String>,
+    pub badge: Option<String>,
     /// Non-empty = folder; clicking drills into the sub-level.
     pub children: Vec<SidebarItem>,
 }
 
 impl SidebarItem {
     /// Create a regular (leaf) item.
-    pub fn new(
-        id:    impl Into<String>,
-        icon:  impl Into<String>,
-        label: impl Into<String>,
-    ) -> Self {
+    pub fn new(id: impl Into<String>, icon: impl Into<String>, label: impl Into<String>) -> Self {
         Self {
-            id:       id.into(),
-            icon:     icon.into(),
-            label:    label.into(),
-            badge:    None,
+            id: id.into(),
+            icon: icon.into(),
+            label: label.into(),
+            badge: None,
             children: vec![],
         }
     }
 
     /// Create a folder item that drills into `children` when clicked.
     pub fn folder(
-        id:       impl Into<String>,
-        icon:     impl Into<String>,
-        label:    impl Into<String>,
+        id: impl Into<String>,
+        icon: impl Into<String>,
+        label: impl Into<String>,
         children: Vec<SidebarItem>,
     ) -> Self {
         Self {
-            id:       id.into(),
-            icon:     icon.into(),
-            label:    label.into(),
-            badge:    None,
+            id: id.into(),
+            icon: icon.into(),
+            label: label.into(),
+            badge: None,
             children,
         }
     }
@@ -143,7 +147,10 @@ pub struct SidebarSection {
 impl SidebarSection {
     /// Construct a section with a heading.
     pub fn new(label: impl Into<String>, items: Vec<SidebarItem>) -> Self {
-        Self { label: Some(label.into()), items }
+        Self {
+            label: Some(label.into()),
+            items,
+        }
     }
 
     /// Construct an untitled section (no heading).
@@ -455,7 +462,7 @@ pub const FS_SIDEBAR_CSS: &str = r#"
 // ── Icon renderer ─────────────────────────────────────────────────────────────
 
 const MISSING_ICON_SVG: &str = r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.4"/><line x1="6" y1="6" x2="18" y2="18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="6" x2="6" y2="18" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/></svg>"##;
-const CHEVRON_LEFT:  &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5,2 4.5,7 9.5,12"/></svg>"#;
+const CHEVRON_LEFT: &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9.5,2 4.5,7 9.5,12"/></svg>"#;
 const CHEVRON_RIGHT: &str = r#"<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4.5,2 9.5,7 4.5,12"/></svg>"#;
 
 /// Renders an icon: inline SVG markup, URL as `<img>`, plain emoji/text, or placeholder.
@@ -481,25 +488,27 @@ fn SidebarIcon(icon: String) -> Element {
 
 /// Single-item folder rule: if a folder has exactly one child, render the child directly.
 fn resolve_display_items(items: &[SidebarItem]) -> Vec<SidebarItem> {
-    items.iter().map(|item| {
-        if item.is_folder() && item.children.len() == 1 {
-            item.children[0].clone()
-        } else {
-            item.clone()
-        }
-    }).collect()
+    items
+        .iter()
+        .map(|item| {
+            if item.is_folder() && item.children.len() == 1 {
+                item.children[0].clone()
+            } else {
+                item.clone()
+            }
+        })
+        .collect()
 }
 
 /// Renders a flat list of sidebar items (leaf + folder) for one level.
 #[component]
 fn SidebarItemList(
-    items:     Vec<SidebarItem>,
+    items: Vec<SidebarItem>,
     active_id: String,
     in_folder: bool,
     on_select: EventHandler<String>,
-    on_enter:  EventHandler<String>,
-    #[props(default)]
-    on_context_menu: Option<EventHandler<String>>,
+    on_enter: EventHandler<String>,
+    #[props(default)] on_context_menu: Option<EventHandler<String>>,
 ) -> Element {
     let display = resolve_display_items(&items);
     rsx! {
@@ -608,7 +617,7 @@ pub fn Sidebar(
 
     // ── Selection ─────────────────────────────────────────────────────────
     active_id: String,
-    on_select:  EventHandler<String>,
+    on_select: EventHandler<String>,
 
     // ── Layout & behaviour ────────────────────────────────────────────────
     /// Rendering mode — Overlay (default) or Panel.
@@ -646,27 +655,44 @@ pub fn Sidebar(
     };
 
     match mode {
-        SidebarMode::Panel  => render_panel(effective_sections, pinned_items, active_id, on_select, on_context_menu, panel_width),
-        SidebarMode::Overlay => render_overlay(effective_sections, pinned_items, active_id, on_select, on_context_menu, side, panel_width, force_open, custom_panel),
+        SidebarMode::Panel => render_panel(
+            effective_sections,
+            pinned_items,
+            active_id,
+            on_select,
+            on_context_menu,
+            panel_width,
+        ),
+        SidebarMode::Overlay => render_overlay(
+            effective_sections,
+            pinned_items,
+            active_id,
+            on_select,
+            on_context_menu,
+            side,
+            panel_width,
+            force_open,
+            custom_panel,
+        ),
     }
 }
 
 // ── Panel renderer ────────────────────────────────────────────────────────────
 
 fn render_panel(
-    sections:        Vec<SidebarSection>,
-    pinned_items:    Vec<SidebarItem>,
-    active_id:       String,
-    on_select:       EventHandler<String>,
+    sections: Vec<SidebarSection>,
+    pinned_items: Vec<SidebarItem>,
+    active_id: String,
+    on_select: EventHandler<String>,
     on_context_menu: Option<EventHandler<String>>,
-    panel_width:     f64,
+    panel_width: f64,
 ) -> Element {
     let has_pinned = !pinned_items.is_empty();
 
     // Folder state for the main area (single shared state across all sections).
     let mut open_folder: Signal<Option<String>> = use_signal(|| None);
-    let folder_id  = open_folder.read().clone();
-    let in_folder  = folder_id.is_some();
+    let folder_id = open_folder.read().clone();
+    let in_folder = folder_id.is_some();
 
     // In folder mode: find and show the open folder's children.
     let (show_sections, back_label) = if let Some(ref fid) = folder_id {
@@ -690,7 +716,11 @@ fn render_panel(
         (sections.clone(), String::new())
     };
 
-    let level_class = if in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
+    let level_class = if in_folder {
+        "fs-sidebar__level--folder"
+    } else {
+        "fs-sidebar__level--root"
+    };
 
     rsx! {
         nav {
@@ -746,24 +776,25 @@ fn render_panel(
 // ── Overlay renderer ──────────────────────────────────────────────────────────
 
 fn render_overlay(
-    sections:        Vec<SidebarSection>,
-    pinned_items:    Vec<SidebarItem>,
-    active_id:       String,
-    on_select:       EventHandler<String>,
+    sections: Vec<SidebarSection>,
+    pinned_items: Vec<SidebarItem>,
+    active_id: String,
+    on_select: EventHandler<String>,
     on_context_menu: Option<EventHandler<String>>,
-    side:            SidebarSide,
-    panel_width:     f64,
-    force_open:      bool,
-    custom_panel:    Option<Element>,
+    side: SidebarSide,
+    panel_width: f64,
+    force_open: bool,
+    custom_panel: Option<Element>,
 ) -> Element {
     // Folder state — main section.
-    let mut main_open_folder:   Signal<Option<String>> = use_signal(|| None);
+    let mut main_open_folder: Signal<Option<String>> = use_signal(|| None);
     // Folder state — pinned section (independent).
     let mut pinned_open_folder: Signal<Option<String>> = use_signal(|| None);
 
     // ── Main section ──────────────────────────────────────────────────────
     // Flatten all items across sections for folder lookup and tab-strip.
-    let all_items: Vec<SidebarItem> = sections.iter()
+    let all_items: Vec<SidebarItem> = sections
+        .iter()
         .flat_map(|s| s.items.iter().cloned())
         .collect();
 
@@ -782,7 +813,11 @@ fn render_overlay(
         (sections.clone(), String::new())
     };
 
-    let main_level_class = if main_in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
+    let main_level_class = if main_in_folder {
+        "fs-sidebar__level--folder"
+    } else {
+        "fs-sidebar__level--root"
+    };
 
     // ── Pinned section ────────────────────────────────────────────────────
     let pinned_folder_id = pinned_open_folder.read().clone();
@@ -791,20 +826,27 @@ fn render_overlay(
     let (pinned_show_items, pinned_back_label) = if let Some(ref fid) = pinned_folder_id {
         match pinned_items.iter().find(|i| &i.id == fid) {
             Some(folder) => (folder.children.clone(), folder.label.clone()),
-            None         => (pinned_items.clone(), String::new()),
+            None => (pinned_items.clone(), String::new()),
         }
     } else {
         (pinned_items.clone(), String::new())
     };
 
-    let pinned_level_class = if pinned_in_folder { "fs-sidebar__level--folder" } else { "fs-sidebar__level--root" };
+    let pinned_level_class = if pinned_in_folder {
+        "fs-sidebar__level--folder"
+    } else {
+        "fs-sidebar__level--root"
+    };
 
-    let has_pinned  = !pinned_items.is_empty();
-    let has_custom  = custom_panel.is_some();
-    let tab_items   = resolve_display_items(&all_items);
+    let has_pinned = !pinned_items.is_empty();
+    let has_custom = custom_panel.is_some();
+    let tab_items = resolve_display_items(&all_items);
 
-    let side_class  = match side { SidebarSide::Left => "fs-sidebar--left", SidebarSide::Right => "fs-sidebar--right" };
-    let open_class  = if force_open { "fs-sidebar--open" } else { "" };
+    let side_class = match side {
+        SidebarSide::Left => "fs-sidebar--left",
+        SidebarSide::Right => "fs-sidebar--right",
+    };
+    let open_class = if force_open { "fs-sidebar--open" } else { "" };
 
     rsx! {
         nav {
@@ -949,18 +991,29 @@ fn render_overlay(
 /// a single styled button is needed without the full Sidebar frame.
 #[component]
 pub fn SidebarNavBtn(
-    label:    String,
-    icon:     String,
+    label: String,
+    icon: String,
     is_active: bool,
-    on_click:  EventHandler,
-    #[props(default = false)]
-    left_border: bool,
+    on_click: EventHandler,
+    #[props(default = false)] left_border: bool,
 ) -> Element {
-    let bg     = if is_active { "var(--fs-color-bg-overlay, #1e293b)" } else { "transparent" };
-    let color  = if is_active { "var(--fs-color-primary, #06b6d4)" } else { "var(--fs-color-text-primary, #e2e8f0)" };
+    let bg = if is_active {
+        "var(--fs-color-bg-overlay, #1e293b)"
+    } else {
+        "transparent"
+    };
+    let color = if is_active {
+        "var(--fs-color-primary, #06b6d4)"
+    } else {
+        "var(--fs-color-text-primary, #e2e8f0)"
+    };
     let weight = if is_active { "600" } else { "400" };
     let border_left = if left_border {
-        if is_active { "2px solid var(--fs-color-primary, #06b6d4)" } else { "2px solid transparent" }
+        if is_active {
+            "2px solid var(--fs-color-primary, #06b6d4)"
+        } else {
+            "2px solid transparent"
+        }
     } else {
         "none"
     };
@@ -984,15 +1037,19 @@ pub fn SidebarNavBtn(
 /// A tab definition for `FsTabView`.
 #[derive(Clone, PartialEq, Debug)]
 pub struct FsTabDef {
-    pub id:    String,
+    pub id: String,
     pub label: String,
     /// Optional SVG markup or emoji icon shown left of the label.
-    pub icon:  Option<String>,
+    pub icon: Option<String>,
 }
 
 impl FsTabDef {
     pub fn new(id: impl Into<String>, label: impl Into<String>) -> Self {
-        Self { id: id.into(), label: label.into(), icon: None }
+        Self {
+            id: id.into(),
+            label: label.into(),
+            icon: None,
+        }
     }
     pub fn with_icon(mut self, icon: impl Into<String>) -> Self {
         self.icon = Some(icon.into());
@@ -1074,23 +1131,23 @@ pub const FS_TAB_VIEW_CSS: &str = r#"
 /// reverses the direction.  Inject `FS_TAB_VIEW_CSS` once at the app root.
 #[component]
 pub fn FsTabView(
-    tabs:      Vec<FsTabDef>,
+    tabs: Vec<FsTabDef>,
     active_id: String,
     on_change: EventHandler<String>,
-    children:  Element,
+    children: Element,
 ) -> Element {
-    let mut prev_id:     Signal<String>       = use_signal(|| active_id.clone());
-    let mut content_key: Signal<u32>          = use_signal(|| 0);
-    let mut anim_class:  Signal<&'static str> = use_signal(|| "");
+    let mut prev_id: Signal<String> = use_signal(|| active_id.clone());
+    let mut content_key: Signal<u32> = use_signal(|| 0);
+    let mut anim_class: Signal<&'static str> = use_signal(|| "");
 
     {
-        let new_id  = active_id.clone();
+        let new_id = active_id.clone();
         let t_clone = tabs.clone();
         use_effect(move || {
             let prev = prev_id.peek().clone();
             if prev != new_id {
-                let pi  = t_clone.iter().position(|t| t.id == prev).unwrap_or(0);
-                let ai  = t_clone.iter().position(|t| t.id == new_id).unwrap_or(0);
+                let pi = t_clone.iter().position(|t| t.id == prev).unwrap_or(0);
+                let ai = t_clone.iter().position(|t| t.id == new_id).unwrap_or(0);
                 let cls: &'static str = if ai > pi {
                     "fs-tab-view__content--enter-right"
                 } else {
@@ -1103,7 +1160,7 @@ pub fn FsTabView(
         });
     }
 
-    let ck  = *content_key.read();
+    let ck = *content_key.read();
     let cls = *anim_class.read();
 
     rsx! {

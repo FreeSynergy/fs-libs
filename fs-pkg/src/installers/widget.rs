@@ -40,7 +40,11 @@ impl Installer for WidgetInstaller {
         if dry_run {
             return Ok(InstallReport {
                 install_path: dest.to_string_lossy().into_owned(),
-                summary: format!("[dry-run] would install widget '{}' to {}", meta.id, dest.display()),
+                summary: format!(
+                    "[dry-run] would install widget '{}' to {}",
+                    meta.id,
+                    dest.display()
+                ),
                 dry_run: true,
             });
         }
@@ -48,15 +52,14 @@ impl Installer for WidgetInstaller {
         if let Some(src) = source {
             copy_source_to_dir(src, &dest)?;
         } else {
-            std::fs::create_dir_all(&dest).map_err(|e| {
-                FsError::internal(format!("cannot create {}: {e}", dest.display()))
-            })?;
+            std::fs::create_dir_all(&dest)
+                .map_err(|e| FsError::internal(format!("cannot create {}: {e}", dest.display())))?;
         }
 
         Ok(InstallReport {
             install_path: dest.to_string_lossy().into_owned(),
-            summary:      format!("installed widget '{}' to {}", meta.id, dest.display()),
-            dry_run:      false,
+            summary: format!("installed widget '{}' to {}", meta.id, dest.display()),
+            dry_run: false,
         })
     }
 }
@@ -66,11 +69,19 @@ impl Uninstaller for WidgetInstaller {
         ResourceType::Widget
     }
 
-    fn uninstall(&self, name: &str, paths: &InstallPaths, opts: &UninstallOptions) -> Result<(), FsError> {
+    fn uninstall(
+        &self,
+        name: &str,
+        paths: &InstallPaths,
+        opts: &UninstallOptions,
+    ) -> Result<(), FsError> {
         let dest = paths
             .dir_for(ResourceType::Widget, name)
             .expect("WidgetInstaller: dir_for returned None");
-        if opts.dry_run { println!("[dry-run] would remove {}", dest.display()); return Ok(()); }
+        if opts.dry_run {
+            println!("[dry-run] would remove {}", dest.display());
+            return Ok(());
+        }
         remove_path(&dest, opts.dry_run)
     }
 }

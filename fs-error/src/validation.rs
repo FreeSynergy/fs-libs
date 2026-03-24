@@ -13,9 +13,9 @@ impl std::fmt::Display for IssueSeverity {
     /// Renders the compact single-character indicator: `i`, `⚠`, or `✗`.
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = match self {
-            IssueSeverity::Info    => "i",
+            IssueSeverity::Info => "i",
             IssueSeverity::Warning => "⚠",
-            IssueSeverity::Error   => "✗",
+            IssueSeverity::Error => "✗",
         };
         f.write_str(s)
     }
@@ -37,17 +37,29 @@ pub struct ValidationIssue {
 impl ValidationIssue {
     /// Construct an Error-severity issue.
     pub fn error(field: impl Into<String>, message: impl Into<String>) -> Self {
-        Self { field: field.into(), message: message.into(), severity: IssueSeverity::Error }
+        Self {
+            field: field.into(),
+            message: message.into(),
+            severity: IssueSeverity::Error,
+        }
     }
 
     /// Construct a Warning-severity issue.
     pub fn warning(field: impl Into<String>, message: impl Into<String>) -> Self {
-        Self { field: field.into(), message: message.into(), severity: IssueSeverity::Warning }
+        Self {
+            field: field.into(),
+            message: message.into(),
+            severity: IssueSeverity::Warning,
+        }
     }
 
     /// Construct an Info-severity issue.
     pub fn info(field: impl Into<String>, message: impl Into<String>) -> Self {
-        Self { field: field.into(), message: message.into(), severity: IssueSeverity::Info }
+        Self {
+            field: field.into(),
+            message: message.into(),
+            severity: IssueSeverity::Info,
+        }
     }
 }
 
@@ -72,8 +84,17 @@ mod tests {
 
     #[test]
     fn constructors_set_severity() {
-        assert_eq!(ValidationIssue::error("f", "m").severity, IssueSeverity::Error);
-        assert_eq!(ValidationIssue::warning("f", "m").severity, IssueSeverity::Warning);
-        assert_eq!(ValidationIssue::info("f", "m").severity, IssueSeverity::Info);
+        assert_eq!(
+            ValidationIssue::error("f", "m").severity,
+            IssueSeverity::Error
+        );
+        assert_eq!(
+            ValidationIssue::warning("f", "m").severity,
+            IssueSeverity::Warning
+        );
+        assert_eq!(
+            ValidationIssue::info("f", "m").severity,
+            IssueSeverity::Info
+        );
     }
 }

@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use fs_error::{FsError, Repairable, RepairOutcome};
+use fs_error::{FsError, RepairOutcome, Repairable};
 
 // ── ConfigLoader ──────────────────────────────────────────────────────────────
 
@@ -59,7 +59,7 @@ impl ConfigLoader {
         let full = self.resolve(path);
 
         if full.exists() {
-            self.backup(&full)?;
+            Self::backup(&full)?;
         }
 
         if let Some(parent) = full.parent() {
@@ -87,7 +87,7 @@ impl ConfigLoader {
     pub fn write_raw(&self, path: &Path, content: &str) -> Result<(), FsError> {
         let full = self.resolve(path);
         if full.exists() {
-            self.backup(&full)?;
+            Self::backup(&full)?;
         }
         if let Some(parent) = full.parent() {
             std::fs::create_dir_all(parent).map_err(FsError::Io)?;
@@ -96,7 +96,7 @@ impl ConfigLoader {
     }
 
     /// Copy `path` → `path.bak` before overwriting.
-    fn backup(&self, path: &Path) -> Result<(), FsError> {
+    fn backup(path: &Path) -> Result<(), FsError> {
         let bak = path.with_extension("toml.bak");
         std::fs::copy(path, &bak).map_err(FsError::Io)?;
         Ok(())
@@ -130,8 +130,7 @@ impl FeatureFlags {
         }
         let text = std::fs::read_to_string(path)
             .map_err(|e| FsError::Config(format!("cannot read flags {}: {e}", path.display())))?;
-        serde_json::from_str(&text)
-            .map_err(|e| FsError::Parse(format!("feature flags JSON: {e}")))
+        serde_json::from_str(&text).map_err(|e| FsError::Parse(format!("feature flags JSON: {e}")))
     }
 
     /// Save flags to a JSON file.
@@ -175,8 +174,7 @@ pub fn parse_str<T: DeserializeOwned>(content: &str) -> Result<T, FsError> {
 pub fn load_toml<T: DeserializeOwned>(path: &Path) -> Result<T, FsError> {
     let text = std::fs::read_to_string(path)
         .map_err(|e| FsError::Config(format!("cannot read {}: {}", path.display(), e)))?;
-    toml::from_str(&text)
-        .map_err(|e| FsError::Parse(format!("{}: {}", path.display(), e)))
+    toml::from_str(&text).map_err(|e| FsError::Parse(format!("{}: {}", path.display(), e)))
 }
 
 /// Serialize and write a TOML file directly without a [`ConfigLoader`] instance.
@@ -213,12 +211,10 @@ mod tests {
         fn repair(&mut self) -> RepairOutcome {
             if self.name.is_empty() {
                 self.name = "default".to_string();
-                RepairOutcome::AutoRepaired(vec![
-                    RepairAction::SetDefault {
-                        field: "name".into(),
-                        value: "default".into(),
-                    }
-                ])
+                RepairOutcome::AutoRepaired(vec![RepairAction::SetDefault {
+                    field: "name".into(),
+                    value: "default".into(),
+                }])
             } else {
                 RepairOutcome::AlreadyValid
             }
@@ -232,7 +228,9 @@ mod tests {
         let path = dir.join("test.toml");
 
         let loader = ConfigLoader::new(dir.clone());
-        let cfg    = TestConfig { name: "hello".to_string() };
+        let cfg = TestConfig {
+            name: "hello".to_string(),
+        };
         loader.save(&path, &cfg).unwrap();
 
         let (loaded, outcome) = loader.load::<TestConfig>(&path).unwrap();
@@ -245,20 +243,34 @@ mod tests {
         let dir = std::env::temp_dir().join("fs-config-test-rel");
         std::fs::create_dir_all(&dir).unwrap();
         let loader = ConfigLoader::new(dir.clone());
-        loader.save(Path::new("rel.toml"), &TestConfig { name: "relative".to_string() }).unwrap();
+        loader
+            .save(
+                Path::new("rel.toml"),
+                &TestConfig {
+                    name: "relative".to_string(),
+                },
+            )
+            .unwrap();
         assert!(dir.join("rel.toml").exists());
     }
 
     #[test]
     fn absolute_path_not_prefixed_with_base() {
-        let dir   = std::env::temp_dir().join("fs-config-test-abs");
+        let dir = std::env::temp_dir().join("fs-config-test-abs");
         let other = std::env::temp_dir().join("fs-config-test-abs-other");
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::create_dir_all(&other).unwrap();
         let abs_path = other.join("abs.toml");
 
         let loader = ConfigLoader::new(dir.clone());
-        loader.save(&abs_path, &TestConfig { name: "absolute".to_string() }).unwrap();
+        loader
+            .save(
+                &abs_path,
+                &TestConfig {
+                    name: "absolute".to_string(),
+                },
+            )
+            .unwrap();
 
         assert!(abs_path.exists());
         assert!(!dir.join("abs.toml").exists());
@@ -271,10 +283,27 @@ mod tests {
         let path = dir.join("backup.toml");
         let loader = ConfigLoader::new(dir.clone());
 
-        loader.save(&path, &TestConfig { name: "first".to_string() }).unwrap();
-        loader.save(&path, &TestConfig { name: "second".to_string() }).unwrap();
+        loader
+            .save(
+                &path,
+                &TestConfig {
+                    name: "first".to_string(),
+                },
+            )
+            .unwrap();
+        loader
+            .save(
+                &path,
+                &TestConfig {
+                    name: "second".to_string(),
+                },
+            )
+            .unwrap();
 
-        assert!(path.with_extension("toml.bak").exists(), ".bak should be created on overwrite");
+        assert!(
+            path.with_extension("toml.bak").exists(),
+            ".bak should be created on overwrite"
+        );
     }
 
     #[test]
@@ -286,7 +315,10 @@ mod tests {
 
         let loader = ConfigLoader::new(dir.clone());
         let (loaded, outcome) = loader.load::<TestConfig>(&path).unwrap();
-        assert_eq!(loaded.name, "default", "repair should set name to 'default'");
+        assert_eq!(
+            loaded.name, "default",
+            "repair should set name to 'default'"
+        );
         assert!(outcome.is_some(), "repair outcome should be returned");
     }
 
@@ -300,7 +332,13 @@ mod tests {
     #[test]
     fn standalone_save_and_load_toml() {
         let path = std::env::temp_dir().join("fs-config-standalone.toml");
-        save_toml(&path, &TestConfig { name: "standalone".to_string() }).unwrap();
+        save_toml(
+            &path,
+            &TestConfig {
+                name: "standalone".to_string(),
+            },
+        )
+        .unwrap();
         let loaded: TestConfig = load_toml(&path).unwrap();
         assert_eq!(loaded.name, "standalone");
     }

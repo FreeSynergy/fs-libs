@@ -6,9 +6,10 @@ use serde::{Deserialize, Serialize};
 // ── ReleaseChannel ────────────────────────────────────────────────────────────
 
 /// Which store release channel a resource was installed from.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ReleaseChannel {
+    #[default]
     Stable,
     Testing,
     Nightly,
@@ -17,16 +18,10 @@ pub enum ReleaseChannel {
 impl ReleaseChannel {
     pub fn label(self) -> &'static str {
         match self {
-            ReleaseChannel::Stable  => "Stable",
+            ReleaseChannel::Stable => "Stable",
             ReleaseChannel::Testing => "Testing",
             ReleaseChannel::Nightly => "Nightly",
         }
-    }
-}
-
-impl Default for ReleaseChannel {
-    fn default() -> Self {
-        Self::Stable
     }
 }
 
@@ -51,17 +46,20 @@ pub enum ResourceStatus {
 impl ResourceStatus {
     pub fn label(&self) -> &str {
         match self {
-            ResourceStatus::Active         => "Active",
-            ResourceStatus::Stopped        => "Stopped",
-            ResourceStatus::Error(_)       => "Error",
-            ResourceStatus::Updating       => "Updating",
-            ResourceStatus::Installing     => "Installing",
-            ResourceStatus::SetupRequired  => "Setup required",
+            ResourceStatus::Active => "Active",
+            ResourceStatus::Stopped => "Stopped",
+            ResourceStatus::Error(_) => "Error",
+            ResourceStatus::Updating => "Updating",
+            ResourceStatus::Installing => "Installing",
+            ResourceStatus::SetupRequired => "Setup required",
         }
     }
 
     pub fn needs_attention(&self) -> bool {
-        matches!(self, ResourceStatus::Error(_) | ResourceStatus::SetupRequired)
+        matches!(
+            self,
+            ResourceStatus::Error(_) | ResourceStatus::SetupRequired
+        )
     }
 
     pub fn is_setup_required(&self) -> bool {

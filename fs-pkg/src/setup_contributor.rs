@@ -44,14 +44,14 @@ pub struct Contribution {
 impl Contribution {
     pub fn new(
         contributor_id: impl Into<String>,
-        title:          impl Into<String>,
-        description:    impl Into<String>,
-        steps:          Vec<Box<dyn SetupStep>>,
+        title: impl Into<String>,
+        description: impl Into<String>,
+        steps: Vec<Box<dyn SetupStep>>,
     ) -> Self {
         Self {
             contributor_id: contributor_id.into(),
-            title:          title.into(),
-            description:    description.into(),
+            title: title.into(),
+            description: description.into(),
             steps,
         }
     }
@@ -73,7 +73,7 @@ impl Contribution {
 ///
 /// # Example: Kanidm → Forgejo
 ///
-/// ```no_run
+/// ```ignore
 /// struct KanidmContributor { api_url: String }
 ///
 /// impl SetupContributor for KanidmContributor {
@@ -111,17 +111,15 @@ pub trait SetupContributor: Send + Sync {
     ///
     /// `for_package` — the ID of the package being set up.
     /// `ctx`         — the target package's current setup context.
-    fn build_contribution(
-        &self,
-        for_package: &str,
-        ctx:         &SetupContext,
-    ) -> Option<Contribution>;
+    fn build_contribution(&self, for_package: &str, ctx: &SetupContext) -> Option<Contribution>;
 
     /// Whether this contribution is required (blocks start if not done).
     ///
     /// Return `true` for contributions that set mandatory config values
     /// (e.g. OIDC client_id). Return `false` for optional enhancements.
-    fn is_required(&self) -> bool { false }
+    fn is_required(&self) -> bool {
+        false
+    }
 }
 
 // ── SetupContributorRegistry ──────────────────────────────────────────────────
@@ -140,7 +138,9 @@ pub struct SetupContributorRegistry {
 
 impl SetupContributorRegistry {
     pub fn new() -> Self {
-        Self { contributors: vec![] }
+        Self {
+            contributors: vec![],
+        }
     }
 
     /// Register a contributor.
@@ -150,11 +150,14 @@ impl SetupContributorRegistry {
 
     /// Find all contributors whose role matches any of the given required roles.
     pub fn contributors_for_roles(&self, required_roles: &[String]) -> Vec<&dyn SetupContributor> {
-        self.contributors.iter()
+        self.contributors
+            .iter()
             .filter(|c| {
                 let role = c.contributes_to_role();
                 required_roles.iter().any(|r| {
-                    r == role || r.starts_with(&format!("{role}.")) || role.starts_with(&format!("{r}."))
+                    r == role
+                        || r.starts_with(&format!("{role}."))
+                        || role.starts_with(&format!("{r}."))
                 })
             })
             .map(|c| c.as_ref())
@@ -163,7 +166,9 @@ impl SetupContributorRegistry {
 }
 
 impl Default for SetupContributorRegistry {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 // ── SetupFlow extension ───────────────────────────────────────────────────────
@@ -178,9 +183,9 @@ impl SetupFlow {
     /// Contribution order matches registration order in the registry.
     pub fn add_contributions(
         &mut self,
-        for_package:      &str,
-        required_roles:   &[String],
-        registry:         &SetupContributorRegistry,
+        for_package: &str,
+        required_roles: &[String],
+        registry: &SetupContributorRegistry,
     ) {
         for contributor in registry.contributors_for_roles(required_roles) {
             if let Some(contribution) = contributor.build_contribution(for_package, &self.context) {
@@ -197,31 +202,41 @@ impl SetupFlow {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::setup_flow::SetupContext;
-    use crate::setup_step::{InputField, InputStep, SetupTrigger, StepOutput};
     use crate::manageable::ConfigFieldKind;
-    use fs_error::FsError;
+    use crate::setup_flow::SetupContext;
+    use crate::setup_step::{InputField, InputStep, SetupTrigger};
 
     // A fake OIDC contributor that injects one input step.
     struct FakeOidcContributor;
 
     impl SetupContributor for FakeOidcContributor {
-        fn contributor_id(&self)      -> &str { "kanidm" }
-        fn contributes_to_role(&self) -> &str { "iam.oidc-provider" }
+        fn contributor_id(&self) -> &str {
+            "kanidm"
+        }
+        fn contributes_to_role(&self) -> &str {
+            "iam.oidc-provider"
+        }
 
-        fn build_contribution(&self, for_package: &str, _ctx: &SetupContext) -> Option<Contribution> {
+        fn build_contribution(
+            &self,
+            for_package: &str,
+            _ctx: &SetupContext,
+        ) -> Option<Contribution> {
             let step = InputStep::new(
                 "kanidm_oidc_client",
                 "Create Kanidm OIDC client",
                 "Kanidm will create an OIDC client for this application automatically.",
                 vec![SetupTrigger::FirstInstall],
             )
-            .with_field(InputField::new(
-                "oidc_client_id",
-                "OIDC Client ID",
-                "The client ID registered in Kanidm.",
-                ConfigFieldKind::Text,
-            ).with_default(&format!("{for_package}-client")));
+            .with_field(
+                InputField::new(
+                    "oidc_client_id",
+                    "OIDC Client ID",
+                    "The client ID registered in Kanidm.",
+                    ConfigFieldKind::Text,
+                )
+                .with_default(format!("{for_package}-client")),
+            );
 
             Some(Contribution::new(
                 "kanidm",
@@ -269,11 +284,7 @@ mod tests {
         let mut reg = SetupContributorRegistry::new();
         reg.register(Box::new(FakeOidcContributor));
 
-        flow.add_contributions(
-            "forgejo",
-            &["iam.oidc-provider".to_string()],
-            &reg,
-        );
+        flow.add_contributions("forgejo", &["iam.oidc-provider".to_string()], &reg);
 
         // The contributed step is now in the flow.
         let trigger_steps = flow.steps_for_trigger(&SetupTrigger::FirstInstall);
@@ -293,6 +304,9 @@ mod tests {
 
         let results = flow.execute_trigger(SetupTrigger::FirstInstall);
         assert!(results[0].succeeded());
-        assert_eq!(flow.context.config_value("oidc_client_id"), Some("forgejo-client"));
+        assert_eq!(
+            flow.context.config_value("oidc_client_id"),
+            Some("forgejo-client")
+        );
     }
 }

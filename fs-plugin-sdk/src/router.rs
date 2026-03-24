@@ -20,7 +20,9 @@ pub struct CommandRouter {
 impl CommandRouter {
     /// Create an empty router with no registered commands.
     pub fn new() -> Self {
-        Self { commands: Vec::new() }
+        Self {
+            commands: Vec::new(),
+        }
     }
 
     /// Register a command handler.
@@ -40,7 +42,11 @@ impl CommandRouter {
             None => PluginResponse::err(format!(
                 "unknown command: {}; supported: [{}]",
                 ctx.command,
-                self.commands.iter().map(|c| c.name()).collect::<Vec<_>>().join(", ")
+                self.commands
+                    .iter()
+                    .map(|c| c.name())
+                    .collect::<Vec<_>>()
+                    .join(", ")
             )),
         }
     }
