@@ -464,9 +464,49 @@ mod tests {
     }
 
     #[test]
-    fn resource_type_bootstrap_and_repo_labels() {
-        assert_eq!(ResourceType::Bootstrap.label(), "Bootstrap");
-        assert_eq!(ResourceType::Repo.label(), "Repository");
+    fn resource_type_labels_all_variants() {
+        assert_eq!(ResourceType::App.label(),              "App");
+        assert_eq!(ResourceType::Container.label(),        "Container");
+        assert_eq!(ResourceType::Bundle.label(),           "Bundle");
+        assert_eq!(ResourceType::Widget.label(),           "Widget");
+        assert_eq!(ResourceType::Bot.label(),              "Bot");
+        assert_eq!(ResourceType::Bridge.label(),           "Bridge");
+        assert_eq!(ResourceType::Task.label(),             "Task");
+        assert_eq!(ResourceType::Language.label(),         "Language");
+        assert_eq!(ResourceType::ColorScheme.label(),      "Color Scheme");
+        assert_eq!(ResourceType::Style.label(),            "Style");
+        assert_eq!(ResourceType::FontSet.label(),          "Font Set");
+        assert_eq!(ResourceType::CursorSet.label(),        "Cursor Set");
+        assert_eq!(ResourceType::IconSet.label(),          "Icon Set");
+        assert_eq!(ResourceType::ButtonStyle.label(),      "Button Style");
+        assert_eq!(ResourceType::WindowChrome.label(),     "Window Chrome");
+        assert_eq!(ResourceType::AnimationSet.label(),     "Animation Set");
+        assert_eq!(ResourceType::MessengerAdapter.label(), "Messenger Adapter");
+        assert_eq!(ResourceType::Bootstrap.label(),        "Bootstrap");
+        assert_eq!(ResourceType::Repo.label(),             "Repository");
+    }
+
+    #[test]
+    fn resource_type_i18n_keys_all_variants() {
+        assert_eq!(ResourceType::App.i18n_key(),              "resource.type.app");
+        assert_eq!(ResourceType::Container.i18n_key(),        "resource.type.container");
+        assert_eq!(ResourceType::Bundle.i18n_key(),           "resource.type.bundle");
+        assert_eq!(ResourceType::Widget.i18n_key(),           "resource.type.widget");
+        assert_eq!(ResourceType::Bot.i18n_key(),              "resource.type.bot");
+        assert_eq!(ResourceType::Bridge.i18n_key(),           "resource.type.bridge");
+        assert_eq!(ResourceType::Task.i18n_key(),             "resource.type.task");
+        assert_eq!(ResourceType::Language.i18n_key(),         "resource.type.language");
+        assert_eq!(ResourceType::ColorScheme.i18n_key(),      "resource.type.color_scheme");
+        assert_eq!(ResourceType::Style.i18n_key(),            "resource.type.style");
+        assert_eq!(ResourceType::FontSet.i18n_key(),          "resource.type.font_set");
+        assert_eq!(ResourceType::CursorSet.i18n_key(),        "resource.type.cursor_set");
+        assert_eq!(ResourceType::IconSet.i18n_key(),          "resource.type.icon_set");
+        assert_eq!(ResourceType::ButtonStyle.i18n_key(),      "resource.type.button_style");
+        assert_eq!(ResourceType::WindowChrome.i18n_key(),     "resource.type.window_chrome");
+        assert_eq!(ResourceType::AnimationSet.i18n_key(),     "resource.type.animation_set");
+        assert_eq!(ResourceType::MessengerAdapter.i18n_key(), "resource.type.messenger_adapter");
+        assert_eq!(ResourceType::Bootstrap.i18n_key(),        "resource.type.bootstrap");
+        assert_eq!(ResourceType::Repo.i18n_key(),             "resource.type.repo");
     }
 
     #[test]
@@ -478,10 +518,30 @@ mod tests {
 
     #[test]
     fn resource_type_is_theme_component() {
+        // All theme component variants
         assert!(ResourceType::ColorScheme.is_theme_component());
         assert!(ResourceType::Style.is_theme_component());
+        assert!(ResourceType::FontSet.is_theme_component());
+        assert!(ResourceType::CursorSet.is_theme_component());
+        assert!(ResourceType::IconSet.is_theme_component());
+        assert!(ResourceType::ButtonStyle.is_theme_component());
+        assert!(ResourceType::WindowChrome.is_theme_component());
+        assert!(ResourceType::AnimationSet.is_theme_component());
+        // Non-theme-component variants — including Bundle
         assert!(!ResourceType::App.is_theme_component());
         assert!(!ResourceType::Container.is_theme_component());
+        assert!(!ResourceType::Bundle.is_theme_component());
+        assert!(!ResourceType::Widget.is_theme_component());
+        assert!(!ResourceType::Bootstrap.is_theme_component());
+        assert!(!ResourceType::Repo.is_theme_component());
+    }
+
+    #[test]
+    fn validate_bundle_type_meta_is_ok() {
+        let mut m = base_meta("zentinel");
+        m.resource_type = ResourceType::Bundle;
+        m.validate();
+        assert_eq!(m.status, ValidationStatus::Ok);
     }
 
     #[test]
