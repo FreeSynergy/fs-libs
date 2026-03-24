@@ -31,19 +31,27 @@ impl Role {
     /// A bridge that is missing any of these gets `ValidationStatus::Incomplete`.
     pub fn required_bridge_methods(&self) -> &'static [&'static str] {
         match self.0.as_str() {
-            "iam"        => &["user.create", "user.get", "user.list", "user.update", "user.delete",
-                              "group.create", "group.list", "group.add_member"],
-            "wiki"       => &["page.create", "page.get", "page.list", "page.search"],
-            "git"        => &["repo.create", "repo.list", "repo.get", "commit.list"],
-            "chat"       => &["message.send", "channel.list", "channel.get"],
-            "database"   => &["query.execute", "schema.list"],
-            "cache"      => &["key.get", "key.set", "key.delete"],
-            "smtp"       => &["mail.send"],
-            "llm"        => &["completion.create", "model.list"],
-            "map"        => &["tile.get", "search.geocode"],
-            "tasks"      => &["task.create", "task.list", "task.update"],
+            "iam" => &[
+                "user.create",
+                "user.get",
+                "user.list",
+                "user.update",
+                "user.delete",
+                "group.create",
+                "group.list",
+                "group.add_member",
+            ],
+            "wiki" => &["page.create", "page.get", "page.list", "page.search"],
+            "git" => &["repo.create", "repo.list", "repo.get", "commit.list"],
+            "chat" => &["message.send", "channel.list", "channel.get"],
+            "database" => &["query.execute", "schema.list"],
+            "cache" => &["key.get", "key.set", "key.delete"],
+            "smtp" => &["mail.send"],
+            "llm" => &["completion.create", "model.list"],
+            "map" => &["tile.get", "search.geocode"],
+            "tasks" => &["task.create", "task.list", "task.update"],
             "monitoring" => &["metric.query", "alert.list"],
-            _            => &[],
+            _ => &[],
         }
     }
 }
@@ -118,57 +126,71 @@ pub enum ResourceType {
     /// An additional package repository source.
     /// Installing a `Repo` package registers a new catalog URL as a trusted source.
     Repo,
+    /// A theme bundle — a Bundle subtype with a fixed structure: color scheme,
+    /// style, icon set, font set, cursor set, button style, window chrome,
+    /// and animation set. Lives at the root-level `themes/` directory.
+    Theme,
 }
 
 impl ResourceType {
     /// Human-readable label for UI display.
     pub fn label(self) -> &'static str {
         match self {
-            ResourceType::App             => "App",
-            ResourceType::Container       => "Container",
-            ResourceType::Bundle          => "Bundle",
-            ResourceType::Widget          => "Widget",
-            ResourceType::Bot             => "Bot",
-            ResourceType::Bridge          => "Bridge",
-            ResourceType::Task            => "Task",
-            ResourceType::Language        => "Language",
-            ResourceType::ColorScheme     => "Color Scheme",
-            ResourceType::Style           => "Style",
-            ResourceType::FontSet         => "Font Set",
-            ResourceType::CursorSet       => "Cursor Set",
-            ResourceType::IconSet         => "Icon Set",
-            ResourceType::ButtonStyle     => "Button Style",
-            ResourceType::WindowChrome    => "Window Chrome",
-            ResourceType::AnimationSet    => "Animation Set",
+            ResourceType::App => "App",
+            ResourceType::Container => "Container",
+            ResourceType::Bundle => "Bundle",
+            ResourceType::Widget => "Widget",
+            ResourceType::Bot => "Bot",
+            ResourceType::Bridge => "Bridge",
+            ResourceType::Task => "Task",
+            ResourceType::Language => "Language",
+            ResourceType::ColorScheme => "Color Scheme",
+            ResourceType::Style => "Style",
+            ResourceType::FontSet => "Font Set",
+            ResourceType::CursorSet => "Cursor Set",
+            ResourceType::IconSet => "Icon Set",
+            ResourceType::ButtonStyle => "Button Style",
+            ResourceType::WindowChrome => "Window Chrome",
+            ResourceType::AnimationSet => "Animation Set",
             ResourceType::MessengerAdapter => "Messenger Adapter",
-            ResourceType::Bootstrap       => "Bootstrap",
-            ResourceType::Repo            => "Repository",
+            ResourceType::Bootstrap => "Bootstrap",
+            ResourceType::Repo => "Repository",
+            ResourceType::Theme => "Theme",
         }
     }
 
     /// i18n key for translations.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ResourceType::App             => "resource.type.app",
-            ResourceType::Container       => "resource.type.container",
-            ResourceType::Bundle          => "resource.type.bundle",
-            ResourceType::Widget          => "resource.type.widget",
-            ResourceType::Bot             => "resource.type.bot",
-            ResourceType::Bridge          => "resource.type.bridge",
-            ResourceType::Task            => "resource.type.task",
-            ResourceType::Language        => "resource.type.language",
-            ResourceType::ColorScheme     => "resource.type.color_scheme",
-            ResourceType::Style           => "resource.type.style",
-            ResourceType::FontSet         => "resource.type.font_set",
-            ResourceType::CursorSet       => "resource.type.cursor_set",
-            ResourceType::IconSet         => "resource.type.icon_set",
-            ResourceType::ButtonStyle     => "resource.type.button_style",
-            ResourceType::WindowChrome    => "resource.type.window_chrome",
-            ResourceType::AnimationSet    => "resource.type.animation_set",
+            ResourceType::App => "resource.type.app",
+            ResourceType::Container => "resource.type.container",
+            ResourceType::Bundle => "resource.type.bundle",
+            ResourceType::Widget => "resource.type.widget",
+            ResourceType::Bot => "resource.type.bot",
+            ResourceType::Bridge => "resource.type.bridge",
+            ResourceType::Task => "resource.type.task",
+            ResourceType::Language => "resource.type.language",
+            ResourceType::ColorScheme => "resource.type.color_scheme",
+            ResourceType::Style => "resource.type.style",
+            ResourceType::FontSet => "resource.type.font_set",
+            ResourceType::CursorSet => "resource.type.cursor_set",
+            ResourceType::IconSet => "resource.type.icon_set",
+            ResourceType::ButtonStyle => "resource.type.button_style",
+            ResourceType::WindowChrome => "resource.type.window_chrome",
+            ResourceType::AnimationSet => "resource.type.animation_set",
             ResourceType::MessengerAdapter => "resource.type.messenger_adapter",
-            ResourceType::Bootstrap       => "resource.type.bootstrap",
-            ResourceType::Repo            => "resource.type.repo",
+            ResourceType::Bootstrap => "resource.type.bootstrap",
+            ResourceType::Repo => "resource.type.repo",
+            ResourceType::Theme => "resource.type.theme",
         }
+    }
+
+    /// `true` when this resource is a bundle — either a generic `Bundle` or a `Theme`.
+    ///
+    /// Both live at root level in the Store (not under `packages/`) and reference
+    /// other resources by id rather than containing packages themselves.
+    pub fn is_bundle(self) -> bool {
+        matches!(self, ResourceType::Bundle | ResourceType::Theme)
     }
 
     /// `true` when this resource is a theme component (individually loadable).
@@ -208,18 +230,18 @@ impl ValidationStatus {
     /// Unicode status badge for compact UI display.
     pub fn badge(self) -> &'static str {
         match self {
-            ValidationStatus::Ok         => "✅",
+            ValidationStatus::Ok => "✅",
             ValidationStatus::Incomplete => "⚠️",
-            ValidationStatus::Broken     => "❌",
+            ValidationStatus::Broken => "❌",
         }
     }
 
     /// i18n key.
     pub fn i18n_key(self) -> &'static str {
         match self {
-            ValidationStatus::Ok         => "validation.ok",
+            ValidationStatus::Ok => "validation.ok",
             ValidationStatus::Incomplete => "validation.incomplete",
-            ValidationStatus::Broken     => "validation.broken",
+            ValidationStatus::Broken => "validation.broken",
         }
     }
 
@@ -245,12 +267,20 @@ pub struct Dependency {
 impl Dependency {
     /// Create a mandatory dependency with a version requirement.
     pub fn required(id: impl Into<String>, version_req: impl Into<String>) -> Self {
-        Self { id: id.into(), version_req: version_req.into(), optional: false }
+        Self {
+            id: id.into(),
+            version_req: version_req.into(),
+            optional: false,
+        }
     }
 
     /// Create an optional dependency.
     pub fn optional(id: impl Into<String>, version_req: impl Into<String>) -> Self {
-        Self { id: id.into(), version_req: version_req.into(), optional: true }
+        Self {
+            id: id.into(),
+            version_req: version_req.into(),
+            optional: true,
+        }
     }
 }
 
@@ -375,7 +405,10 @@ impl ResourceMeta {
     pub fn validate(&mut self) {
         let broken = self.id.trim().is_empty()
             || self.name.trim().is_empty()
-            || !self.icon.extension().is_some_and(|e| e.eq_ignore_ascii_case("svg"))
+            || !self
+                .icon
+                .extension()
+                .is_some_and(|e| e.eq_ignore_ascii_case("svg"))
             || self.description.trim().is_empty()
             || self.description_file.as_os_str().is_empty();
 
@@ -465,48 +498,88 @@ mod tests {
 
     #[test]
     fn resource_type_labels_all_variants() {
-        assert_eq!(ResourceType::App.label(),              "App");
-        assert_eq!(ResourceType::Container.label(),        "Container");
-        assert_eq!(ResourceType::Bundle.label(),           "Bundle");
-        assert_eq!(ResourceType::Widget.label(),           "Widget");
-        assert_eq!(ResourceType::Bot.label(),              "Bot");
-        assert_eq!(ResourceType::Bridge.label(),           "Bridge");
-        assert_eq!(ResourceType::Task.label(),             "Task");
-        assert_eq!(ResourceType::Language.label(),         "Language");
-        assert_eq!(ResourceType::ColorScheme.label(),      "Color Scheme");
-        assert_eq!(ResourceType::Style.label(),            "Style");
-        assert_eq!(ResourceType::FontSet.label(),          "Font Set");
-        assert_eq!(ResourceType::CursorSet.label(),        "Cursor Set");
-        assert_eq!(ResourceType::IconSet.label(),          "Icon Set");
-        assert_eq!(ResourceType::ButtonStyle.label(),      "Button Style");
-        assert_eq!(ResourceType::WindowChrome.label(),     "Window Chrome");
-        assert_eq!(ResourceType::AnimationSet.label(),     "Animation Set");
+        assert_eq!(ResourceType::App.label(), "App");
+        assert_eq!(ResourceType::Container.label(), "Container");
+        assert_eq!(ResourceType::Bundle.label(), "Bundle");
+        assert_eq!(ResourceType::Widget.label(), "Widget");
+        assert_eq!(ResourceType::Bot.label(), "Bot");
+        assert_eq!(ResourceType::Bridge.label(), "Bridge");
+        assert_eq!(ResourceType::Task.label(), "Task");
+        assert_eq!(ResourceType::Language.label(), "Language");
+        assert_eq!(ResourceType::ColorScheme.label(), "Color Scheme");
+        assert_eq!(ResourceType::Style.label(), "Style");
+        assert_eq!(ResourceType::FontSet.label(), "Font Set");
+        assert_eq!(ResourceType::CursorSet.label(), "Cursor Set");
+        assert_eq!(ResourceType::IconSet.label(), "Icon Set");
+        assert_eq!(ResourceType::ButtonStyle.label(), "Button Style");
+        assert_eq!(ResourceType::WindowChrome.label(), "Window Chrome");
+        assert_eq!(ResourceType::AnimationSet.label(), "Animation Set");
         assert_eq!(ResourceType::MessengerAdapter.label(), "Messenger Adapter");
-        assert_eq!(ResourceType::Bootstrap.label(),        "Bootstrap");
-        assert_eq!(ResourceType::Repo.label(),             "Repository");
+        assert_eq!(ResourceType::Bootstrap.label(), "Bootstrap");
+        assert_eq!(ResourceType::Repo.label(), "Repository");
+        assert_eq!(ResourceType::Theme.label(), "Theme");
     }
 
     #[test]
     fn resource_type_i18n_keys_all_variants() {
-        assert_eq!(ResourceType::App.i18n_key(),              "resource.type.app");
-        assert_eq!(ResourceType::Container.i18n_key(),        "resource.type.container");
-        assert_eq!(ResourceType::Bundle.i18n_key(),           "resource.type.bundle");
-        assert_eq!(ResourceType::Widget.i18n_key(),           "resource.type.widget");
-        assert_eq!(ResourceType::Bot.i18n_key(),              "resource.type.bot");
-        assert_eq!(ResourceType::Bridge.i18n_key(),           "resource.type.bridge");
-        assert_eq!(ResourceType::Task.i18n_key(),             "resource.type.task");
-        assert_eq!(ResourceType::Language.i18n_key(),         "resource.type.language");
-        assert_eq!(ResourceType::ColorScheme.i18n_key(),      "resource.type.color_scheme");
-        assert_eq!(ResourceType::Style.i18n_key(),            "resource.type.style");
-        assert_eq!(ResourceType::FontSet.i18n_key(),          "resource.type.font_set");
-        assert_eq!(ResourceType::CursorSet.i18n_key(),        "resource.type.cursor_set");
-        assert_eq!(ResourceType::IconSet.i18n_key(),          "resource.type.icon_set");
-        assert_eq!(ResourceType::ButtonStyle.i18n_key(),      "resource.type.button_style");
-        assert_eq!(ResourceType::WindowChrome.i18n_key(),     "resource.type.window_chrome");
-        assert_eq!(ResourceType::AnimationSet.i18n_key(),     "resource.type.animation_set");
-        assert_eq!(ResourceType::MessengerAdapter.i18n_key(), "resource.type.messenger_adapter");
-        assert_eq!(ResourceType::Bootstrap.i18n_key(),        "resource.type.bootstrap");
-        assert_eq!(ResourceType::Repo.i18n_key(),             "resource.type.repo");
+        assert_eq!(ResourceType::App.i18n_key(), "resource.type.app");
+        assert_eq!(
+            ResourceType::Container.i18n_key(),
+            "resource.type.container"
+        );
+        assert_eq!(ResourceType::Bundle.i18n_key(), "resource.type.bundle");
+        assert_eq!(ResourceType::Widget.i18n_key(), "resource.type.widget");
+        assert_eq!(ResourceType::Bot.i18n_key(), "resource.type.bot");
+        assert_eq!(ResourceType::Bridge.i18n_key(), "resource.type.bridge");
+        assert_eq!(ResourceType::Task.i18n_key(), "resource.type.task");
+        assert_eq!(ResourceType::Language.i18n_key(), "resource.type.language");
+        assert_eq!(
+            ResourceType::ColorScheme.i18n_key(),
+            "resource.type.color_scheme"
+        );
+        assert_eq!(ResourceType::Style.i18n_key(), "resource.type.style");
+        assert_eq!(ResourceType::FontSet.i18n_key(), "resource.type.font_set");
+        assert_eq!(
+            ResourceType::CursorSet.i18n_key(),
+            "resource.type.cursor_set"
+        );
+        assert_eq!(ResourceType::IconSet.i18n_key(), "resource.type.icon_set");
+        assert_eq!(
+            ResourceType::ButtonStyle.i18n_key(),
+            "resource.type.button_style"
+        );
+        assert_eq!(
+            ResourceType::WindowChrome.i18n_key(),
+            "resource.type.window_chrome"
+        );
+        assert_eq!(
+            ResourceType::AnimationSet.i18n_key(),
+            "resource.type.animation_set"
+        );
+        assert_eq!(
+            ResourceType::MessengerAdapter.i18n_key(),
+            "resource.type.messenger_adapter"
+        );
+        assert_eq!(
+            ResourceType::Bootstrap.i18n_key(),
+            "resource.type.bootstrap"
+        );
+        assert_eq!(ResourceType::Repo.i18n_key(), "resource.type.repo");
+        assert_eq!(ResourceType::Theme.i18n_key(), "resource.type.theme");
+    }
+
+    #[test]
+    fn resource_type_is_bundle() {
+        // Bundle and Theme are both bundles (root-level, reference other packages)
+        assert!(ResourceType::Bundle.is_bundle());
+        assert!(ResourceType::Theme.is_bundle());
+        // Everything else is not a bundle
+        assert!(!ResourceType::App.is_bundle());
+        assert!(!ResourceType::Container.is_bundle());
+        assert!(!ResourceType::Widget.is_bundle());
+        assert!(!ResourceType::ColorScheme.is_bundle());
+        assert!(!ResourceType::Bootstrap.is_bundle());
+        assert!(!ResourceType::Repo.is_bundle());
     }
 
     #[test]
@@ -527,10 +600,11 @@ mod tests {
         assert!(ResourceType::ButtonStyle.is_theme_component());
         assert!(ResourceType::WindowChrome.is_theme_component());
         assert!(ResourceType::AnimationSet.is_theme_component());
-        // Non-theme-component variants — including Bundle
+        // Non-theme-component variants — including Bundle and Theme
         assert!(!ResourceType::App.is_theme_component());
         assert!(!ResourceType::Container.is_theme_component());
         assert!(!ResourceType::Bundle.is_theme_component());
+        assert!(!ResourceType::Theme.is_theme_component());
         assert!(!ResourceType::Widget.is_theme_component());
         assert!(!ResourceType::Bootstrap.is_theme_component());
         assert!(!ResourceType::Repo.is_theme_component());
@@ -540,6 +614,14 @@ mod tests {
     fn validate_bundle_type_meta_is_ok() {
         let mut m = base_meta("zentinel");
         m.resource_type = ResourceType::Bundle;
+        m.validate();
+        assert_eq!(m.status, ValidationStatus::Ok);
+    }
+
+    #[test]
+    fn validate_theme_type_meta_is_ok() {
+        let mut m = base_meta("midnight-blue");
+        m.resource_type = ResourceType::Theme;
         m.validate();
         assert_eq!(m.status, ValidationStatus::Ok);
     }

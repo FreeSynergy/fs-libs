@@ -1,29 +1,24 @@
-// fs-store — Universal store client for FreeSynergy module registry.
+// fs-store — FreeSynergy Store SDK
 //
-// Migrated and enhanced from Store/crates/store-sdk.
-// Uses fs-error instead of anyhow, adds catalog caching and retry logic.
+// Generic catalog client for the FreeSynergy package ecosystem.
 //
-// Design:
-//   StoreSource    — Strategy: where data comes from (local path / HTTP)
-//   StoreClient    — fetches catalog + i18n from a StoreSource
-//   Manifest trait — project-supplied package type (FSN module, Wiki plugin, …)
-//   Catalog<M>     — generic catalog container with filtering
-//   CatalogCache   — in-memory TTL cache for fetched catalogs
-//
-// Pattern: Strategy (StoreSource), Generic Container (Catalog<M>)
+// Public API surface:
+//   StoreClient      — walks the 3-level catalog tree (root → namespace → package)
+//   StoreSource      — Local(PathBuf) or Http(String)
+//   RootCatalog      — root catalog.toml: namespace index
+//   NamespaceEntry   — one namespace listed in the root catalog
+//   NamespaceCatalog — namespace-level catalog.toml: package-ref list
+//   PackageRef       — pointer from a namespace catalog to a package catalog
+//   PackageCatalog   — individual package catalog.toml (full metadata)
+//   BundleRef        — a component entry inside a Bundle/Theme package catalog
+//   Manifest         — trait any catalog entry must implement (Strategy Pattern)
 
-pub mod catalog;
-pub mod client;
-pub mod disk_cache;
-pub mod i18n;
-pub mod manifest;
-pub mod permissions;
-pub mod search;
+mod catalog;
+mod client;
+mod manifest;
 
-pub use catalog::{Catalog, CatalogCache, CatalogMeta, LocaleEntry};
-pub use client::{RetryPolicy, StoreClient, StoreSource};
-pub use disk_cache::DiskCache;
-pub use i18n::{I18nBundle, I18nMeta, TextDirection};
-pub use manifest::{Manifest, PackageCompat, PackageMeta, PackageSource};
-pub use permissions::{StoreAction, StorePermissions, StoreRole};
-pub use search::{HasTags, SearchQuery, SearchResult, StoreSearch};
+pub use catalog::{
+    BundleRef, NamespaceCatalog, NamespaceEntry, PackageCatalog, PackageRef, RootCatalog,
+};
+pub use client::{StoreClient, StoreSource};
+pub use manifest::Manifest;

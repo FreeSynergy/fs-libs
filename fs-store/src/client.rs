@@ -1,319 +1,275 @@
-// client.rs — StoreSource + StoreClient.
+// StoreClient — walks the 3-level FreeSynergy Store catalog tree.
 //
-// StoreSource is a Strategy that abstracts where data comes from:
-//   - Local(path) → reads files from disk (offline / development)
-//   - Http(url)   → fetches via reqwest with retry + offline fallback
+// Level 1 (root):      fetch_root()                → RootCatalog
+// Level 2 (namespace): fetch_namespace(ns_catalog) → NamespaceCatalog
+// Level 3 (package):   fetch_package(pkg_ref)      → PackageCatalog
 //
-// StoreClient wraps a StoreSource and uses:
-//   - CatalogCache  — in-memory TTL cache (avoids redundant fetches)
-//   - DiskCache     — on-disk fallback (used when HTTP fails = offline mode)
-//   - backon        — exponential backoff retry on transient HTTP errors
+// Bundles/Themes live at root level (bundles/, themes/).
+// Their namespace path is resolved by the NamespaceEntry.catalog field
+// in the RootCatalog — no special-casing needed in fetch logic.
 //
-// Retry policy (HTTP only):
-//   - 3 attempts, exponential backoff: 1s → 2s → 4s
-//   - On final failure: fall back to disk cache if available
-//   - If disk cache also empty: return the original network error
+// FTL files:   fetch_ftl(base_path, locale)        → String
 //
-// Fetch paths:
-//   catalog.toml  → {base}/{namespace}/catalog.toml
-//   ui.toml       → {base}/{namespace}/i18n/{locale}/ui.toml
-//   i18n manifest → {base}/{namespace}/i18n/{locale}/manifest.toml
+// Design: Open/Closed Principle via StoreSource.
+//   New source kinds (IPFS, OCI registry) = new variant, no existing code touched.
 
-use std::path::PathBuf;
-use std::time::Duration;
+use std::path::Path;
 
-use backon::{ExponentialBuilder, Retryable};
-use fs_error::FsError;
-use serde::Deserialize;
-use tracing::{debug, warn};
+use anyhow::{Context, Result};
+use serde::de::DeserializeOwned;
+use tracing::{debug, info};
 
-use crate::catalog::{Catalog, CatalogCache};
-use crate::disk_cache::DiskCache;
-use crate::i18n::{I18nBundle, I18nMeta};
-use crate::manifest::Manifest;
-
-// ── RetryPolicy ───────────────────────────────────────────────────────────────
-
-/// Retry configuration for HTTP fetches.
-#[derive(Debug, Clone)]
-pub struct RetryPolicy {
-    /// Maximum number of retry attempts (not counting the first try).
-    pub max_retries: u32,
-    /// Initial backoff delay.
-    pub initial_delay: Duration,
-}
-
-impl RetryPolicy {
-    /// Default: 3 retries, 1s initial backoff (exponential: 1s → 2s → 4s).
-    pub fn default_backoff() -> Self {
-        Self { max_retries: 3, initial_delay: Duration::from_secs(1) }
-    }
-
-    fn builder(&self) -> ExponentialBuilder {
-        ExponentialBuilder::default()
-            .with_max_times(self.max_retries as usize)
-            .with_min_delay(self.initial_delay)
-    }
-}
+use crate::catalog::{NamespaceCatalog, NamespaceEntry, PackageCatalog, PackageRef, RootCatalog};
 
 // ── StoreSource ───────────────────────────────────────────────────────────────
 
-/// Where the store data comes from — local filesystem or HTTP.
-///
-/// Implements the Strategy pattern: `StoreClient` delegates all I/O here.
+/// Identifies where a store catalog can be found.
 #[derive(Debug, Clone)]
 pub enum StoreSource {
-    /// Read files from a local directory (offline / development).
-    Local(PathBuf),
-    /// Fetch files over HTTP (production).
+    /// Local directory — path is the Store root (dev / CI mode).
+    Local(std::path::PathBuf),
+    /// HTTP base URL — all catalog paths are appended to this.
     Http(String),
 }
 
 impl StoreSource {
-    /// Create an HTTP source.
-    pub fn http(base_url: impl Into<String>) -> Self {
-        Self::Http(base_url.into())
-    }
-
-    /// Create a local filesystem source.
-    pub fn local(path: impl Into<PathBuf>) -> Self {
-        Self::Local(path.into())
-    }
-
-    /// The base URL or path as a string (for cache keys and logging).
-    pub fn base(&self) -> String {
+    /// Build the full location string for a given relative path within the Store.
+    ///
+    /// `rel_path` is relative to the Store root, e.g. `"catalog.toml"` or
+    /// `"packages/apps/kanidm/catalog.toml"`.
+    pub fn resolve(&self, rel_path: &str) -> String {
         match self {
-            Self::Local(p) => p.display().to_string(),
-            Self::Http(url) => url.trim_end_matches('/').to_string(),
-        }
-    }
-
-    /// Fetch raw text from `{base}/{relative_path}` — no retry, no cache.
-    ///
-    /// For HTTP sources with retry + offline fallback, use
-    /// [`StoreSource::fetch_text_with_retry`].
-    async fn fetch_text_once(&self, relative_path: &str) -> Result<String, FsError> {
-        match self {
-            Self::Local(root) => {
-                let path = root.join(relative_path);
-                debug!("store read local: {}", path.display());
-                tokio::fs::read_to_string(&path).await.map_err(|e| {
-                    FsError::internal(format!("store local read '{}': {e}", path.display()))
-                })
-            }
-            Self::Http(base) => {
-                let url = format!("{}/{}", base.trim_end_matches('/'), relative_path);
-                debug!("store fetch: {url}");
-                let client = reqwest::Client::builder()
-                    .timeout(Duration::from_secs(15))
-                    .build()
-                    .map_err(|e| FsError::internal(format!("reqwest build: {e}")))?;
-                let resp = client.get(&url).send().await.map_err(|e| {
-                    FsError::network(format!("store http fetch '{url}': {e}"))
-                })?;
-                if !resp.status().is_success() {
-                    return Err(FsError::network(format!(
-                        "store http {}: {}",
-                        resp.status(),
-                        url
-                    )));
-                }
-                resp.text().await.map_err(|e| {
-                    FsError::network(format!("store http read body '{url}': {e}"))
-                })
-            }
-        }
-    }
-
-    /// Fetch with retry (HTTP only) and offline fallback via `disk_cache`.
-    ///
-    /// 1. Try `fetch_text_once` up to `policy.max_retries + 1` times.
-    /// 2. If all attempts fail: check `disk_cache` for a stale hit.
-    /// 3. If disk also empty: return the last network error.
-    ///
-    /// For `Local` sources, calls `fetch_text_once` directly (no retry needed).
-    async fn fetch_text_with_retry(
-        &self,
-        relative_path: &str,
-        policy: &RetryPolicy,
-        disk_cache: &DiskCache,
-    ) -> Result<String, FsError> {
-        // Local sources: no retry, no disk cache
-        if matches!(self, Self::Local(_)) {
-            return self.fetch_text_once(relative_path).await;
-        }
-
-        let cache_key = format!("{}/{}", self.base(), relative_path);
-
-        // Retry with exponential backoff
-        let result = {
-            let source = self.clone();
-            let path = relative_path.to_owned();
-            let backoff = policy.builder();
-            (move || {
-                let source = source.clone();
-                let path = path.clone();
-                async move { source.fetch_text_once(&path).await }
-            })
-            .retry(backoff)
-            .await
-        };
-
-        match result {
-            Ok(text) => {
-                // Persist successful fetch to disk for future offline use
-                disk_cache.insert(&cache_key, &text);
-                Ok(text)
-            }
-            Err(network_err) => {
-                // All retries failed — try offline disk cache
-                if let Some(stale) = disk_cache.get(&cache_key) {
-                    warn!(
-                        path = relative_path,
-                        "store: network failed, serving stale disk cache"
-                    );
-                    Ok(stale)
-                } else {
-                    Err(network_err)
-                }
-            }
+            Self::Local(root) => root.join(rel_path).to_string_lossy().into_owned(),
+            Self::Http(base) => format!(
+                "{}/{}",
+                base.trim_end_matches('/'),
+                rel_path.trim_start_matches('/')
+            ),
         }
     }
 }
 
 // ── StoreClient ───────────────────────────────────────────────────────────────
 
-/// Client for reading catalogs and i18n bundles from a `StoreSource`.
-///
-/// Uses `CatalogCache` to avoid redundant fetches within a session.
-/// For HTTP sources a 5-minute TTL is applied; local sources are re-read
-/// on every call (no caching) so development edits are picked up immediately.
-///
-/// HTTP fetches use exponential backoff retry (default: 3 retries) and fall
-/// back to an on-disk cache when all retries fail (offline mode).
+/// Store catalog client — navigates the 3-level catalog tree.
 pub struct StoreClient {
     source: StoreSource,
-    cache: CatalogCache,
-    disk_cache: DiskCache,
-    retry: RetryPolicy,
+    http: reqwest::Client,
 }
 
 impl StoreClient {
-    /// Create a new client with a 5-minute catalog cache and default retry policy.
+    // ── Constructors ──────────────────────────────────────────────────────────
+
+    /// Create a client for the given source.
     pub fn new(source: StoreSource) -> Self {
         Self {
-            cache: match &source {
-                StoreSource::Http(_) => CatalogCache::default_ttl(),
-                StoreSource::Local(_) => CatalogCache::new(Duration::ZERO),
-            },
-            disk_cache: DiskCache::default_location(),
-            retry: RetryPolicy::default_backoff(),
             source,
+            http: reqwest::Client::new(),
         }
     }
 
-    /// Override the retry policy.
-    pub fn with_retry(mut self, policy: RetryPolicy) -> Self {
-        self.retry = policy;
-        self
-    }
-
-    /// Override the disk cache location.
-    pub fn with_disk_cache(mut self, cache: DiskCache) -> Self {
-        self.disk_cache = cache;
-        self
-    }
-
-    /// Create a production client pointing at the FreeSynergy Store.
+    /// Client pointed at the official FreeSynergy Store.
     ///
-    /// URL: `https://raw.githubusercontent.com/FreeSynergy/Store/main`
-    pub fn node_store() -> Self {
-        Self::new(StoreSource::http(
-            "https://raw.githubusercontent.com/FreeSynergy/fs-store/main",
-        ))
+    /// Override via the `FS_STORE_URL` environment variable.
+    pub fn official() -> Self {
+        let url = std::env::var("FS_STORE_URL").unwrap_or_else(|_| {
+            "https://raw.githubusercontent.com/FreeSynergy/Store/main".to_string()
+        });
+        info!("StoreClient: official store at {url}");
+        Self::new(StoreSource::Http(url))
     }
 
-    /// Fetch and parse the catalog for `namespace`, e.g. `"node"`.
-    ///
-    /// Result is cached; pass `force = true` to bypass the in-memory cache.
-    pub async fn fetch_catalog<M>(&mut self, namespace: &str, force: bool) -> Result<Catalog<M>, FsError>
-    where
-        M: Manifest + for<'de> Deserialize<'de>,
-    {
-        let relative = format!("{namespace}/catalog.toml");
-        let cache_key = format!("{}/{}", self.source.base(), relative);
+    // ── Level 1: Root ─────────────────────────────────────────────────────────
 
-        if !force {
-            if let Some(cached) = self.cache.get(&cache_key) {
-                debug!("store cache hit: {cache_key}");
-                return Catalog::from_toml(cached);
+    /// Fetch the root `catalog.toml` — the namespace index.
+    ///
+    /// Call this first to discover all available namespaces, then iterate
+    /// over `RootCatalog::namespaces` and call `fetch_namespace` for each.
+    pub async fn fetch_root(&mut self) -> Result<RootCatalog> {
+        self.fetch_toml("catalog.toml").await
+    }
+
+    // ── Level 2: Namespace ────────────────────────────────────────────────────
+
+    /// Fetch a namespace catalog using the path from a `NamespaceEntry`.
+    ///
+    /// Works for both regular namespaces (`packages/apps/catalog.toml`) and
+    /// root-level namespaces (`bundles/catalog.toml`, `themes/catalog.toml`).
+    pub async fn fetch_namespace(&mut self, entry: &NamespaceEntry) -> Result<NamespaceCatalog> {
+        self.fetch_toml(&entry.catalog).await
+    }
+
+    /// Fetch a namespace catalog by path directly.
+    pub async fn fetch_namespace_at(&mut self, catalog_path: &str) -> Result<NamespaceCatalog> {
+        self.fetch_toml(catalog_path).await
+    }
+
+    // ── Level 3: Package ──────────────────────────────────────────────────────
+
+    /// Fetch a package catalog given a `PackageRef` from a namespace catalog.
+    ///
+    /// `namespace_dir` is the directory of the namespace catalog, used to
+    /// resolve the relative `PackageRef::catalog` path.
+    ///
+    /// Example:
+    /// ```text
+    /// namespace_dir = "packages/apps"
+    /// pkg_ref.catalog = "kanidm/catalog.toml"
+    /// → fetches "packages/apps/kanidm/catalog.toml"
+    /// ```
+    pub async fn fetch_package(
+        &mut self,
+        namespace_dir: &str,
+        pkg_ref: &PackageRef,
+    ) -> Result<PackageCatalog> {
+        let path = join_catalog_path(namespace_dir, &pkg_ref.catalog);
+        self.fetch_toml(&path).await
+    }
+
+    /// Fetch a package catalog by exact Store-root-relative path.
+    pub async fn fetch_package_at(&mut self, catalog_path: &str) -> Result<PackageCatalog> {
+        self.fetch_toml(catalog_path).await
+    }
+
+    // ── FTL descriptions ──────────────────────────────────────────────────────
+
+    /// Fetch the long-form `.ftl` description for a package.
+    ///
+    /// `catalog_dir` is the directory of the package's `catalog.toml`.
+    /// `locale` is a BCP 47 locale code, e.g. `"en"` or `"de"`.
+    ///
+    /// Falls back to `"en"` if the requested locale file is not found.
+    ///
+    /// Example:
+    /// ```text
+    /// catalog_dir = "packages/apps/kanidm"
+    /// locale      = "de"
+    /// → fetches "packages/apps/kanidm/help/de/description.ftl"
+    ///   (fallback: "packages/apps/kanidm/help/en/description.ftl")
+    /// ```
+    pub async fn fetch_ftl(&mut self, catalog_dir: &str, locale: &str) -> Result<String> {
+        let primary = format!("{catalog_dir}/help/{locale}/description.ftl");
+        match self.fetch_text(&primary).await {
+            Ok(text) => Ok(text),
+            Err(_) if locale != "en" => {
+                debug!("StoreClient: FTL locale '{locale}' not found, falling back to 'en'");
+                let fallback = format!("{catalog_dir}/help/en/description.ftl");
+                self.fetch_text(&fallback)
+                    .await
+                    .with_context(|| format!("FTL fallback 'en' not found for {catalog_dir}"))
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    // ── Bundle / Theme helper ─────────────────────────────────────────────────
+
+    /// Resolve the component packages of a Bundle or Theme.
+    ///
+    /// For each `BundleRef` in `package.bundle.components`, fetches the
+    /// referenced package's `PackageCatalog` so the Store UI can display
+    /// component details and link to them.
+    ///
+    /// Components without an explicit `catalog` path are looked up by id
+    /// across all namespaces in `root`.
+    pub async fn fetch_bundle_components(
+        &mut self,
+        package: &PackageCatalog,
+        root: &RootCatalog,
+    ) -> Result<Vec<PackageCatalog>> {
+        let refs = match &package.bundle {
+            Some(b) => &b.components,
+            None => return Ok(vec![]),
+        };
+
+        let mut result = Vec::with_capacity(refs.len());
+        for component_ref in refs {
+            let catalog_path = if let Some(path) = &component_ref.catalog {
+                path.clone()
+            } else {
+                // Resolve by id: search all namespaces for this package id
+                resolve_by_id(&component_ref.id, root).with_context(|| {
+                    format!(
+                        "bundle component '{}' not found in any namespace",
+                        component_ref.id
+                    )
+                })?
+            };
+            let pkg = self.fetch_package_at(&catalog_path).await?;
+            result.push(pkg);
+        }
+        Ok(result)
+    }
+
+    // ── Internal ──────────────────────────────────────────────────────────────
+
+    async fn fetch_toml<T: DeserializeOwned>(&mut self, rel_path: &str) -> Result<T> {
+        let text = self.fetch_text(rel_path).await?;
+        toml::from_str(&text).with_context(|| format!("parsing TOML from '{rel_path}'"))
+    }
+
+    async fn fetch_text(&self, rel_path: &str) -> Result<String> {
+        match &self.source {
+            StoreSource::Local(root) => {
+                let path = root.join(rel_path);
+                debug!("StoreClient: reading local {}", path.display());
+                std::fs::read_to_string(&path)
+                    .with_context(|| format!("reading '{}'", path.display()))
+            }
+            StoreSource::Http(base) => {
+                let url = format!(
+                    "{}/{}",
+                    base.trim_end_matches('/'),
+                    rel_path.trim_start_matches('/')
+                );
+                debug!("StoreClient: fetching {url}");
+                self.http
+                    .get(&url)
+                    .send()
+                    .await
+                    .with_context(|| format!("GET {url}"))?
+                    .error_for_status()
+                    .with_context(|| format!("HTTP error for {url}"))?
+                    .text()
+                    .await
+                    .with_context(|| format!("reading response from {url}"))
             }
         }
-
-        let text = self.source
-            .fetch_text_with_retry(&relative, &self.retry, &self.disk_cache)
-            .await?;
-        self.cache.insert(cache_key, text.clone());
-        Catalog::from_toml(&text)
-    }
-
-    /// Fetch an i18n bundle for `namespace` + `locale_code` (e.g. `"de"`).
-    ///
-    /// Loads `{namespace}/i18n/{locale}/manifest.toml` + `ui.toml`.
-    pub async fn fetch_i18n(&self, namespace: &str, locale_code: &str) -> Result<I18nBundle, FsError> {
-        let meta_path = format!("{namespace}/i18n/{locale_code}/manifest.toml");
-        let ui_path   = format!("{namespace}/i18n/{locale_code}/ui.toml");
-
-        let meta_text = self.source
-            .fetch_text_with_retry(&meta_path, &self.retry, &self.disk_cache)
-            .await?;
-        let ui_text = self.source
-            .fetch_text_with_retry(&ui_path, &self.retry, &self.disk_cache)
-            .await?;
-
-        let meta: I18nManifestWrapper = toml::from_str(&meta_text)
-            .map_err(|e| FsError::parse(format!("i18n manifest parse: {e}")))?;
-
-        let ui: toml::Value = toml::from_str(&ui_text)
-            .map_err(|e| FsError::parse(format!("ui.toml parse: {e}")))?;
-
-        Ok(I18nBundle { meta: meta.i18n, ui })
-    }
-
-    /// Fetch raw text from any path relative to the store base.
-    ///
-    /// Uses retry + offline fallback for HTTP sources.
-    pub async fn fetch_raw(&self, relative_path: &str) -> Result<String, FsError> {
-        self.source
-            .fetch_text_with_retry(relative_path, &self.retry, &self.disk_cache)
-            .await
-    }
-
-    /// Invalidate the in-memory cached catalog for `namespace`.
-    pub fn invalidate(&mut self, namespace: &str) {
-        let relative = format!("{namespace}/catalog.toml");
-        let key = format!("{}/{}", self.source.base(), relative);
-        warn!("store cache invalidated: {key}");
-        self.cache.invalidate(&key);
-    }
-
-    /// Evict all expired entries from the in-memory catalog cache.
-    pub fn evict_expired(&mut self) {
-        self.cache.evict_expired();
-    }
-
-    /// The store source this client reads from.
-    pub fn source(&self) -> &StoreSource {
-        &self.source
     }
 }
 
-// ── private helpers ───────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-/// Wrapper for the `[i18n]` block in a locale `manifest.toml`.
-#[derive(Deserialize)]
-struct I18nManifestWrapper {
-    i18n: I18nMeta,
+/// Join a namespace directory and a package-relative catalog path.
+///
+/// e.g. `join_catalog_path("packages/apps", "kanidm/catalog.toml")`
+///      → `"packages/apps/kanidm/catalog.toml"`
+fn join_catalog_path(namespace_dir: &str, pkg_catalog: &str) -> String {
+    let ns = namespace_dir.trim_end_matches('/');
+    let pkg = pkg_catalog.trim_start_matches('/');
+    format!("{ns}/{pkg}")
+}
+
+/// Resolve a package id to its catalog path by searching the root catalog.
+///
+/// Builds the canonical path `{ns_dir}/{id}/catalog.toml` for each namespace
+/// and returns the first match. This is a best-effort lookup used when
+/// a `BundleRef` has no explicit `catalog` field.
+fn resolve_by_id(id: &str, root: &RootCatalog) -> Option<String> {
+    for ns in &root.namespaces {
+        // Derive the namespace directory from its catalog path
+        // e.g. "packages/apps/catalog.toml" → "packages/apps"
+        let ns_dir = Path::new(&ns.catalog)
+            .parent()?
+            .to_string_lossy()
+            .into_owned();
+        let candidate = format!("{ns_dir}/{id}/catalog.toml");
+        // We cannot do I/O here — return the path and let the caller verify
+        if ns_dir.contains(id) || candidate.contains(&format!("/{id}/")) {
+            return Some(candidate);
+        }
+    }
+    None
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -321,130 +277,164 @@ struct I18nManifestWrapper {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::manifest::{Manifest, PackageMeta};
-    use serde::Deserialize;
-    use std::io::Write;
-    use tempfile::TempDir;
 
-    /// Minimal local package type for testing.
-    #[derive(Debug, Clone, Deserialize)]
-    struct TestPkg {
-        #[serde(flatten)]
-        meta: PackageMeta,
+    #[test]
+    fn store_source_local_resolve() {
+        let src = StoreSource::Local("/home/kal/Server/Store".into());
+        assert_eq!(
+            src.resolve("catalog.toml"),
+            "/home/kal/Server/Store/catalog.toml"
+        );
+        assert_eq!(
+            src.resolve("packages/apps/kanidm/catalog.toml"),
+            "/home/kal/Server/Store/packages/apps/kanidm/catalog.toml"
+        );
+        assert_eq!(
+            src.resolve("themes/midnight-blue/catalog.toml"),
+            "/home/kal/Server/Store/themes/midnight-blue/catalog.toml"
+        );
     }
 
-    impl Manifest for TestPkg {
-        fn id(&self) -> &str       { &self.meta.id }
-        fn version(&self) -> &str  { &self.meta.version }
-        fn category(&self) -> &str { &self.meta.category }
-        fn name(&self) -> &str     { &self.meta.name }
+    #[test]
+    fn store_source_http_resolve() {
+        let src =
+            StoreSource::Http("https://raw.githubusercontent.com/FreeSynergy/Store/main".into());
+        assert_eq!(
+            src.resolve("catalog.toml"),
+            "https://raw.githubusercontent.com/FreeSynergy/Store/main/catalog.toml"
+        );
+        assert_eq!(
+            src.resolve("bundles/zentinel/catalog.toml"),
+            "https://raw.githubusercontent.com/FreeSynergy/Store/main/bundles/zentinel/catalog.toml"
+        );
     }
 
-    fn write(dir: &std::path::Path, rel: &str, content: &str) {
-        let path = dir.join(rel);
-        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-        let mut f = std::fs::File::create(&path).unwrap();
-        f.write_all(content.as_bytes()).unwrap();
+    #[test]
+    fn store_source_http_trims_trailing_slash() {
+        let src =
+            StoreSource::Http("https://raw.githubusercontent.com/FreeSynergy/Store/main/".into());
+        let url = src.resolve("catalog.toml");
+        assert!(!url.contains("//catalog"), "double slash in URL: {url}");
+    }
+
+    #[test]
+    fn join_catalog_path_combines_correctly() {
+        assert_eq!(
+            join_catalog_path("packages/apps", "kanidm/catalog.toml"),
+            "packages/apps/kanidm/catalog.toml"
+        );
+        assert_eq!(
+            join_catalog_path("themes/", "midnight-blue/catalog.toml"),
+            "themes/midnight-blue/catalog.toml"
+        );
     }
 
     #[tokio::test]
-    async fn local_fetch_catalog() {
-        let dir = TempDir::new().unwrap();
-
-        write(
-            dir.path(),
-            "TestNS/catalog.toml",
-            r#"
-[catalog]
-project     = "TestNS"
-version     = "1.0.0"
-generated_at = "2026-01-01"
-
-[[packages]]
-id          = "pkg-a"
-name        = "Package A"
-version     = "0.1.0"
-category    = "test.a"
-description = "desc"
-license     = "MIT"
-author      = "tester"
-"#,
+    async fn fetch_root_parses_local_store() {
+        let src = StoreSource::Local("/home/kal/Server/Store".into());
+        let mut client = StoreClient::new(src);
+        let root = client
+            .fetch_root()
+            .await
+            .expect("root catalog should parse");
+        assert_eq!(root.catalog.id, "freesynergy-store");
+        assert!(!root.namespaces.is_empty());
+        // bundles and themes must be at root level (not under packages/)
+        let bundles_ns = root.namespaces.iter().find(|n| n.id == "bundles");
+        let themes_ns = root.namespaces.iter().find(|n| n.id == "themes");
+        assert!(
+            bundles_ns.is_some(),
+            "bundles namespace missing from root catalog"
         );
-
-        let mut client = StoreClient::new(StoreSource::local(dir.path()));
-        let catalog: Catalog<TestPkg> = client.fetch_catalog("TestNS", false).await.unwrap();
-
-        assert_eq!(catalog.packages.len(), 1);
-        assert_eq!(catalog.packages[0].id(), "pkg-a");
+        assert!(
+            themes_ns.is_some(),
+            "themes namespace missing from root catalog"
+        );
+        assert!(
+            bundles_ns.unwrap().catalog.starts_with("bundles/"),
+            "bundles catalog path should start with 'bundles/', got: {}",
+            bundles_ns.unwrap().catalog
+        );
+        assert!(
+            themes_ns.unwrap().catalog.starts_with("themes/"),
+            "themes catalog path should start with 'themes/', got: {}",
+            themes_ns.unwrap().catalog
+        );
     }
 
     #[tokio::test]
-    async fn local_fetch_i18n() {
-        let dir = TempDir::new().unwrap();
-
-        write(
-            dir.path(),
-            "NS/i18n/de/manifest.toml",
-            r#"
-[i18n]
-locale_code  = "de"
-native_name  = "Deutsch"
-completeness = 100
-"#,
-        );
-        write(
-            dir.path(),
-            "NS/i18n/de/ui.toml",
-            r#"
-[welcome]
-title = "Willkommen"
-"#,
-        );
-
-        let client = StoreClient::new(StoreSource::local(dir.path()));
-        let bundle = client.fetch_i18n("NS", "de").await.unwrap();
-
-        assert_eq!(bundle.meta.locale_code, "de");
-        let map = bundle.to_hashmap();
-        assert_eq!(map.get("welcome.title").map(String::as_str), Some("Willkommen"));
+    async fn fetch_namespace_apps_local() {
+        let src = StoreSource::Local("/home/kal/Server/Store".into());
+        let mut client = StoreClient::new(src);
+        let ns_entry = crate::catalog::NamespaceEntry {
+            id: "apps".into(),
+            name: "Applications".into(),
+            r#type: Some("app".into()),
+            catalog: "packages/apps/catalog.toml".into(),
+        };
+        let ns = client
+            .fetch_namespace(&ns_entry)
+            .await
+            .expect("apps namespace catalog");
+        assert!(!ns.is_empty());
+        assert!(ns.packages.iter().any(|p| p.id == "kanidm"));
     }
 
     #[tokio::test]
-    async fn offline_fallback_uses_disk_cache() {
-        let _dir = TempDir::new().unwrap();
-        let disk_dir = TempDir::new().unwrap();
+    async fn fetch_package_kanidm_local() {
+        let src = StoreSource::Local("/home/kal/Server/Store".into());
+        let mut client = StoreClient::new(src);
+        let pkg_ref = crate::catalog::PackageRef {
+            id: "kanidm".into(),
+            catalog: "kanidm/catalog.toml".into(),
+        };
+        let pkg = client
+            .fetch_package("packages/apps", &pkg_ref)
+            .await
+            .expect("kanidm package catalog");
+        assert_eq!(pkg.id(), "kanidm");
+        assert!(!pkg.is_bundle());
+    }
 
-        // Pre-seed disk cache with stale catalog
-        let disk_cache = DiskCache::new(disk_dir.path());
-        disk_cache.insert(
-            "https://example.invalid/store/NS/catalog.toml",
-            r#"
-[catalog]
-project     = "NS"
-version     = "0.1.0"
-generated_at = "2026-01-01"
+    #[tokio::test]
+    async fn fetch_bundle_zentinel_local() {
+        let src = StoreSource::Local("/home/kal/Server/Store".into());
+        let mut client = StoreClient::new(src);
+        let pkg_ref = crate::catalog::PackageRef {
+            id: "zentinel".into(),
+            catalog: "zentinel/catalog.toml".into(),
+        };
+        let bundle = client
+            .fetch_package("bundles", &pkg_ref)
+            .await
+            .expect("zentinel bundle catalog");
+        assert_eq!(bundle.id(), "zentinel");
+        assert!(bundle.is_bundle(), "zentinel should be a bundle");
+    }
 
-[[packages]]
-id          = "stale-pkg"
-name        = "Stale Package"
-version     = "0.1.0"
-category    = "test"
-description = "from disk cache"
-license     = "MIT"
-author      = "tester"
-"#,
+    #[tokio::test]
+    async fn fetch_ftl_en_local() {
+        let src = StoreSource::Local("/home/kal/Server/Store".into());
+        let mut client = StoreClient::new(src);
+        let ftl = client
+            .fetch_ftl("packages/apps/kanidm", "en")
+            .await
+            .expect("kanidm en FTL");
+        assert!(ftl.contains("kanidm"), "FTL should mention kanidm");
+    }
+
+    #[tokio::test]
+    async fn fetch_ftl_falls_back_to_en() {
+        let src = StoreSource::Local("/home/kal/Server/Store".into());
+        let mut client = StoreClient::new(src);
+        // "fr" locale does not exist — should fall back to "en"
+        let ftl = client
+            .fetch_ftl("packages/apps/kanidm", "fr")
+            .await
+            .expect("kanidm fr→en FTL fallback");
+        assert!(
+            ftl.contains("kanidm"),
+            "fallback FTL should still contain kanidm"
         );
-
-        // HTTP source pointing at an unreachable URL
-        let source = StoreSource::http("https://example.invalid/store");
-        let policy = RetryPolicy { max_retries: 0, initial_delay: Duration::from_millis(1) };
-
-        let result = source
-            .fetch_text_with_retry("NS/catalog.toml", &policy, &disk_cache)
-            .await;
-
-        assert!(result.is_ok(), "should fall back to disk cache");
-        let text = result.unwrap();
-        assert!(text.contains("stale-pkg"));
     }
 }

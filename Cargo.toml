@@ -48,7 +48,6 @@ fs-i18n           = { path = "fs-i18n" }
 fs-render         = { path = "fs-render" }
 fs-components     = { path = "fs-components" }
 fs-ui             = { path = "fs-ui" }
-fs-store          = { path = "fs-store" }
 fs-pkg            = { path = "fs-pkg" }
 fs-plugin-sdk     = { path = "fs-plugin-sdk" }
 fs-plugin-runtime = { path = "fs-plugin-runtime" }

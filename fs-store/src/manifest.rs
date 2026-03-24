@@ -1,47 +1,45 @@
-// manifest.rs — Manifest trait and PackageMeta types.
+// Manifest trait — Strategy Pattern for store entries.
 //
-// Every project-specific package type implements the Manifest trait so the
-// generic catalog infrastructure can work with any namespace.
+// Every type that can appear as a catalog entry must implement `Manifest`.
+// This decouples the StoreClient from concrete entry types.
+//
+// OOP principle: behavior belongs to the type — callers filter/sort entries
+// via the trait interface, not by matching concrete fields.
 
-use serde::{Deserialize, Serialize};
+use crate::catalog::PackageCatalog;
 
-/// Common interface for all package types across all FreeSynergy namespaces.
-pub trait Manifest {
+/// A catalog entry that can be fetched, listed, and looked up by id.
+pub trait Manifest: Send + Sync {
+    /// Unique identifier within the catalog, e.g. `"kanidm"`.
     fn id(&self) -> &str;
+
+    /// SemVer version string, e.g. `"1.3.0"`.
     fn version(&self) -> &str;
-    fn category(&self) -> &str;
+
+    /// Namespace / category this entry belongs to, e.g. `"apps"`, `"themes"`.
+    fn namespace(&self) -> &str;
+
+    /// Human-readable display name, e.g. `"Kanidm"`.
     fn name(&self) -> &str;
 }
 
-/// The `[package]` block in every `manifest.toml`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PackageMeta {
-    pub id:          String,
-    pub name:        String,
-    pub version:     String,
-    pub category:    String,
-    pub description: String,
-    pub license:     String,
-    pub author:      String,
-    #[serde(default)]
-    pub tags:        Vec<String>,
-    #[serde(default)]
-    pub source:      Option<PackageSource>,
-    #[serde(default)]
-    pub compat:      Option<PackageCompat>,
-}
+// ── PackageCatalog implements Manifest ────────────────────────────────────────
 
-/// `[package.source]` — upstream project links.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PackageSource {
-    pub website:    Option<String>,
-    pub repository: Option<String>,
-}
+impl Manifest for PackageCatalog {
+    fn id(&self) -> &str {
+        &self.package.id
+    }
 
-/// `[package.compat]` — version and namespace constraints.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PackageCompat {
-    pub min_app_version: Option<String>,
-    #[serde(default)]
-    pub projects: Vec<String>,
+    fn version(&self) -> &str {
+        &self.package.version
+    }
+
+    fn namespace(&self) -> &str {
+        // The type field doubles as a namespace hint when no explicit context exists.
+        &self.package.r#type
+    }
+
+    fn name(&self) -> &str {
+        &self.package.name
+    }
 }
