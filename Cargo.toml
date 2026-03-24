@@ -10,7 +10,7 @@ members = [
     "fs-theme", "fs-help", "fs-i18n",
     "fs-render", "fs-components", "fs-ui",
     # Ext
-    "fs-store", "fs-pkg",
+    "fs-pkg", "fs-store",
     "fs-plugin-sdk", "fs-plugin-runtime",
     "fs-container",
     # Net
@@ -49,6 +49,7 @@ fs-render         = { path = "fs-render" }
 fs-components     = { path = "fs-components" }
 fs-ui             = { path = "fs-ui" }
 fs-pkg            = { path = "fs-pkg" }
+fs-store          = { path = "fs-store" }
 fs-plugin-sdk     = { path = "fs-plugin-sdk" }
 fs-plugin-runtime = { path = "fs-plugin-runtime" }
 fs-container      = { path = "fs-container" }
