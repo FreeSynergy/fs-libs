@@ -37,3 +37,7 @@ optional  = true
 
 [dependencies.urlencoding]
 version  = "2"
+
+[package.metadata.cargo-machete]
+# tokio is optional, pulled in by oidc/scim/webfinger features via reqwest
+ignored = ["tokio"]

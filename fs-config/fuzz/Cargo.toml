@@ -10,7 +10,6 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 fs-config    = { path = ".." }
-serde         = { version = "1", features = ["derive"] }
 serde_json    = { version = "1" }
 toml          = { version = "0.8" }
 

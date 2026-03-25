@@ -31,3 +31,7 @@ optional  = true
 [dependencies.tokio]
 workspace = true
 optional  = true
+
+[package.metadata.cargo-machete]
+# tokio is optional, pulled in by the `oauth2` feature via reqwest async runtime
+ignored = ["tokio"]

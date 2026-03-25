@@ -12,7 +12,6 @@ default = []
 llm     = ["dep:fs-llm"]
 
 [dependencies]
-fs-auth    = { workspace = true }
 fs-bus     = { workspace = true }
 fs-channel = { workspace = true }
 serde_json  = { workspace = true }
@@ -23,3 +22,7 @@ tokio       = { workspace = true }
 
 # Optional — LLM-powered commands
 fs-llm = { workspace = true, optional = true }
+
+[package.metadata.cargo-machete]
+# fs-llm is optional, pulled in by the `llm` feature (stub for future LLM commands)
+ignored = ["fs-llm"]

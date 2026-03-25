@@ -9,11 +9,9 @@ repository.workspace = true
 
 [dependencies]
 fs-types  = { workspace = true }
-fs-error  = { workspace = true }
 
 serde       = { workspace = true }
 serde_json  = { workspace = true }
-chrono      = { workspace = true }
 anyhow      = { workspace = true }
 thiserror   = { workspace = true }
 tracing     = { workspace = true }

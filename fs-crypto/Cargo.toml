@@ -17,7 +17,6 @@ signing = ["dep:ed25519-dalek", "dep:rand_core", "dep:hex", "dep:sha2"]
 
 [dependencies]
 fs-error = { workspace = true }
-serde     = { workspace = true }
 
 [dependencies.age]
 version = "0.11"

@@ -1,0 +1,8 @@
+[advisories]
+ignore = [
+    # rsa: Marvin Attack timing sidechannel (CVSS 5.9 / Medium)
+    # No upstream patch available yet — only mitigated by not using rsa
+    # in network-exposed contexts. Tracked in deny.toml as well.
+    # See: https://github.com/RustCrypto/RSA/issues/19
+    "RUSTSEC-2023-0071",
+]

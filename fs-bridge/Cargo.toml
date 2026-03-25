@@ -10,10 +10,7 @@ repository.workspace = true
 [dependencies]
 fs-types     = { workspace = true }
 fs-inventory = { workspace = true }
-serde         = { workspace = true }
 serde_json    = { workspace = true }
-tokio         = { workspace = true }
-async-trait   = { workspace = true }
 thiserror     = { workspace = true }
 tracing       = { workspace = true }
 reqwest       = { workspace = true }

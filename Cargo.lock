@@ -2909,7 +2909,6 @@ name = "fs-bot"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "fs-auth",
  "fs-bus",
  "fs-channel",
  "fs-llm",
@@ -2923,14 +2922,11 @@ dependencies = [
 name = "fs-bridge"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "fs-inventory",
  "fs-types",
  "reqwest 0.13.2",
- "serde",
  "serde_json",
  "thiserror 2.0.18",
- "tokio",
  "tracing",
 ]
 
@@ -2941,8 +2937,6 @@ dependencies = [
  "fs-error",
  "reqwest 0.13.2",
  "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]
@@ -3027,7 +3021,6 @@ dependencies = [
  "rand 0.10.0",
  "rand_core 0.6.4",
  "rcgen",
- "serde",
  "sha2 0.10.9",
  "time",
 ]
@@ -3096,8 +3089,6 @@ name = "fs-inventory"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "chrono",
- "fs-error",
  "fs-types",
  "sea-orm",
  "serde",
@@ -3202,7 +3193,6 @@ dependencies = [
  "tokio",
  "tokio-tungstenite",
  "tracing",
- "url",
 ]
 
 [[package]]
@@ -3210,12 +3200,9 @@ name = "fs-sysinfo"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "chrono",
- "fs-types",
  "serde",
  "serde_json",
  "sysinfo",
- "thiserror 2.0.18",
  "toml 1.1.0+spec-1.1.0",
  "tracing",
 ]

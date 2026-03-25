@@ -9,7 +9,7 @@ repository.workspace = true
 
 [features]
 default = []
-ws      = ["dep:tokio-tungstenite", "dep:tokio", "dep:futures-util", "dep:url"]
+ws      = ["dep:tokio-tungstenite", "dep:tokio", "dep:futures-util"]
 
 [dependencies]
 fs-error  = { workspace = true }
@@ -31,6 +31,4 @@ optional  = true
 workspace = true
 optional  = true
 
-[dependencies.url]
-workspace = true
-optional  = true
+
