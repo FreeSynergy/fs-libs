@@ -2919,27 +2919,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fs-bridge"
-version = "0.1.0"
-dependencies = [
- "fs-inventory",
- "fs-types",
- "reqwest 0.13.2",
- "serde_json",
- "thiserror 2.0.18",
- "tracing",
-]
-
-[[package]]
-name = "fs-bridge-sdk"
-version = "0.1.0"
-dependencies = [
- "fs-error",
- "reqwest 0.13.2",
- "serde",
-]
-
-[[package]]
 name = "fs-bus"
 version = "0.1.0"
 dependencies = [
@@ -3167,18 +3146,6 @@ dependencies = [
  "io-lifetimes",
  "rustix 1.1.4",
  "windows-sys 0.59.0",
-]
-
-[[package]]
-name = "fs-store"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "reqwest 0.13.2",
- "serde",
- "tokio",
- "toml 1.1.0+spec-1.1.0",
- "tracing",
 ]
 
 [[package]]

@@ -5,16 +5,16 @@ members = [
     "fs-core", "fs-crypto", "fs-health",
     "fs-db", "fs-bus", "fs-sync",
     "fs-template", "fs-inventory",
-    "fs-bridge", "fs-sysinfo",
+    "fs-sysinfo",
     # UI
     "fs-theme", "fs-help", "fs-i18n",
     "fs-render", "fs-components", "fs-ui",
     # Ext
-    "fs-pkg", "fs-store",
+    "fs-pkg",
     "fs-plugin-sdk", "fs-plugin-runtime",
     "fs-container",
     # Net
-    "fs-auth", "fs-federation", "fs-bridge-sdk",
+    "fs-auth", "fs-federation",
     "fs-channel", "fs-llm", "fs-bot",
 ]
 resolver = "2"
@@ -40,7 +40,6 @@ fs-bus            = { path = "fs-bus" }
 fs-sync           = { path = "fs-sync" }
 fs-template       = { path = "fs-template" }
 fs-inventory      = { path = "fs-inventory" }
-fs-bridge         = { path = "fs-bridge" }
 fs-sysinfo        = { path = "fs-sysinfo" }
 fs-theme          = { path = "fs-theme" }
 fs-help           = { path = "fs-help" }
@@ -49,13 +48,12 @@ fs-render         = { path = "fs-render" }
 fs-components     = { path = "fs-components" }
 fs-ui             = { path = "fs-ui" }
 fs-pkg            = { path = "fs-pkg" }
-fs-store          = { path = "fs-store" }
+fs-store          = { path = "../fs-store/crates/fs-store" }
 fs-plugin-sdk     = { path = "fs-plugin-sdk" }
 fs-plugin-runtime = { path = "fs-plugin-runtime" }
 fs-container      = { path = "fs-container" }
 fs-auth           = { path = "fs-auth" }
 fs-federation     = { path = "fs-federation" }
-fs-bridge-sdk     = { path = "fs-bridge-sdk" }
 fs-channel        = { path = "fs-channel" }
 fs-llm            = { path = "fs-llm" }
 fs-bot            = { path = "fs-bot" }
