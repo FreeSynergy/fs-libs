@@ -1,10 +1,13 @@
 [graph]
 targets = []
-exclude-dev = false
 
 [advisories]
 version = 2
 yanked = "deny"
+ignore = [
+    # rsa: Marvin Attack timing sidechannel — no upstream patch available yet
+    "RUSTSEC-2023-0071",
+]
 
 [licenses]
 version = 2

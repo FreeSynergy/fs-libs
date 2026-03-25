@@ -330,6 +330,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires local Store repo at /home/kal/Server/Store"]
     async fn fetch_root_parses_local_store() {
         let src = StoreSource::Local("/home/kal/Server/Store".into());
         let mut client = StoreClient::new(src);
@@ -363,6 +364,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires local Store repo at /home/kal/Server/Store"]
     async fn fetch_namespace_apps_local() {
         let src = StoreSource::Local("/home/kal/Server/Store".into());
         let mut client = StoreClient::new(src);
@@ -381,6 +383,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires local Store repo at /home/kal/Server/Store"]
     async fn fetch_package_kanidm_local() {
         let src = StoreSource::Local("/home/kal/Server/Store".into());
         let mut client = StoreClient::new(src);
@@ -397,6 +400,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires local Store repo at /home/kal/Server/Store"]
     async fn fetch_bundle_zentinel_local() {
         let src = StoreSource::Local("/home/kal/Server/Store".into());
         let mut client = StoreClient::new(src);
@@ -413,6 +417,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires local Store repo at /home/kal/Server/Store"]
     async fn fetch_ftl_en_local() {
         let src = StoreSource::Local("/home/kal/Server/Store".into());
         let mut client = StoreClient::new(src);
@@ -424,6 +429,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires local Store repo at /home/kal/Server/Store"]
     async fn fetch_ftl_falls_back_to_en() {
         let src = StoreSource::Local("/home/kal/Server/Store".into());
         let mut client = StoreClient::new(src);
