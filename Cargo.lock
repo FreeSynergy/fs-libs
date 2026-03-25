@@ -3064,19 +3064,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fs-inventory"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "fs-types",
- "sea-orm",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tracing",
-]
-
-[[package]]
 name = "fs-llm"
 version = "0.1.0"
 dependencies = [

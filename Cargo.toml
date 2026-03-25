@@ -4,7 +4,7 @@ members = [
     "fs-types", "fs-error", "fs-config",
     "fs-core", "fs-crypto", "fs-health",
     "fs-db", "fs-bus", "fs-sync",
-    "fs-template", "fs-inventory",
+    "fs-template",
     "fs-sysinfo",
     # UI
     "fs-theme", "fs-help", "fs-i18n",
@@ -39,7 +39,7 @@ fs-db             = { path = "fs-db" }
 fs-bus            = { path = "fs-bus" }
 fs-sync           = { path = "fs-sync" }
 fs-template       = { path = "fs-template" }
-fs-inventory      = { path = "fs-inventory" }
+fs-inventory      = { path = "../fs-inventory" }
 fs-sysinfo        = { path = "fs-sysinfo" }
 fs-theme          = { path = "fs-theme" }
 fs-help           = { path = "fs-help" }
