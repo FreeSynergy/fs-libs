@@ -7,7 +7,7 @@ members = [
     "fs-template",
     "fs-sysinfo",
     # UI
-    "fs-theme", "fs-help", "fs-i18n",
+    "fs-help",
     "fs-render", "fs-components", "fs-ui",
     # Ext
     "fs-pkg",
@@ -40,9 +40,9 @@ fs-sync           = { path = "fs-sync" }
 fs-template       = { path = "fs-template" }
 fs-inventory      = { path = "../fs-inventory" }
 fs-sysinfo        = { path = "fs-sysinfo" }
-fs-theme          = { path = "fs-theme" }
+fs-theme          = { path = "../fs-theme" }
 fs-help           = { path = "fs-help" }
-fs-i18n           = { path = "fs-i18n" }
+fs-i18n           = { path = "../fs-i18n" }
 fs-render         = { path = "fs-render" }
 fs-components     = { path = "fs-components" }
 fs-ui             = { path = "fs-ui" }
