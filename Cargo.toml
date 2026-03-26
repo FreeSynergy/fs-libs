@@ -3,7 +3,7 @@ members = [
     # Core
     "fs-types", "fs-error",
     "fs-core", "fs-crypto", "fs-health",
-    "fs-db", "fs-sync",
+    "fs-sync",
     "fs-template",
     "fs-sysinfo",
     # UI
@@ -14,7 +14,6 @@ members = [
     "fs-plugin-sdk", "fs-plugin-runtime",
     "fs-container",
     # Net
-    "fs-auth", "fs-federation",
     "fs-channel", "fs-llm", "fs-bot",
 ]
 resolver = "2"
@@ -35,7 +34,7 @@ fs-config         = { path = "../fs-config" }
 fs-core           = { path = "fs-core" }
 fs-crypto         = { path = "fs-crypto" }
 fs-health         = { path = "fs-health" }
-fs-db             = { path = "fs-db" }
+fs-db             = { path = "../fs-db" }
 fs-bus            = { path = "../fs-bus" }
 fs-sync           = { path = "fs-sync" }
 fs-template       = { path = "fs-template" }
@@ -52,8 +51,8 @@ fs-store          = { path = "../fs-store/crates/fs-store" }
 fs-plugin-sdk     = { path = "fs-plugin-sdk" }
 fs-plugin-runtime = { path = "fs-plugin-runtime" }
 fs-container      = { path = "fs-container" }
-fs-auth           = { path = "fs-auth" }
-fs-federation     = { path = "fs-federation" }
+fs-auth           = { path = "../fs-node/cli/crates/fs-auth" }
+fs-federation     = { path = "../fs-node/cli/crates/fs-federation" }
 fs-channel        = { path = "fs-channel" }
 fs-llm            = { path = "fs-llm" }
 fs-bot            = { path = "fs-bot" }
