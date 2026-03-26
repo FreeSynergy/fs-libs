@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    # Core — universal primitives only
+    # Core — universal primitives
     "fs-types", "fs-error",
-    "fs-crypto", "fs-health",
+    "fs-core", "fs-crypto", "fs-health",
 ]
 resolver = "2"
 
@@ -19,7 +19,7 @@ repository  = "https://github.com/FreeSynergy/fs-libs"
 fs-types          = { path = "fs-types" }
 fs-error          = { path = "fs-error" }
 fs-config         = { path = "../fs-config" }
-fs-core           = { path = "../fs-core" }
+fs-core           = { path = "fs-core" }
 fs-crypto         = { path = "fs-crypto" }
 fs-health         = { path = "fs-health" }
 fs-db             = { path = "../fs-db" }
