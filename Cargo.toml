@@ -8,7 +8,6 @@ members = [
     "fs-sysinfo",
     # UI
     "fs-help",
-    "fs-render",
     # Ext
     "fs-pkg",
     "fs-plugin-sdk", "fs-plugin-runtime",
@@ -43,7 +42,7 @@ fs-sysinfo        = { path = "fs-sysinfo" }
 fs-theme          = { path = "../fs-theme" }
 fs-help           = { path = "fs-help" }
 fs-i18n           = { path = "../fs-i18n" }
-fs-render         = { path = "fs-render" }
+fs-render         = { path = "../fs-render" }
 fs-components     = { path = "../fs-components" }
 fs-ui             = { path = "../fs-ui" }
 fs-pkg            = { path = "fs-pkg" }
