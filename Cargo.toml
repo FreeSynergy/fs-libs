@@ -13,7 +13,7 @@ members = [
     "fs-plugin-sdk", "fs-plugin-runtime",
     "fs-container",
     # Net
-    "fs-channel", "fs-llm", "fs-bot",
+    "fs-bot",
 ]
 resolver = "2"
 
@@ -52,8 +52,8 @@ fs-plugin-runtime = { path = "fs-plugin-runtime" }
 fs-container      = { path = "fs-container" }
 fs-auth           = { path = "../fs-auth" }
 fs-federation     = { path = "../fs-federation" }
-fs-channel        = { path = "fs-channel" }
-fs-llm            = { path = "fs-llm" }
+fs-channel        = { path = "../fs-channel" }
+fs-llm            = { path = "../fs-llm" }
 fs-bot            = { path = "fs-bot" }
 
 # Serde
