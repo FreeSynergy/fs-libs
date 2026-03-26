@@ -3,11 +3,8 @@ members = [
     # Core
     "fs-types", "fs-error",
     "fs-core", "fs-crypto", "fs-health",
-    "fs-sysinfo",
     # UI
     "fs-help",
-    # Ext
-    # Net
 ]
 resolver = "2"
 
