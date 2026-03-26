@@ -19,43 +19,69 @@ pub use validation::{IssueSeverity, ValidationIssue};
 // ── FsError ──────────────────────────────────────────────────────────────────
 
 /// Main error type for all FreeSynergy library crates.
+///
+/// Each variant carries a machine-readable FTL key (see [`FsError::ftl_key`])
+/// and an optional technical detail string (for logs / developer context).
+/// UI code should resolve the key via `fs_i18n` — never display the raw detail.
 #[derive(Error, Debug)]
 pub enum FsError {
     /// A configuration file is malformed or missing required fields.
-    #[error("Configuration error: {0}")]
+    #[error("error-config: {0}")]
     Config(String),
 
     /// Underlying OS I/O failure.
-    #[error("IO error: {0}")]
+    #[error("error-io: {0}")]
     Io(#[from] std::io::Error),
 
     /// TOML (or other format) parse failure.
-    #[error("Parse error: {0}")]
+    #[error("error-parse: {0}")]
     Parse(String),
 
     /// A resource was expected but not found.
-    #[error("Not found: {0}")]
+    #[error("error-not-found: {0}")]
     NotFound(String),
 
     /// A field failed validation rules.
-    #[error("Validation error in `{field}`: {message}")]
+    #[error("error-validation: field={field} {message}")]
     Validation { field: String, message: String },
 
     /// HTTP or other network-level failure.
-    #[error("Network error: {0}")]
+    #[error("error-network: {0}")]
     Network(String),
 
     /// A plugin failed to load, initialize, or execute.
-    #[error("Plugin error: {0}")]
+    #[error("error-plugin: {0}")]
     Plugin(String),
 
     /// Authentication or authorization failure.
-    #[error("Auth error: {0}")]
+    #[error("error-auth: {0}")]
     Auth(String),
 
     /// Catch-all for errors that don't fit a specific category.
-    #[error("Internal error: {0}")]
+    #[error("error-internal: {0}")]
     Internal(String),
+}
+
+impl FsError {
+    /// Returns the i18n snippet key for this error variant.
+    ///
+    /// Keys follow the `"category.name"` convention used by `fs_i18n` snippets.
+    /// Use `i18n.t(error.ftl_key())` to get the user-facing translated message.
+    /// Never display the raw `Display` output to end users — it is for logs only.
+    #[must_use]
+    pub fn ftl_key(&self) -> &'static str {
+        match self {
+            Self::Config(_) => "errors.config_error",
+            Self::Io(_) => "errors.io_error",
+            Self::Parse(_) => "errors.parse_error",
+            Self::NotFound(_) => "errors.not_found",
+            Self::Validation { .. } => "errors.validation_required",
+            Self::Network(_) => "errors.network_error",
+            Self::Plugin(_) => "errors.plugin_error",
+            Self::Auth(_) => "errors.authentication_failed",
+            Self::Internal(_) => "errors.internal_error",
+        }
+    }
 }
 
 /// Backward-compatibility alias — FreeSynergy.Node used `FsyError` before the rename.
@@ -106,7 +132,19 @@ mod tests {
     #[test]
     fn fs_error_display() {
         let e = FsError::config("missing field");
+        // Display shows "error-config: <detail>" — key prefix + technical detail
         assert!(e.to_string().contains("missing field"));
+        assert!(e.to_string().contains("error-config"));
+    }
+
+    #[test]
+    fn fs_error_ftl_keys() {
+        assert_eq!(FsError::config("x").ftl_key(), "errors.config_error");
+        assert_eq!(FsError::parse("x").ftl_key(), "errors.parse_error");
+        assert_eq!(FsError::not_found("x").ftl_key(), "errors.not_found");
+        assert_eq!(FsError::network("x").ftl_key(), "errors.network_error");
+        assert_eq!(FsError::internal("x").ftl_key(), "errors.internal_error");
+        assert_eq!(FsError::auth("x").ftl_key(), "errors.authentication_failed");
     }
 
     #[test]

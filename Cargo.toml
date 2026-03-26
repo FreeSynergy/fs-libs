@@ -51,8 +51,8 @@ fs-store          = { path = "../fs-store/crates/fs-store" }
 fs-plugin-sdk     = { path = "fs-plugin-sdk" }
 fs-plugin-runtime = { path = "fs-plugin-runtime" }
 fs-container      = { path = "fs-container" }
-fs-auth           = { path = "../fs-node/cli/crates/fs-auth" }
-fs-federation     = { path = "../fs-node/cli/crates/fs-federation" }
+fs-auth           = { path = "../fs-auth" }
+fs-federation     = { path = "../fs-federation" }
 fs-channel        = { path = "fs-channel" }
 fs-llm            = { path = "fs-llm" }
 fs-bot            = { path = "fs-bot" }
