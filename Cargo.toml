@@ -1,9 +1,9 @@
 [workspace]
 members = [
     # Core
-    "fs-types", "fs-error", "fs-config",
+    "fs-types", "fs-error",
     "fs-core", "fs-crypto", "fs-health",
-    "fs-db", "fs-bus", "fs-sync",
+    "fs-db", "fs-sync",
     "fs-template",
     "fs-sysinfo",
     # UI
@@ -31,12 +31,12 @@ repository  = "https://github.com/FreeSynergy/fs-libs"
 # Internal
 fs-types          = { path = "fs-types" }
 fs-error          = { path = "fs-error" }
-fs-config         = { path = "fs-config" }
+fs-config         = { path = "../fs-config" }
 fs-core           = { path = "fs-core" }
 fs-crypto         = { path = "fs-crypto" }
 fs-health         = { path = "fs-health" }
 fs-db             = { path = "fs-db" }
-fs-bus            = { path = "fs-bus" }
+fs-bus            = { path = "../fs-bus" }
 fs-sync           = { path = "fs-sync" }
 fs-template       = { path = "fs-template" }
 fs-inventory      = { path = "../fs-inventory" }
