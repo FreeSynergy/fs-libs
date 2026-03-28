@@ -22,7 +22,7 @@
 //! # }
 //! ```
 
-use rand::RngCore;
+use rand::Rng;
 use std::fmt;
 use std::time::{SystemTime, UNIX_EPOCH};
 

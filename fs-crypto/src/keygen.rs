@@ -1,7 +1,7 @@
 //! Random secret generation and key derivation helpers.
 
 use pbkdf2::pbkdf2_hmac;
-use rand::RngCore;
+use rand::Rng;
 use sha2::Sha256;
 
 // ── KeyGen ────────────────────────────────────────────────────────────────────
