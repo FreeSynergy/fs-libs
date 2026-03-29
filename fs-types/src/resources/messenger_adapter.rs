@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MessengerKind {
-    /// Telegram bot API / MTProto.
+    /// Telegram bot API / `MTProto`.
     Telegram,
     /// Matrix Client-Server API.
     Matrix,
@@ -41,7 +41,7 @@ pub enum MessengerKind {
     Viber,
     /// LINE Messaging API.
     Line,
-    /// WhatsApp Cloud API (Meta).
+    /// `WhatsApp` Cloud API (Meta).
     WhatsApp,
     /// Signal via signal-cli REST API.
     Signal,
@@ -59,6 +59,7 @@ pub enum MessengerKind {
 
 impl MessengerKind {
     /// Human-readable display name.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             MessengerKind::Telegram => "Telegram",
@@ -86,6 +87,7 @@ impl MessengerKind {
     }
 
     /// Whether this adapter requires the platform to be self-hosted.
+    #[must_use]
     pub fn is_self_hosted_only(self) -> bool {
         matches!(
             self,
@@ -105,6 +107,7 @@ impl MessengerKind {
     /// Rust feature flag name required to compile this adapter.
     ///
     /// Returns `None` for REST-only adapters that compile without extra dependencies.
+    #[must_use]
     pub fn required_feature(self) -> Option<&'static str> {
         match self {
             MessengerKind::Telegram => Some("telegram"),
@@ -134,14 +137,15 @@ pub enum AdapterAuthMethod {
     ApiKey,
     /// Username + password.
     UserPassword,
-    /// MTProto user-session (Telegram user-bot mode).
+    /// `MTProto` user-session (Telegram user-bot mode).
     MtProto,
-    /// Gateway account credentials (Threema, WhatsApp Business, …).
+    /// Gateway account credentials (Threema, `WhatsApp` Business, …).
     GatewayCredentials,
 }
 
 impl AdapterAuthMethod {
     /// Human-readable label.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             AdapterAuthMethod::BotToken => "Bot Token",
@@ -179,6 +183,7 @@ pub enum ChannelFeature {
 
 impl ChannelFeature {
     /// Human-readable label.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             ChannelFeature::CreateRoom => "Create Room",
@@ -218,6 +223,7 @@ pub struct MessengerAdapterResource {
 
 impl MessengerAdapterResource {
     /// Returns `true` if this adapter implements the given feature.
+    #[must_use]
     pub fn supports(&self, feature: ChannelFeature) -> bool {
         self.supported_features.contains(&feature)
     }

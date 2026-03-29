@@ -1,4 +1,5 @@
-//! `fs-types` — Shared types and traits for the FreeSynergy ecosystem.
+#![deny(clippy::all, clippy::pedantic, warnings)]
+//! `fs-types` — Shared types and traits for the `FreeSynergy` ecosystem.
 //!
 //! Zero renderer dependencies. Safe to use from any crate in the stack.
 //!
@@ -59,7 +60,7 @@ pub use type_system::{ContainerPurpose, ServiceType, TypeEntry, TypeRegistry};
 
 // ── Tracing conventions (doc-only) ────────────────────────────────────────────
 
-/// Tracing span conventions for FreeSynergy crates.
+/// Tracing span conventions for `FreeSynergy` crates.
 ///
 /// ## Rules
 ///

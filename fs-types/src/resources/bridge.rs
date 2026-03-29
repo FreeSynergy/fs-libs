@@ -17,6 +17,7 @@ pub enum HttpMethod {
 }
 
 impl HttpMethod {
+    #[must_use]
     pub fn as_str(self) -> &'static str {
         match self {
             HttpMethod::Get => "GET",
@@ -43,11 +44,13 @@ pub struct FieldMapping {
 
 impl FieldMapping {
     /// Create an empty mapping (1:1 pass-through).
+    #[must_use]
     pub fn identity() -> Self {
         Self::default()
     }
 
     /// Add a field translation.
+    #[must_use]
     pub fn map(mut self, standard: impl Into<String>, service: impl Into<String>) -> Self {
         self.fields.push((standard.into(), service.into()));
         self

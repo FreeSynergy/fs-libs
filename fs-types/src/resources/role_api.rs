@@ -304,6 +304,7 @@ pub enum AlertSeverity {
 
 impl AlertSeverity {
     /// Human-readable label.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             AlertSeverity::Critical => "critical",
@@ -325,6 +326,7 @@ pub enum AlertState {
 
 impl AlertState {
     /// Human-readable label.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             AlertState::Firing => "firing",
@@ -333,6 +335,7 @@ impl AlertState {
     }
 
     /// `true` when the alert is currently active.
+    #[must_use]
     pub fn is_active(self) -> bool {
         matches!(self, AlertState::Firing)
     }
@@ -350,6 +353,7 @@ pub struct Alert {
 
 impl Alert {
     /// `true` when this alert is currently firing.
+    #[must_use]
     pub fn is_active(&self) -> bool {
         self.state.is_active()
     }

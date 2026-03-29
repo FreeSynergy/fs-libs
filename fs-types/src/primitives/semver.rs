@@ -49,16 +49,17 @@ use super::FsValue;
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SemVer {
-    pub major: u32,
-    pub minor: u32,
-    pub patch: u32,
+    pub major: u16,
+    pub minor: u16,
+    pub patch: u16,
     /// Optional pre-release label, e.g. `"alpha.1"`, `"beta.2"`, `"rc.1"`.
     pub pre: Option<String>,
 }
 
 impl SemVer {
     /// Create a release version (no pre-release label).
-    pub fn release(major: u32, minor: u32, patch: u32) -> Self {
+    #[must_use]
+    pub fn release(major: u16, minor: u16, patch: u16) -> Self {
         Self {
             major,
             minor,
@@ -68,7 +69,7 @@ impl SemVer {
     }
 
     /// Create a pre-release version.
-    pub fn pre_release(major: u32, minor: u32, patch: u32, pre: impl Into<String>) -> Self {
+    pub fn pre_release(major: u16, minor: u16, patch: u16, pre: impl Into<String>) -> Self {
         Self {
             major,
             minor,
@@ -78,11 +79,13 @@ impl SemVer {
     }
 
     /// Returns `true` when this is a pre-release version.
+    #[must_use]
     pub fn is_pre_release(&self) -> bool {
         self.pre.is_some()
     }
 
     /// Returns `true` when this is a stable release (`major >= 1`, no pre-release).
+    #[must_use]
     pub fn is_stable(&self) -> bool {
         self.major >= 1 && self.pre.is_none()
     }
@@ -157,17 +160,17 @@ impl FromStr for SemVer {
         let major = parts
             .next()
             .ok_or_else(err)?
-            .parse::<u32>()
+            .parse::<u16>()
             .map_err(|_| err())?;
         let minor = parts
             .next()
             .ok_or_else(err)?
-            .parse::<u32>()
+            .parse::<u16>()
             .map_err(|_| err())?;
         let patch = parts
             .next()
             .ok_or_else(err)?
-            .parse::<u32>()
+            .parse::<u16>()
             .map_err(|_| err())?;
 
         // Disallow trailing components like "1.2.3.4".
@@ -203,28 +206,28 @@ impl<'de> Deserialize<'de> for SemVer {
 
 impl FsValue for SemVer {
     fn type_label_key(&self) -> &'static str {
-        "type.semver"
+        "type-semver"
     }
 
     fn placeholder_key(&self) -> &'static str {
-        "placeholder.semver"
+        "placeholder-semver"
     }
 
     fn help_key(&self) -> &'static str {
-        "help.semver"
+        "help-semver"
     }
 
     fn validate(&self) -> Result<(), &'static str> {
         // A constructed SemVer is always valid; this covers the pre-release label.
         if let Some(pre) = &self.pre {
             if pre.is_empty() {
-                return Err("error.validation.semver.pre_empty");
+                return Err("error-validation-semver-pre-empty");
             }
             let valid = pre
                 .chars()
                 .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-');
             if !valid {
-                return Err("error.validation.semver.pre_chars");
+                return Err("error-validation-semver-pre-chars");
             }
         }
         Ok(())
@@ -252,7 +255,7 @@ mod tests {
     #[test]
     fn parse_pre_release() {
         let v: SemVer = "0.5.0-beta.1".parse().unwrap();
-        assert_eq!(v.major, 0);
+        assert_eq!(v.major, 0u16);
         assert_eq!(v.pre, Some("beta.1".into()));
         assert!(v.is_pre_release());
         assert!(!v.is_stable());
@@ -326,8 +329,8 @@ mod tests {
     #[test]
     fn fsvalue_keys() {
         let v = SemVer::release(1, 0, 0);
-        assert_eq!(v.type_label_key(), "type.semver");
-        assert_eq!(v.placeholder_key(), "placeholder.semver");
-        assert_eq!(v.help_key(), "help.semver");
+        assert_eq!(v.type_label_key(), "type-semver");
+        assert_eq!(v.placeholder_key(), "placeholder-semver");
+        assert_eq!(v.help_key(), "help-semver");
     }
 }

@@ -1,4 +1,4 @@
-//! First-class value types for FreeSynergy.
+//! First-class value types for `FreeSynergy`.
 //!
 //! Every type here implements [`FsValue`], the self-describing value trait.
 //! The GUI layer reads `type_label_key`, `placeholder_key`, and `help_key`
@@ -30,7 +30,7 @@ pub use url::FsUrl;
 
 // ── FsValue ───────────────────────────────────────────────────────────────────
 
-/// Trait implemented by every first-class value type in FreeSynergy.
+/// Trait implemented by every first-class value type in `FreeSynergy`.
 ///
 /// # Purpose
 ///
@@ -71,6 +71,9 @@ pub trait FsValue: std::fmt::Debug + Send + Sync {
     /// Validate the current value.
     ///
     /// Returns `Ok(())` when valid.
+    ///
+    /// # Errors
+    ///
     /// Returns `Err(key)` with an i18n key for the error message when invalid.
     fn validate(&self) -> Result<(), &'static str>;
 

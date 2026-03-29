@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 // ── HostMode ──────────────────────────────────────────────────────────────────
 
-/// How a host is managed by this FreeSynergy node.
+/// How a host is managed by this `FreeSynergy` node.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum HostMode {
@@ -19,6 +19,7 @@ pub enum HostMode {
 
 impl HostMode {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             HostMode::Local => "Local",
@@ -28,6 +29,7 @@ impl HostMode {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             HostMode::Local => "host.mode.local",
@@ -37,6 +39,7 @@ impl HostMode {
     }
 
     /// `true` when SSH connectivity is required to reach this host.
+    #[must_use]
     pub fn requires_ssh(self) -> bool {
         matches!(self, HostMode::Remote | HostMode::Managed)
     }
@@ -61,6 +64,7 @@ pub enum HostStatus {
 
 impl HostStatus {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             HostStatus::Online => "Online",
@@ -71,6 +75,7 @@ impl HostStatus {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             HostStatus::Online => "host.status.online",
@@ -81,6 +86,7 @@ impl HostStatus {
     }
 
     /// `true` when the host can accept new deployments.
+    #[must_use]
     pub fn is_available(self) -> bool {
         matches!(self, HostStatus::Online | HostStatus::Degraded)
     }

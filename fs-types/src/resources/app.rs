@@ -1,4 +1,4 @@
-//! `AppResource` — a native FreeSynergy binary application.
+//! `AppResource` — a native `FreeSynergy` binary application.
 
 use super::meta::{ResourceMeta, Role};
 use crate::primitives::LanguageCode;
@@ -19,6 +19,7 @@ pub enum Platform {
 
 impl Platform {
     /// The canonical target triple string.
+    #[must_use]
     pub fn target_triple(&self) -> &'static str {
         match self {
             Platform::LinuxX86_64 => "x86_64-unknown-linux-gnu",
@@ -67,7 +68,7 @@ pub struct RoleDep {
 
 // ── AppResource ───────────────────────────────────────────────────────────────
 
-/// A native FreeSynergy binary application (Node, Desktop, Conductor, …).
+/// A native `FreeSynergy` binary application (Node, Desktop, Conductor, …).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppResource {
     /// Shared metadata present on every resource.

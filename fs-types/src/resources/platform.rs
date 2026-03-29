@@ -34,6 +34,7 @@ pub enum OsFamily {
 
 impl OsFamily {
     /// Badge shown in the store UI, e.g. `"Linux only"`.
+    #[must_use]
     pub fn badge(self) -> &'static str {
         match self {
             OsFamily::Linux => "Linux only",
@@ -44,6 +45,7 @@ impl OsFamily {
     }
 
     /// Parse from a tag value like `"linux"`, `"macos"`, `"windows"`.
+    #[must_use]
     pub fn from_tag(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "linux" => Some(OsFamily::Linux),
@@ -77,6 +79,7 @@ pub enum RequiredFeature {
 
 impl RequiredFeature {
     /// Human-readable name shown in the store badge.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             RequiredFeature::Systemd => "systemd",
@@ -92,6 +95,7 @@ impl RequiredFeature {
     }
 
     /// Parse from a tag value like `"systemd"`, `"podman"`.
+    #[must_use]
     pub fn from_tag(s: &str) -> Option<Self> {
         match s.to_lowercase().replace('-', "_").as_str() {
             "systemd" => Some(RequiredFeature::Systemd),
@@ -127,6 +131,7 @@ pub struct PlatformFilter {
 
 impl PlatformFilter {
     /// A filter that matches every platform.
+    #[must_use]
     pub fn any() -> Self {
         PlatformFilter {
             os: OsFamily::Any,
@@ -135,6 +140,7 @@ impl PlatformFilter {
     }
 
     /// Linux-only, no additional feature requirements.
+    #[must_use]
     pub fn linux_only() -> Self {
         PlatformFilter {
             os: OsFamily::Linux,
@@ -146,6 +152,7 @@ impl PlatformFilter {
     ///
     /// - `current_os`         — the host OS family
     /// - `available_features` — features detected by `fs-sysinfo`
+    #[must_use]
     pub fn is_satisfied_by(
         &self,
         current_os: OsFamily,
@@ -161,6 +168,7 @@ impl PlatformFilter {
 
     /// Returns human-readable descriptions of every unmet requirement.
     /// Empty when all requirements are satisfied.
+    #[must_use]
     pub fn unmet(&self, current_os: OsFamily, available: &[RequiredFeature]) -> Vec<String> {
         let mut out = Vec::new();
         if self.os != OsFamily::Any && self.os != current_os {
@@ -188,6 +196,7 @@ impl PlatformFilter {
 /// - … (all `RequiredFeature` variants)
 ///
 /// Returns `None` if no platform or requires tags are present.
+#[must_use]
 pub fn platform_filter_from_tags(tags: &[FsTag]) -> Option<PlatformFilter> {
     let mut os = OsFamily::Any;
     let mut requires = Vec::new();

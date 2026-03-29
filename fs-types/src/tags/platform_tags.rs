@@ -34,42 +34,55 @@ const ALL_KEYS: &[&str] = &[
 ];
 
 impl PlatformTags {
+    #[must_use]
     pub fn linux() -> FsTag {
         FsTag::new("platform.linux")
     }
+    #[must_use]
     pub fn macos() -> FsTag {
         FsTag::new("platform.macos")
     }
+    #[must_use]
     pub fn windows() -> FsTag {
         FsTag::new("platform.windows")
     }
+    #[must_use]
     pub fn any() -> FsTag {
         FsTag::new("platform.any")
     }
+    #[must_use]
     pub fn requires_systemd() -> FsTag {
         FsTag::new("requires.systemd")
     }
+    #[must_use]
     pub fn requires_pam() -> FsTag {
         FsTag::new("requires.pam")
     }
+    #[must_use]
     pub fn requires_launchd() -> FsTag {
         FsTag::new("requires.launchd")
     }
+    #[must_use]
     pub fn requires_windows_services() -> FsTag {
         FsTag::new("requires.windows-services")
     }
+    #[must_use]
     pub fn requires_podman() -> FsTag {
         FsTag::new("requires.podman")
     }
+    #[must_use]
     pub fn requires_docker() -> FsTag {
         FsTag::new("requires.docker")
     }
+    #[must_use]
     pub fn requires_git() -> FsTag {
         FsTag::new("requires.git")
     }
+    #[must_use]
     pub fn requires_ssh() -> FsTag {
         FsTag::new("requires.ssh")
     }
+    #[must_use]
     pub fn requires_smartctl() -> FsTag {
         FsTag::new("requires.smartctl")
     }

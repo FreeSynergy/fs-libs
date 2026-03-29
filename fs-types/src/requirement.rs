@@ -41,17 +41,20 @@ impl Requirement {
     }
 
     /// Attach a human-readable description.
+    #[must_use]
     pub fn with_description(mut self, desc: impl Into<String>) -> Self {
         self.description = Some(desc.into());
         self
     }
 
     /// `true` when `available` contains this requirement's capability.
+    #[must_use]
     pub fn is_fulfilled_by(&self, available: &[String]) -> bool {
         available.contains(&self.capability)
     }
 
     /// `true` when this requirement is mandatory and not yet fulfilled.
+    #[must_use]
     pub fn is_blocking(&self, available: &[String]) -> bool {
         !self.optional && !self.is_fulfilled_by(available)
     }

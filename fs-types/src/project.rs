@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 // ── ProjectStatus ─────────────────────────────────────────────────────────────
 
-/// Lifecycle status of a FreeSynergy deployment project.
+/// Lifecycle status of a `FreeSynergy` deployment project.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ProjectStatus {
@@ -21,6 +21,7 @@ pub enum ProjectStatus {
 
 impl ProjectStatus {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             ProjectStatus::Active => "Active",
@@ -31,6 +32,7 @@ impl ProjectStatus {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ProjectStatus::Active => "project.status.active",
@@ -41,11 +43,13 @@ impl ProjectStatus {
     }
 
     /// `true` when new services can be deployed into this project.
+    #[must_use]
     pub fn allows_deployment(self) -> bool {
         matches!(self, ProjectStatus::Active | ProjectStatus::Pending)
     }
 
     /// `true` when the project is in a terminal/read-only state.
+    #[must_use]
     pub fn is_read_only(self) -> bool {
         matches!(self, ProjectStatus::Archived)
     }
@@ -68,6 +72,7 @@ pub enum ProjectVisibility {
 
 impl ProjectVisibility {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             ProjectVisibility::Private => "Private",
@@ -77,6 +82,7 @@ impl ProjectVisibility {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ProjectVisibility::Private => "project.visibility.private",
@@ -86,6 +92,7 @@ impl ProjectVisibility {
     }
 
     /// `true` when unauthenticated users can read this project.
+    #[must_use]
     pub fn is_public(self) -> bool {
         matches!(self, ProjectVisibility::Public)
     }

@@ -50,6 +50,7 @@ impl LanguageCode {
     }
 
     /// Borrow the code as a `&str`, e.g. `"de"`.
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -58,6 +59,7 @@ impl LanguageCode {
     ///
     /// This is a lightweight check based on the known RTL codes.
     /// For full script metadata, use `fs_i18n::language_meta(code)`.
+    #[must_use]
     pub fn is_rtl(&self) -> bool {
         matches!(self.0.as_str(), "ar" | "fa" | "ur" | "ps")
     }
@@ -65,27 +67,27 @@ impl LanguageCode {
 
 impl FsValue for LanguageCode {
     fn type_label_key(&self) -> &'static str {
-        "type.language_code"
+        "type-language-code"
     }
 
     fn placeholder_key(&self) -> &'static str {
-        "placeholder.language_code"
+        "placeholder-language-code"
     }
 
     fn help_key(&self) -> &'static str {
-        "help.language_code"
+        "help-language-code"
     }
 
     fn validate(&self) -> Result<(), &'static str> {
         if self.0.is_empty() {
-            return Err("error.validation.language_code.empty");
+            return Err("error-validation-language-code-empty");
         }
         let valid = self
             .0
             .chars()
             .all(|c| c.is_ascii_alphanumeric() || c == '-');
         if !valid {
-            return Err("error.validation.language_code.chars");
+            return Err("error-validation-language-code-chars");
         }
         Ok(())
     }
@@ -137,7 +139,7 @@ mod tests {
     fn empty_code_invalid() {
         assert_eq!(
             LanguageCode::new("").validate(),
-            Err("error.validation.language_code.empty")
+            Err("error-validation-language-code-empty")
         );
     }
 
@@ -145,11 +147,11 @@ mod tests {
     fn invalid_chars() {
         assert_eq!(
             LanguageCode::new("de DE").validate(),
-            Err("error.validation.language_code.chars")
+            Err("error-validation-language-code-chars")
         );
         assert_eq!(
             LanguageCode::new("de_DE").validate(),
-            Err("error.validation.language_code.chars")
+            Err("error-validation-language-code-chars")
         );
     }
 
@@ -196,8 +198,8 @@ mod tests {
     #[test]
     fn fsvalue_keys() {
         let c = LanguageCode::new("en");
-        assert_eq!(c.type_label_key(), "type.language_code");
-        assert_eq!(c.placeholder_key(), "placeholder.language_code");
-        assert_eq!(c.help_key(), "help.language_code");
+        assert_eq!(c.type_label_key(), "type-language-code");
+        assert_eq!(c.placeholder_key(), "placeholder-language-code");
+        assert_eq!(c.help_key(), "help-language-code");
     }
 }

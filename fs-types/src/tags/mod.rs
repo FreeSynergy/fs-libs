@@ -1,4 +1,4 @@
-//! Tag system for FreeSynergy store resources.
+//! Tag system for `FreeSynergy` store resources.
 //!
 //! Tags are the primary search and filter instrument in the Store.
 //! They must be **typed** (from a known library) and **translatable**
@@ -66,6 +66,7 @@ impl FsTag {
     }
 
     /// The raw tag key, e.g. `"package.database"`.
+    #[must_use]
     pub fn key(&self) -> &str {
         &self.0
     }
@@ -73,6 +74,7 @@ impl FsTag {
     /// The i18n key for the translated display name of this tag.
     ///
     /// Convention: `"tag.<key>"`, e.g. `"tag.package.database"`.
+    #[must_use]
     pub fn i18n_key(&self) -> String {
         format!("tag.{}", self.0)
     }
@@ -80,6 +82,7 @@ impl FsTag {
     /// Returns `true` when this tag is registered in any known library.
     ///
     /// Checks `PackageTags`, `PlatformTags`, and `ApiTags`.
+    #[must_use]
     pub fn is_known(&self) -> bool {
         PackageTags::contains(self.key())
             || PlatformTags::contains(self.key())
@@ -88,6 +91,7 @@ impl FsTag {
 
     /// Returns `true` when the key follows the naming convention:
     /// lowercase, letters and digits, separated by dots or hyphens.
+    #[must_use]
     pub fn is_valid_key(&self) -> bool {
         !self.0.is_empty()
             && self
@@ -138,6 +142,7 @@ pub trait TagLibrary {
         Self: Sized;
 
     /// Returns `true` when `key` is a member of this library.
+    #[must_use]
     fn contains(key: &str) -> bool
     where
         Self: Sized,
@@ -146,6 +151,7 @@ pub trait TagLibrary {
     }
 
     /// All tags in this library as `FsTag` instances.
+    #[must_use]
     fn all() -> Vec<FsTag>
     where
         Self: Sized,

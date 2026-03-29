@@ -28,6 +28,7 @@ pub enum Action {
 
 impl Action {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             Action::Read => "Read",
@@ -42,6 +43,7 @@ impl Action {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             Action::Read => "permission.action.read",
@@ -56,11 +58,13 @@ impl Action {
     }
 
     /// `true` when this action implies all others (super-admin).
+    #[must_use]
     pub fn is_admin(self) -> bool {
         matches!(self, Action::Admin)
     }
 
     /// All non-admin actions, in declaration order.
+    #[must_use]
     pub fn non_admin_variants() -> &'static [Action] {
         &[
             Action::Read,
@@ -94,11 +98,13 @@ pub enum Scope {
 
 impl Scope {
     /// `true` when this scope covers the entire system.
+    #[must_use]
     pub fn is_global(&self) -> bool {
         matches!(self, Scope::Global)
     }
 
     /// Return the contained resource ID, if any.
+    #[must_use]
     pub fn resource_id(&self) -> Option<&str> {
         match self {
             Scope::Global => None,
@@ -109,6 +115,7 @@ impl Scope {
     }
 
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(&self) -> String {
         match self {
             Scope::Global => "Global".to_owned(),

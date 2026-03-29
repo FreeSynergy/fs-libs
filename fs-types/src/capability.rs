@@ -1,6 +1,6 @@
 //! Capability trait — what a service provides and what it needs.
 //!
-//! Capabilities are the core of the FreeSynergy dependency resolution system.
+//! Capabilities are the core of the `FreeSynergy` dependency resolution system.
 //! Each service declares what it **provides** (e.g. `"oidc-provider"`, `"smtp"`)
 //! and what it **requires** from other services.
 //!

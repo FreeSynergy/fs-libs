@@ -52,6 +52,7 @@ pub struct WidgetSize {
 }
 
 impl WidgetSize {
+    #[must_use]
     pub fn new(columns: u32, rows: u32) -> Self {
         Self { columns, rows }
     }

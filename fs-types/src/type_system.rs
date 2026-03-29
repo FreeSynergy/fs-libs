@@ -26,21 +26,25 @@ impl ServiceType {
     }
 
     /// The category part before the `/`, e.g. `"mail"` from `"mail/stalwart"`.
+    #[must_use]
     pub fn category(&self) -> &str {
         self.0.split('/').next().unwrap_or(&self.0)
     }
 
     /// The implementation part after the `/`, if present.
+    #[must_use]
     pub fn implementation(&self) -> Option<&str> {
         self.0.split_once('/').map(|(_, impl_)| impl_)
     }
 
     /// `true` when the type has an implementation suffix.
+    #[must_use]
     pub fn is_concrete(&self) -> bool {
         self.0.contains('/')
     }
 
     /// The raw string value.
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -79,7 +83,7 @@ pub enum ContainerPurpose {
     Wiki,
     /// Real-time chat / messaging (e.g. Matrix/Tuwunel).
     Chat,
-    /// Real-time collaboration / document editing (e.g. CryptPad).
+    /// Real-time collaboration / document editing (e.g. `CryptPad`).
     Collab,
     /// Task and project management (e.g. Vikunja).
     Tasks,
@@ -87,9 +91,9 @@ pub enum ContainerPurpose {
     Tickets,
     /// Maps and geolocation (e.g. uMap).
     Maps,
-    /// Observability / log aggregation (e.g. OpenObserver).
+    /// Observability / log aggregation (e.g. `OpenObserver`).
     Monitoring,
-    /// Relational database (e.g. PostgreSQL).
+    /// Relational database (e.g. `PostgreSQL`).
     Database,
     /// In-memory cache / key-value store (e.g. Dragonfly).
     Cache,
@@ -122,6 +126,7 @@ crate::impl_str_label_display!(ContainerPurpose);
 
 impl ContainerPurpose {
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ContainerPurpose::Proxy => "purpose.proxy",
@@ -142,6 +147,7 @@ impl ContainerPurpose {
     }
 
     /// `true` when this service is infrastructure (not directly user-facing).
+    #[must_use]
     pub fn is_infrastructure(self) -> bool {
         matches!(
             self,
@@ -181,6 +187,7 @@ pub struct TypeRegistry {
 
 impl TypeRegistry {
     /// Create an empty registry.
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -191,16 +198,19 @@ impl TypeRegistry {
     }
 
     /// All entries in registration order.
+    #[must_use]
     pub fn entries(&self) -> &[TypeEntry] {
         &self.entries
     }
 
     /// Find an entry by exact id (e.g. `"mail/stalwart"`).
+    #[must_use]
     pub fn get(&self, id: &str) -> Option<&TypeEntry> {
         self.entries.iter().find(|e| e.id == id)
     }
 
     /// All entries matching a category prefix (e.g. `"mail"`).
+    #[must_use]
     pub fn by_category(&self, category: &str) -> Vec<&TypeEntry> {
         self.entries
             .iter()
@@ -209,6 +219,7 @@ impl TypeRegistry {
     }
 
     /// All registered category names, deduplicated in insertion order.
+    #[must_use]
     pub fn categories(&self) -> Vec<&str> {
         let mut seen = std::collections::HashSet::new();
         self.entries
@@ -224,11 +235,13 @@ impl TypeRegistry {
     }
 
     /// Total number of registered entries.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.entries.len()
     }
 
     /// `true` when the registry contains no entries.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
     }

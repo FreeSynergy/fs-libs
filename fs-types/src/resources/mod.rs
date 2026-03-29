@@ -1,6 +1,6 @@
 //! Store resource type system — packages that can be published and installed.
 //!
-//! Every entry in a FreeSynergy store is a **resource**.  This module contains
+//! Every entry in a `FreeSynergy` store is a **resource**.  This module contains
 //! the common envelope ([`ResourceMeta`]), the top-level type discriminant
 //! ([`ResourceType`] / [`ValidationStatus`]), and one sub-module per resource
 //! category.

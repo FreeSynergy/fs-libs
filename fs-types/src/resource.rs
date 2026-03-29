@@ -1,15 +1,15 @@
-//! Core resource abstraction — the base of all managed FreeSynergy entities.
+//! Core resource abstraction — the base of all managed `FreeSynergy` entities.
 
 use crate::StrLabel;
 use serde::{Deserialize, Serialize};
 
 // ── ResourceKind ──────────────────────────────────────────────────────────────
 
-/// All top-level resource categories managed by FreeSynergy tools.
+/// All top-level resource categories managed by `FreeSynergy` tools.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ResourceKind {
-    /// A FreeSynergy deployment project (group of hosts + services).
+    /// A `FreeSynergy` deployment project (group of hosts + services).
     Project,
     /// A physical or virtual machine managed by this node.
     Host,
@@ -37,6 +37,7 @@ crate::impl_str_label_display!(ResourceKind);
 
 impl ResourceKind {
     /// i18n key for the resource kind label.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ResourceKind::Project => "noun.project",
@@ -50,7 +51,7 @@ impl ResourceKind {
 
 // ── Resource trait ────────────────────────────────────────────────────────────
 
-/// Base trait for any entity managed by FreeSynergy tools (Project, Host, Service …).
+/// Base trait for any entity managed by `FreeSynergy` tools (Project, Host, Service …).
 ///
 /// Implement this so that generic UI code (lists, detail panels, health checks)
 /// can handle all managed entity types uniformly without downcasting.
@@ -98,6 +99,7 @@ impl Meta {
     }
 
     /// `true` when the `id` is a non-empty, non-whitespace string.
+    #[must_use]
     pub fn is_valid(&self) -> bool {
         !self.id.trim().is_empty()
     }

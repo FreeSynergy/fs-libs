@@ -1,6 +1,6 @@
 //! Module-related types: runtime status and installation source.
 //!
-//! A "module" in FreeSynergy is a containerized service definition — e.g. `mail/stalwart`,
+//! A "module" in `FreeSynergy` is a containerized service definition — e.g. `mail/stalwart`,
 //! `iam/kanidm`. It is fetched from the store, installed via Quadlet, and tracked here.
 
 use serde::{Deserialize, Serialize};
@@ -28,6 +28,7 @@ pub enum ModuleStatus {
 
 impl ModuleStatus {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             ModuleStatus::Running => "Running",
@@ -40,6 +41,7 @@ impl ModuleStatus {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ModuleStatus::Running => "module.status.running",
@@ -52,16 +54,19 @@ impl ModuleStatus {
     }
 
     /// `true` when the module is actively serving traffic.
+    #[must_use]
     pub fn is_running(self) -> bool {
         matches!(self, ModuleStatus::Running)
     }
 
     /// `true` when the module is in a transitional state.
+    #[must_use]
     pub fn is_transitioning(self) -> bool {
         matches!(self, ModuleStatus::Installing | ModuleStatus::Updating)
     }
 
     /// `true` when the module needs operator attention.
+    #[must_use]
     pub fn needs_attention(self) -> bool {
         matches!(self, ModuleStatus::Error)
     }
@@ -73,7 +78,7 @@ impl ModuleStatus {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ModuleSource {
-    /// Downloaded from the official FreeSynergy store.
+    /// Downloaded from the official `FreeSynergy` store.
     #[default]
     Store,
     /// Loaded from a local path on disk.
@@ -84,6 +89,7 @@ pub enum ModuleSource {
 
 impl ModuleSource {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             ModuleSource::Store => "Store",
@@ -93,6 +99,7 @@ impl ModuleSource {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ModuleSource::Store => "module.source.store",
@@ -102,6 +109,7 @@ impl ModuleSource {
     }
 
     /// `true` when the module can be auto-updated from its source.
+    #[must_use]
     pub fn supports_auto_update(self) -> bool {
         matches!(self, ModuleSource::Store | ModuleSource::External)
     }

@@ -19,6 +19,7 @@ pub enum ChannelType {
 }
 
 impl ChannelType {
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             ChannelType::Telegram => "Telegram",
@@ -70,7 +71,7 @@ pub struct TokenDef {
 
 // ── BotResource ──────────────────────────────────────────────────────────────
 
-/// A bot that bridges messaging channels with FreeSynergy Bus events.
+/// A bot that bridges messaging channels with `FreeSynergy` Bus events.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BotResource {
     /// Shared metadata present on every resource.

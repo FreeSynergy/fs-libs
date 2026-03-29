@@ -40,16 +40,19 @@ impl FsPort {
     /// Wrap a raw `u16` as an `FsPort`.
     ///
     /// Does not validate — call [`FsValue::validate`] to check.
+    #[must_use]
     pub fn new(port: u16) -> Self {
         Self(port)
     }
 
     /// Return the raw port number.
+    #[must_use]
     pub fn value(self) -> u16 {
         self.0
     }
 
     /// Returns `true` when this is a well-known port (< 1024).
+    #[must_use]
     pub fn is_privileged(self) -> bool {
         self.0 < 1024
     }
@@ -57,20 +60,20 @@ impl FsPort {
 
 impl FsValue for FsPort {
     fn type_label_key(&self) -> &'static str {
-        "type.port"
+        "type-port"
     }
 
     fn placeholder_key(&self) -> &'static str {
-        "placeholder.port"
+        "placeholder-port"
     }
 
     fn help_key(&self) -> &'static str {
-        "help.port"
+        "help-port"
     }
 
     fn validate(&self) -> Result<(), &'static str> {
         if self.0 == 0 {
-            return Err("error.validation.port.zero");
+            return Err("error-validation-port-zero");
         }
         Ok(())
     }
@@ -108,7 +111,7 @@ mod tests {
 
     #[test]
     fn zero_is_invalid() {
-        assert_eq!(FsPort::new(0).validate(), Err("error.validation.port.zero"));
+        assert_eq!(FsPort::new(0).validate(), Err("error-validation-port-zero"));
     }
 
     #[test]
@@ -143,8 +146,8 @@ mod tests {
     #[test]
     fn fsvalue_keys() {
         let p = FsPort::new(8080);
-        assert_eq!(p.type_label_key(), "type.port");
-        assert_eq!(p.placeholder_key(), "placeholder.port");
-        assert_eq!(p.help_key(), "help.port");
+        assert_eq!(p.type_label_key(), "type-port");
+        assert_eq!(p.placeholder_key(), "placeholder-port");
+        assert_eq!(p.help_key(), "help-port");
     }
 }

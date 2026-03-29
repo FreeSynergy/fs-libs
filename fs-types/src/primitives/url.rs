@@ -64,6 +64,7 @@ impl FsUrl {
     }
 
     /// The text to show to the user: label if set, otherwise the raw URL.
+    #[must_use]
     pub fn display_label(&self) -> &str {
         if self.label.is_empty() {
             &self.url
@@ -73,6 +74,7 @@ impl FsUrl {
     }
 
     /// Returns `true` when the URL uses HTTPS.
+    #[must_use]
     pub fn is_https(&self) -> bool {
         self.url.starts_with("https://")
     }
@@ -80,23 +82,23 @@ impl FsUrl {
 
 impl FsValue for FsUrl {
     fn type_label_key(&self) -> &'static str {
-        "type.url"
+        "type-url"
     }
 
     fn placeholder_key(&self) -> &'static str {
-        "placeholder.url"
+        "placeholder-url"
     }
 
     fn help_key(&self) -> &'static str {
-        "help.url"
+        "help-url"
     }
 
     fn validate(&self) -> Result<(), &'static str> {
         if self.url.is_empty() {
-            return Err("error.validation.url.empty");
+            return Err("error-validation-url-empty");
         }
         if !self.url.starts_with("http://") && !self.url.starts_with("https://") {
-            return Err("error.validation.url.scheme");
+            return Err("error-validation-url-scheme");
         }
         Ok(())
     }
@@ -145,13 +147,13 @@ mod tests {
     #[test]
     fn validate_empty_url() {
         let u = FsUrl::new("", "label");
-        assert_eq!(u.validate(), Err("error.validation.url.empty"));
+        assert_eq!(u.validate(), Err("error-validation-url-empty"));
     }
 
     #[test]
     fn validate_bad_scheme() {
         let u = FsUrl::from_url("ftp://example.com");
-        assert_eq!(u.validate(), Err("error.validation.url.scheme"));
+        assert_eq!(u.validate(), Err("error-validation-url-scheme"));
     }
 
     #[test]
@@ -163,9 +165,9 @@ mod tests {
     #[test]
     fn fsvalue_keys() {
         let u = FsUrl::from_url("https://x.com");
-        assert_eq!(u.type_label_key(), "type.url");
-        assert_eq!(u.placeholder_key(), "placeholder.url");
-        assert_eq!(u.help_key(), "help.url");
+        assert_eq!(u.type_label_key(), "type-url");
+        assert_eq!(u.placeholder_key(), "placeholder-url");
+        assert_eq!(u.help_key(), "help-url");
     }
 
     #[test]

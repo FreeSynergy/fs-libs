@@ -15,7 +15,7 @@ pub trait TokenSet {
 
 // ── ColorScheme ───────────────────────────────────────────────────────────────
 
-/// All mandatory CSS colour tokens for a FreeSynergy colour scheme.
+/// All mandatory CSS colour tokens for a `FreeSynergy` colour scheme.
 ///
 /// Every field corresponds to a CSS custom property prefixed with the
 /// colour scheme id at load time (e.g. `--midnight-blue-bg-base`).
@@ -80,7 +80,7 @@ pub struct ColorScheme {
 
 // ── StyleResource (G3) ────────────────────────────────────────────────────────
 
-/// All mandatory style tokens for a FreeSynergy style resource.
+/// All mandatory style tokens for a `FreeSynergy` style resource.
 ///
 /// Every field has a strict CSS value format.  Missing or empty → `Broken`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -142,7 +142,8 @@ impl TokenSet for StyleTokens {
 }
 
 impl StyleTokens {
-    /// Return the default style tokens (matching the FreeSynergy base theme).
+    /// Return the default style tokens (matching the `FreeSynergy` base theme).
+    #[must_use]
     pub fn default_tokens() -> Self {
         Self {
             radius_sm: "4px".into(),

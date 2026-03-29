@@ -24,6 +24,7 @@ impl Role {
     }
 
     /// The inner role string, e.g. `"iam"`.
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -31,6 +32,7 @@ impl Role {
     /// The minimum set of standard methods that a bridge for this role must map.
     ///
     /// A bridge that is missing any of these gets `ValidationStatus::Incomplete`.
+    #[must_use]
     pub fn required_bridge_methods(&self) -> &'static [&'static str] {
         match self.0.as_str() {
             "iam" => &[
@@ -72,12 +74,12 @@ impl From<&str> for Role {
 
 // ── ResourceType ──────────────────────────────────────────────────────────────
 
-/// Discriminant for all resource kinds a FreeSynergy store can contain.
+/// Discriminant for all resource kinds a `FreeSynergy` store can contain.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ResourceType {
     // ── Programs ──────────────────────────────────────────────────────────────
-    /// A native FreeSynergy binary (Node, Desktop, Kanidm, Stalwart, Zentinel, Mistral, …).
+    /// A native `FreeSynergy` binary (Node, Desktop, Kanidm, Stalwart, Zentinel, Mistral, …).
     /// Binaries are not stored here — only metadata + references to GitHub Releases.
     App,
     /// A containerised application (Forgejo, Postgres, Outline, …).
@@ -110,7 +112,7 @@ pub enum ResourceType {
     FontSet,
     /// Mouse cursor files.
     CursorSet,
-    /// SVG icon collection — can override the default FreeSynergy icon set.
+    /// SVG icon collection — can override the default `FreeSynergy` icon set.
     IconSet,
     /// Button appearance (shape, border, padding, hover effect).
     ButtonStyle,
@@ -136,6 +138,7 @@ pub enum ResourceType {
 
 impl ResourceType {
     /// Human-readable label for UI display.
+    #[must_use]
     pub fn label(self) -> &'static str {
         match self {
             ResourceType::App => "App",
@@ -162,6 +165,7 @@ impl ResourceType {
     }
 
     /// i18n key for translations.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ResourceType::App => "resource.type.app",
@@ -191,11 +195,13 @@ impl ResourceType {
     ///
     /// Both live at root level in the Store (not under `packages/`) and reference
     /// other resources by id rather than containing packages themselves.
+    #[must_use]
     pub fn is_bundle(self) -> bool {
         matches!(self, ResourceType::Bundle | ResourceType::Theme)
     }
 
     /// `true` when this resource is a theme component (individually loadable).
+    #[must_use]
     pub fn is_theme_component(self) -> bool {
         matches!(
             self,
@@ -230,6 +236,7 @@ pub enum ValidationStatus {
 
 impl ValidationStatus {
     /// Unicode status badge for compact UI display.
+    #[must_use]
     pub fn badge(self) -> &'static str {
         match self {
             ValidationStatus::Ok => "✅",
@@ -239,6 +246,7 @@ impl ValidationStatus {
     }
 
     /// i18n key.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         match self {
             ValidationStatus::Ok => "validation.ok",
@@ -248,6 +256,7 @@ impl ValidationStatus {
     }
 
     /// `true` when the resource can be safely installed.
+    #[must_use]
     pub fn is_installable(self) -> bool {
         !matches!(self, ValidationStatus::Broken)
     }
@@ -260,7 +269,7 @@ impl ValidationStatus {
 pub struct Dependency {
     /// The resource id this package depends on, e.g. `"kanidm"`.
     pub id: String,
-    /// SemVer requirement string, e.g. `">=1.0.0"` or `"^2"`.
+    /// `SemVer` requirement string, e.g. `">=1.0.0"` or `"^2"`.
     pub version_req: String,
     /// When `true`, installation continues in degraded mode if unresolvable.
     pub optional: bool,
@@ -369,38 +378,44 @@ pub struct ResourceMeta {
 
 impl ResourceMeta {
     /// Builder: set `name`.
+    #[must_use]
     pub fn with_name(mut self, name: impl Into<String>) -> Self {
         self.name = name.into();
         self
     }
 
     /// Builder: set `summary` (shown in store listings, max 255 chars).
+    #[must_use]
     pub fn with_summary(mut self, summary: impl Into<String>) -> Self {
         self.summary = summary.into();
         self
     }
 
     /// Builder: set `description` (medium, shown in detail view).
+    #[must_use]
     pub fn with_description(mut self, description: impl Into<String>) -> Self {
         self.description = description.into();
         self
     }
 
     /// Builder: set `description_file` (path to long `.ftl` description).
+    #[must_use]
     pub fn with_description_file(mut self, path: impl Into<PathBuf>) -> Self {
         self.description_file = path.into();
         self
     }
 
     /// Builder: set `version` from a `SemVer`.
+    #[must_use]
     pub fn with_version(mut self, version: SemVer) -> Self {
         self.version = version;
         self
     }
 
     /// Builder: set `tags` (replaces existing).
+    #[must_use]
     pub fn with_tags(mut self, tags: impl IntoIterator<Item = impl Into<FsTag>>) -> Self {
-        self.tags = tags.into_iter().map(|t| t.into()).collect();
+        self.tags = tags.into_iter().map(std::convert::Into::into).collect();
         self
     }
 
