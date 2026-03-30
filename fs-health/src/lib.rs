@@ -4,16 +4,21 @@
 //   Validator — check_* functions validate cross-resource consistency
 //   Strategy  — each resource type has its own rule set
 //   OOP       — HealthLevel carries its own indicators and i18n keys
+//   Observer  — HealthMonitor watches multiple HealthCheck implementors
 //
 // Health levels:
 //   Ok      — all required conditions satisfied, deployment is possible.
 //   Warning — optional components missing; degraded but functional.
 //   Error   — required components missing; deployment will fail.
 
+#![deny(clippy::all, clippy::pedantic, warnings)]
+
 pub mod checker;
+pub mod monitor;
 pub mod reporter;
 
 pub use checker::HealthCheck;
+pub use monitor::HealthMonitor;
 pub use reporter::{HealthIssue, HealthLevel, HealthRules, HealthStatus};
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -41,9 +46,9 @@ mod tests {
     #[test]
     fn health_rules_require_and_warn() {
         let status = HealthRules::new()
-            .require(true, "should.not.appear")
-            .require(false, "health.missing.host")
-            .warn(false, "health.no.monitoring")
+            .require(true, "should-not-appear")
+            .require(false, "health-missing-host")
+            .warn(false, "health-no-monitoring")
             .build();
 
         assert_eq!(status.overall, HealthLevel::Error);
@@ -90,9 +95,9 @@ mod tests {
 
     #[test]
     fn health_level_i18n_keys() {
-        assert_eq!(HealthLevel::Ok.i18n_key(), "health.ok");
-        assert_eq!(HealthLevel::Warning.i18n_key(), "health.warning");
-        assert_eq!(HealthLevel::Error.i18n_key(), "health.error");
+        assert_eq!(HealthLevel::Ok.i18n_key(), "health-ok");
+        assert_eq!(HealthLevel::Warning.i18n_key(), "health-warning");
+        assert_eq!(HealthLevel::Error.i18n_key(), "health-error");
     }
 
     #[test]
@@ -149,12 +154,69 @@ mod tests {
         impl HealthCheck for DummyResource {
             fn health(&self) -> HealthStatus {
                 HealthRules::new()
-                    .require(self.ok, "health.dummy.not_ok")
+                    .require(self.ok, "health-dummy-not-ok")
                     .build()
             }
         }
 
         assert!(DummyResource { ok: true }.health().is_ok());
         assert!(!DummyResource { ok: false }.health().is_ok());
+    }
+
+    #[test]
+    fn health_monitor_all_ok() {
+        struct AlwaysOk;
+        impl HealthCheck for AlwaysOk {
+            fn health(&self) -> HealthStatus {
+                HealthStatus::ok()
+            }
+        }
+
+        let mut monitor = HealthMonitor::new();
+        monitor.register("a", AlwaysOk);
+        monitor.register("b", AlwaysOk);
+        assert!(monitor.overall().is_ok());
+    }
+
+    #[test]
+    fn health_monitor_propagates_error() {
+        struct Broken;
+        impl HealthCheck for Broken {
+            fn health(&self) -> HealthStatus {
+                HealthRules::new().require(false, "health-broken").build()
+            }
+        }
+        struct Fine;
+        impl HealthCheck for Fine {
+            fn health(&self) -> HealthStatus {
+                HealthStatus::ok()
+            }
+        }
+
+        let mut monitor = HealthMonitor::new();
+        monitor.register("fine", Fine);
+        monitor.register("broken", Broken);
+
+        let overall = monitor.overall();
+        assert_eq!(overall.overall, HealthLevel::Error);
+    }
+
+    #[test]
+    fn health_monitor_run_all_returns_individual_results() {
+        struct AlwaysOk;
+        impl HealthCheck for AlwaysOk {
+            fn health(&self) -> HealthStatus {
+                HealthStatus::ok()
+            }
+        }
+
+        let mut monitor = HealthMonitor::new();
+        monitor.register("svc1", AlwaysOk);
+        monitor.register("svc2", AlwaysOk);
+
+        let results = monitor.run_all();
+        assert_eq!(results.len(), 2);
+        assert!(results["svc1"].is_ok());
+        assert!(results["svc2"].is_ok());
     }
 }

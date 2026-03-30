@@ -18,7 +18,7 @@ use crate::reporter::HealthStatus;
 /// impl HealthCheck for MyService {
 ///     fn health(&self) -> HealthStatus {
 ///         HealthRules::new()
-///             .require(self.host.is_some(), "health.service.no_host")
+///             .require(self.host.is_some(), "health-service-no-host")
 ///             .build()
 ///     }
 /// }

@@ -50,17 +50,17 @@ impl LevelMeta for HealthLevel {
             HealthLevel::Ok => LevelData {
                 indicator: "✓",
                 text: "ok",
-                i18n_key: "health.ok",
+                i18n_key: "health-ok",
             },
             HealthLevel::Warning => LevelData {
                 indicator: "⚠",
                 text: "warning",
-                i18n_key: "health.warning",
+                i18n_key: "health-warning",
             },
             HealthLevel::Error => LevelData {
                 indicator: "✗",
                 text: "error",
-                i18n_key: "health.error",
+                i18n_key: "health-error",
             },
         }
     }
@@ -68,23 +68,28 @@ impl LevelMeta for HealthLevel {
 
 impl HealthLevel {
     /// Single-character Unicode indicator for compact TUI display.
+    #[must_use]
     pub fn indicator(self) -> &'static str {
         LevelMeta::indicator(&self)
     }
     /// Plain-text label for accessibility / screenreaders.
+    #[must_use]
     pub fn indicator_text(self) -> &'static str {
         LevelMeta::indicator_text(&self)
     }
     /// i18n key for the level label.
+    #[must_use]
     pub fn i18n_key(self) -> &'static str {
         LevelMeta::i18n_key(&self)
     }
     /// Combined indicator: `"✓ (ok)"`.
+    #[must_use]
     pub fn indicator_with_text(self) -> String {
         LevelMeta::indicator_with_text(&self)
     }
 
     /// `true` when the level indicates the resource is fully operational.
+    #[must_use]
     pub fn is_ok(self) -> bool {
         self == HealthLevel::Ok
     }
@@ -103,6 +108,7 @@ pub struct HealthIssue {
 
 impl HealthIssue {
     /// Construct an Error-level issue.
+    #[must_use]
     pub fn error(msg_key: &'static str) -> Self {
         Self {
             level: HealthLevel::Error,
@@ -111,6 +117,7 @@ impl HealthIssue {
     }
 
     /// Construct a Warning-level issue.
+    #[must_use]
     pub fn warning(msg_key: &'static str) -> Self {
         Self {
             level: HealthLevel::Warning,
@@ -119,6 +126,7 @@ impl HealthIssue {
     }
 
     /// Construct an info issue (level = Ok — informational only).
+    #[must_use]
     pub fn info(msg_key: &'static str) -> Self {
         Self {
             level: HealthLevel::Ok,
@@ -142,6 +150,7 @@ pub struct HealthStatus {
 
 impl HealthStatus {
     /// Create a clean (Ok, no issues) status.
+    #[must_use]
     pub fn ok() -> Self {
         Self::default()
     }
@@ -165,6 +174,7 @@ impl HealthStatus {
     }
 
     /// `true` when there are no issues at all.
+    #[must_use]
     pub fn is_ok(&self) -> bool {
         self.issues.is_empty()
     }
@@ -188,8 +198,8 @@ impl HealthStatus {
 ///
 /// ```ignore
 /// let status = HealthRules::new()
-///     .require(!host.is_empty(), "health.host.no_proxy")
-///     .warn(!services.is_empty(), "health.project.no_monitoring")
+///     .require(!host.is_empty(), "health-host-no-proxy")
+///     .warn(!services.is_empty(), "health-project-no-monitoring")
 ///     .build();
 /// ```
 #[derive(Default)]
@@ -199,11 +209,13 @@ pub struct HealthRules {
 
 impl HealthRules {
     /// Start a new rule set.
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Add an Error if `condition` is `false`.
+    #[must_use]
     pub fn require(mut self, condition: bool, msg_key: &'static str) -> Self {
         if !condition {
             self.status.error(msg_key);
@@ -212,6 +224,7 @@ impl HealthRules {
     }
 
     /// Add a Warning if `condition` is `false`.
+    #[must_use]
     pub fn warn(mut self, condition: bool, msg_key: &'static str) -> Self {
         if !condition {
             self.status.warning(msg_key);
@@ -220,6 +233,7 @@ impl HealthRules {
     }
 
     /// Finalize and return the `HealthStatus`.
+    #[must_use]
     pub fn build(self) -> HealthStatus {
         self.status
     }
