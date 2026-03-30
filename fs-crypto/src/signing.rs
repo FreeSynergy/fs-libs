@@ -1,3 +1,4 @@
+#![deny(clippy::all, clippy::pedantic, warnings)]
 // signing.rs — Ed25519 package signing and verification for FreeSynergy.
 //
 // The store uses Ed25519 signatures to ensure package integrity and authenticity.
@@ -17,11 +18,12 @@
 //   PackageSignature — detached signature over package bytes
 
 use ed25519_dalek::{Signer, SigningKey, Verifier, VerifyingKey};
-use hex;
 use rand_core::OsRng;
 use sha2::{Digest, Sha256};
 
 use fs_error::FsError;
+
+use crate::provider::CryptoProvider;
 
 // ── FsSigningKey ─────────────────────────────────────────────────────────────
 
@@ -34,6 +36,7 @@ pub struct FsSigningKey {
 
 impl FsSigningKey {
     /// Generate a new random signing key.
+    #[must_use]
     pub fn generate() -> Self {
         Self {
             inner: SigningKey::generate(&mut OsRng),
@@ -41,6 +44,7 @@ impl FsSigningKey {
     }
 
     /// Load a signing key from raw 32-byte seed.
+    #[must_use]
     pub fn from_bytes(bytes: &[u8; 32]) -> Self {
         Self {
             inner: SigningKey::from_bytes(bytes),
@@ -48,6 +52,9 @@ impl FsSigningKey {
     }
 
     /// Load from a hex-encoded string.
+    ///
+    /// # Errors
+    /// Returns `FsError::Parse` if the hex string is invalid or not 32 bytes.
     pub fn from_hex(s: &str) -> Result<Self, FsError> {
         let bytes =
             hex::decode(s).map_err(|e| FsError::parse(format!("signing key hex decode: {e}")))?;
@@ -58,11 +65,13 @@ impl FsSigningKey {
     }
 
     /// Encode the private key as a hex string (for storage in a secret file).
+    #[must_use]
     pub fn to_hex(&self) -> String {
         hex::encode(self.inner.to_bytes())
     }
 
     /// The corresponding public verifying key.
+    #[must_use]
     pub fn verifying_key(&self) -> FsVerifyingKey {
         FsVerifyingKey {
             inner: self.inner.verifying_key(),
@@ -71,13 +80,24 @@ impl FsSigningKey {
 
     /// Sign `data` and return a detached [`PackageSignature`].
     ///
-    /// Internally signs SHA-256(data) to keep the signature independent of data length.
-    pub fn sign(&self, data: &[u8]) -> PackageSignature {
+    /// Internally signs `SHA-256(data)` to keep the signature independent of data length.
+    #[must_use]
+    pub fn sign_package(&self, data: &[u8]) -> PackageSignature {
         let hash = Sha256::digest(data);
         let sig = self.inner.sign(&hash);
         PackageSignature {
             bytes: sig.to_bytes(),
         }
+    }
+}
+
+impl CryptoProvider for FsSigningKey {
+    fn sign(&self, data: &[u8]) -> Result<Vec<u8>, FsError> {
+        Ok(self.sign_package(data).to_bytes().to_vec())
+    }
+
+    fn hash(&self, data: &[u8]) -> Result<Vec<u8>, FsError> {
+        Ok(Sha256::digest(data).to_vec())
     }
 }
 
@@ -93,6 +113,9 @@ pub struct FsVerifyingKey {
 
 impl FsVerifyingKey {
     /// Load from raw 32-byte compressed Edwards point.
+    ///
+    /// # Errors
+    /// Returns `FsError::Parse` if the bytes are not a valid Ed25519 public key.
     pub fn from_bytes(bytes: &[u8; 32]) -> Result<Self, FsError> {
         VerifyingKey::from_bytes(bytes)
             .map(|inner| Self { inner })
@@ -100,6 +123,9 @@ impl FsVerifyingKey {
     }
 
     /// Load from a hex-encoded string.
+    ///
+    /// # Errors
+    /// Returns `FsError::Parse` if the hex is invalid or not 32 bytes.
     pub fn from_hex(s: &str) -> Result<Self, FsError> {
         let bytes =
             hex::decode(s).map_err(|e| FsError::parse(format!("verifying key hex decode: {e}")))?;
@@ -110,17 +136,32 @@ impl FsVerifyingKey {
     }
 
     /// Encode the public key as a hex string (for `store.toml`).
+    #[must_use]
     pub fn to_hex(&self) -> String {
         hex::encode(self.inner.to_bytes())
     }
 
     /// Verify `signature` over `data`. Returns `Ok(())` on success.
-    pub fn verify(&self, data: &[u8], signature: &PackageSignature) -> Result<(), FsError> {
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if signature verification fails.
+    pub fn verify_package(&self, data: &[u8], signature: &PackageSignature) -> Result<(), FsError> {
         let hash = Sha256::digest(data);
         let sig = ed25519_dalek::Signature::from_bytes(&signature.bytes);
         self.inner
             .verify(&hash, &sig)
             .map_err(|e| FsError::internal(format!("auth: signature verification failed: {e}")))
+    }
+}
+
+impl CryptoProvider for FsVerifyingKey {
+    fn verify(&self, data: &[u8], signature: &[u8]) -> Result<(), FsError> {
+        let pkg_sig = PackageSignature::from_bytes(signature)?;
+        self.verify_package(data, &pkg_sig)
+    }
+
+    fn hash(&self, data: &[u8]) -> Result<Vec<u8>, FsError> {
+        Ok(Sha256::digest(data).to_vec())
     }
 }
 
@@ -133,19 +174,37 @@ pub struct PackageSignature {
 }
 
 impl PackageSignature {
+    /// Return the raw 64-byte signature.
+    #[must_use]
+    pub fn to_bytes(&self) -> [u8; 64] {
+        self.bytes
+    }
+
+    /// Load from raw 64 bytes.
+    ///
+    /// # Errors
+    /// Returns `FsError::Parse` if the slice is not exactly 64 bytes.
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, FsError> {
+        let arr: [u8; 64] = bytes
+            .try_into()
+            .map_err(|_| FsError::parse("signature must be 64 bytes"))?;
+        Ok(Self { bytes: arr })
+    }
+
     /// Encode as a hex string (stored in `installed_packages.signature`).
+    #[must_use]
     pub fn to_hex(&self) -> String {
         hex::encode(self.bytes)
     }
 
     /// Load from a hex-encoded string.
+    ///
+    /// # Errors
+    /// Returns `FsError::Parse` if the hex is invalid or not 64 bytes.
     pub fn from_hex(s: &str) -> Result<Self, FsError> {
         let bytes =
             hex::decode(s).map_err(|e| FsError::parse(format!("signature hex decode: {e}")))?;
-        let arr: [u8; 64] = bytes
-            .try_into()
-            .map_err(|_| FsError::parse("signature must be 64 bytes"))?;
-        Ok(Self { bytes: arr })
+        Self::from_bytes(&bytes)
     }
 }
 
@@ -154,8 +213,91 @@ impl PackageSignature {
 /// Generate a new Ed25519 keypair and return `(signing_key_hex, verifying_key_hex)`.
 ///
 /// Used by `fsn store keygen`.
+#[must_use]
 pub fn generate_keypair() -> (String, String) {
     let sk = FsSigningKey::generate();
     let vk = sk.verifying_key();
     (sk.to_hex(), vk.to_hex())
+}
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sign_verify_roundtrip() {
+        let sk = FsSigningKey::generate();
+        let vk = sk.verifying_key();
+        let data = b"package-v1.0.0.tar.gz";
+        let sig = sk.sign_package(data);
+        assert!(vk.verify_package(data, &sig).is_ok());
+    }
+
+    #[test]
+    fn wrong_key_fails_verification() {
+        let sk1 = FsSigningKey::generate();
+        let sk2 = FsSigningKey::generate();
+        let sig = sk1.sign_package(b"data");
+        let vk2 = sk2.verifying_key();
+        assert!(vk2.verify_package(b"data", &sig).is_err());
+    }
+
+    #[test]
+    fn tampered_data_fails_verification() {
+        let sk = FsSigningKey::generate();
+        let vk = sk.verifying_key();
+        let sig = sk.sign_package(b"original");
+        assert!(vk.verify_package(b"tampered", &sig).is_err());
+    }
+
+    #[test]
+    fn signature_hex_roundtrip() {
+        let sk = FsSigningKey::generate();
+        let vk = sk.verifying_key();
+        let data = b"test-data";
+        let sig = sk.sign_package(data);
+        let hex = sig.to_hex();
+        let sig2 = PackageSignature::from_hex(&hex).unwrap();
+        assert!(vk.verify_package(data, &sig2).is_ok());
+    }
+
+    #[test]
+    fn key_hex_roundtrip() {
+        let sk = FsSigningKey::generate();
+        let vk = sk.verifying_key();
+
+        let sk2 = FsSigningKey::from_hex(&sk.to_hex()).unwrap();
+        let vk2 = FsVerifyingKey::from_hex(&vk.to_hex()).unwrap();
+
+        let data = b"round-trip test";
+        let sig = sk2.sign_package(data);
+        assert!(vk2.verify_package(data, &sig).is_ok());
+    }
+
+    #[test]
+    fn generate_keypair_returns_valid_hex() {
+        let (sk_hex, vk_hex) = generate_keypair();
+        assert_eq!(sk_hex.len(), 64); // 32 bytes → 64 hex chars
+        assert_eq!(vk_hex.len(), 64);
+        assert!(FsSigningKey::from_hex(&sk_hex).is_ok());
+        assert!(FsVerifyingKey::from_hex(&vk_hex).is_ok());
+    }
+
+    #[test]
+    fn crypto_provider_sign_verify_roundtrip() {
+        let sk = FsSigningKey::generate();
+        let vk = sk.verifying_key();
+        let data = b"crypto-provider-test";
+        let sig = sk.sign(data).unwrap();
+        assert!(vk.verify(data, &sig).is_ok());
+    }
+
+    #[test]
+    fn signature_from_bytes_wrong_length() {
+        assert!(PackageSignature::from_bytes(&[0u8; 63]).is_err());
+        assert!(PackageSignature::from_bytes(&[0u8; 65]).is_err());
+        assert!(PackageSignature::from_bytes(&[0u8; 64]).is_ok());
+    }
 }

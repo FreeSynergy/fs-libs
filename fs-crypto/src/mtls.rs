@@ -1,8 +1,9 @@
+#![deny(clippy::all, clippy::pedantic, warnings)]
 //! mTLS certificate generation via rcgen.
 
 use fs_error::FsError;
 use rcgen::{
-    BasicConstraints, CertificateParams, DnType, ExtendedKeyUsagePurpose, IsCa, KeyPair,
+    BasicConstraints, CertificateParams, DnType, ExtendedKeyUsagePurpose, IsCa, Issuer, KeyPair,
     KeyUsagePurpose, SanType,
 };
 use time::{Duration, OffsetDateTime};
@@ -34,6 +35,9 @@ impl CaBundle {
     ///
     /// - `common_name` — e.g. `"FreeSynergy Internal CA"`
     /// - `days_valid` — validity period in days
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if key generation or cert signing fails.
     pub fn generate(common_name: &str, days_valid: u32) -> Result<Self, FsError> {
         let key_pair = KeyPair::generate()
             .map_err(|e| FsError::internal(format!("CA key generation failed: {e}")))?;
@@ -47,7 +51,7 @@ impl CaBundle {
 
         let now = OffsetDateTime::now_utc();
         params.not_before = now;
-        params.not_after = now + Duration::days(days_valid as i64);
+        params.not_after = now + Duration::days(i64::from(days_valid));
 
         let cert = params
             .self_signed(&key_pair)
@@ -64,18 +68,16 @@ impl CaBundle {
     /// - `common_name` — server hostname (e.g. `"zentinel.example.com"`)
     /// - `san` — Subject Alternative Names (DNS names)
     /// - `days_valid` — validity period in days
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if key generation or cert signing fails.
     pub fn issue_server_cert(
         &self,
         common_name: &str,
         san: &[&str],
         days_valid: u32,
     ) -> Result<CertBundle, FsError> {
-        let ca_key_pair = KeyPair::from_pem(&self.key_pem)
-            .map_err(|e| FsError::internal(format!("CA key parse failed: {e}")))?;
-        let ca_cert = CertificateParams::from_ca_cert_pem(&self.cert_pem)
-            .map_err(|e| FsError::internal(format!("CA cert parse failed: {e}")))?
-            .self_signed(&ca_key_pair)
-            .map_err(|e| FsError::internal(format!("CA cert rebuild failed: {e}")))?;
+        let issuer = self.to_issuer()?;
 
         let key_pair = KeyPair::generate()
             .map_err(|e| FsError::internal(format!("server key generation failed: {e}")))?;
@@ -88,7 +90,7 @@ impl CaBundle {
 
         let now = OffsetDateTime::now_utc();
         params.not_before = now;
-        params.not_after = now + Duration::days(days_valid as i64);
+        params.not_after = now + Duration::days(i64::from(days_valid));
 
         for dns_name in san {
             params
@@ -99,7 +101,7 @@ impl CaBundle {
         }
 
         let cert = params
-            .signed_by(&key_pair, &ca_cert, &ca_key_pair)
+            .signed_by(&key_pair, &issuer)
             .map_err(|e| FsError::internal(format!("server cert signing failed: {e}")))?;
 
         Ok(CertBundle {
@@ -111,17 +113,15 @@ impl CaBundle {
     /// Issue a client certificate signed by this CA.
     ///
     /// Used for mTLS client authentication.
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if key generation or cert signing fails.
     pub fn issue_client_cert(
         &self,
         common_name: &str,
         days_valid: u32,
     ) -> Result<CertBundle, FsError> {
-        let ca_key_pair = KeyPair::from_pem(&self.key_pem)
-            .map_err(|e| FsError::internal(format!("CA key parse failed: {e}")))?;
-        let ca_cert = CertificateParams::from_ca_cert_pem(&self.cert_pem)
-            .map_err(|e| FsError::internal(format!("CA cert parse failed: {e}")))?
-            .self_signed(&ca_key_pair)
-            .map_err(|e| FsError::internal(format!("CA cert rebuild failed: {e}")))?;
+        let issuer = self.to_issuer()?;
 
         let key_pair = KeyPair::generate()
             .map_err(|e| FsError::internal(format!("client key generation failed: {e}")))?;
@@ -134,16 +134,26 @@ impl CaBundle {
 
         let now = OffsetDateTime::now_utc();
         params.not_before = now;
-        params.not_after = now + Duration::days(days_valid as i64);
+        params.not_after = now + Duration::days(i64::from(days_valid));
 
         let cert = params
-            .signed_by(&key_pair, &ca_cert, &ca_key_pair)
+            .signed_by(&key_pair, &issuer)
             .map_err(|e| FsError::internal(format!("client cert signing failed: {e}")))?;
 
         Ok(CertBundle {
             cert_pem: cert.pem(),
             key_pem: key_pair.serialize_pem(),
         })
+    }
+
+    /// Reconstruct the rcgen [`Issuer`] from the stored PEM strings.
+    ///
+    /// Used internally to sign leaf certificates.
+    fn to_issuer(&self) -> Result<Issuer<'_, KeyPair>, FsError> {
+        let ca_key_pair = KeyPair::from_pem(&self.key_pem)
+            .map_err(|e| FsError::internal(format!("CA key parse failed: {e}")))?;
+        Issuer::from_ca_cert_pem(&self.cert_pem, ca_key_pair)
+            .map_err(|e| FsError::internal(format!("CA cert parse failed: {e}")))
     }
 }
 

@@ -474,6 +474,7 @@ dependencies = [
  "ed25519-dalek",
  "fs-error",
  "hex",
+ "hmac",
  "pbkdf2",
  "rand 0.10.0",
  "rand_core 0.6.4",

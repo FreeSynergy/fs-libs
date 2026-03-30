@@ -1,9 +1,12 @@
+#![deny(clippy::all, clippy::pedantic, warnings)]
 //! age X25519 encryption and decryption.
 
 use std::io::{Read, Write};
 
 use age::secrecy::ExposeSecret;
 use fs_error::FsError;
+
+use crate::provider::CryptoProvider;
 
 // ── Shared helper ─────────────────────────────────────────────────────────────
 
@@ -25,7 +28,7 @@ fn finish_armored_write(encryptor: age::Encryptor, plaintext: &[u8]) -> Result<V
 
     writer
         .finish()
-        .and_then(|w| w.finish())
+        .and_then(age::armor::ArmoredWriter::finish)
         .map_err(|e| FsError::internal(format!("age finish failed: {e}")))?;
 
     Ok(output)
@@ -42,6 +45,9 @@ pub struct AgeEncryptor {
 
 impl AgeEncryptor {
     /// Create from an age X25519 public key string (e.g. `"age1..."`).
+    ///
+    /// # Errors
+    /// Returns `FsError::Config` if the key string is invalid.
     pub fn from_public_key(key: &str) -> Result<Self, FsError> {
         let recipient = key
             .parse::<age::x25519::Recipient>()
@@ -49,7 +55,10 @@ impl AgeEncryptor {
         Ok(Self { recipient })
     }
 
-    /// Encrypt plaintext. Returns armored ASCII output.
+    /// Encrypt `plaintext`. Returns armored ASCII output.
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if encryption or I/O fails.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, FsError> {
         let recipient = self.recipient.clone();
         let encryptor =
@@ -68,6 +77,9 @@ pub struct AgeDecryptor {
 
 impl AgeDecryptor {
     /// Create from an age X25519 private key string (e.g. `"AGE-SECRET-KEY-1..."`).
+    ///
+    /// # Errors
+    /// Returns `FsError::Config` if the key string is invalid.
     pub fn from_private_key(key: &str) -> Result<Self, FsError> {
         let identity = key
             .parse::<age::x25519::Identity>()
@@ -76,6 +88,9 @@ impl AgeDecryptor {
     }
 
     /// Decrypt armored age ciphertext.
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if decryption or I/O fails.
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, FsError> {
         let armored = age::armor::ArmoredReader::new(ciphertext);
         let decryptor = age::Decryptor::new(armored)
@@ -105,6 +120,7 @@ pub struct AgePassphraseEncryptor {
 
 impl AgePassphraseEncryptor {
     /// Create a new encryptor with the given passphrase.
+    #[must_use]
     pub fn new(passphrase: impl Into<String>) -> Self {
         use age::secrecy::SecretString;
         Self {
@@ -113,6 +129,9 @@ impl AgePassphraseEncryptor {
     }
 
     /// Encrypt `plaintext` with the configured passphrase. Returns armored ASCII output.
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if encryption or I/O fails.
     pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, FsError> {
         let encryptor = age::Encryptor::with_user_passphrase(self.passphrase.clone());
         finish_armored_write(encryptor, plaintext)
@@ -128,6 +147,7 @@ pub struct AgePassphraseDecryptor {
 
 impl AgePassphraseDecryptor {
     /// Create a new decryptor with the given passphrase.
+    #[must_use]
     pub fn new(passphrase: impl Into<String>) -> Self {
         use age::secrecy::SecretString;
         Self {
@@ -136,6 +156,9 @@ impl AgePassphraseDecryptor {
     }
 
     /// Decrypt armored passphrase-encrypted age ciphertext.
+    ///
+    /// # Errors
+    /// Returns `FsError::Internal` if decryption or I/O fails.
     pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, FsError> {
         let armored = age::armor::ArmoredReader::new(ciphertext);
         let decryptor = age::Decryptor::new(armored)
@@ -162,11 +185,38 @@ impl AgePassphraseDecryptor {
 /// Generate a new age X25519 keypair.
 ///
 /// Returns `(public_key_str, private_key_str)`.
+#[must_use]
 pub fn generate_age_keypair() -> (String, String) {
     let identity = age::x25519::Identity::generate();
     let private_key = identity.to_string().expose_secret().to_owned();
     let public_key = identity.to_public().to_string();
     (public_key, private_key)
+}
+
+// ── CryptoProvider impls ──────────────────────────────────────────────────────
+
+impl CryptoProvider for AgeEncryptor {
+    fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, FsError> {
+        AgeEncryptor::encrypt(self, plaintext)
+    }
+}
+
+impl CryptoProvider for AgeDecryptor {
+    fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, FsError> {
+        AgeDecryptor::decrypt(self, ciphertext)
+    }
+}
+
+impl CryptoProvider for AgePassphraseEncryptor {
+    fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, FsError> {
+        AgePassphraseEncryptor::encrypt(self, plaintext)
+    }
+}
+
+impl CryptoProvider for AgePassphraseDecryptor {
+    fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, FsError> {
+        AgePassphraseDecryptor::decrypt(self, ciphertext)
+    }
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -259,5 +309,15 @@ mod tests {
             priv_key.starts_with("AGE-SECRET-KEY-"),
             "private key should start with 'AGE-SECRET-KEY-'"
         );
+    }
+
+    #[test]
+    fn crypto_provider_encrypt_decrypt() {
+        let (pub_key, priv_key) = generate_age_keypair();
+        let enc: &dyn CryptoProvider = &AgeEncryptor::from_public_key(&pub_key).unwrap();
+        let dec: &dyn CryptoProvider = &AgeDecryptor::from_private_key(&priv_key).unwrap();
+        let ct = enc.encrypt(b"provider test").unwrap();
+        let pt = dec.decrypt(&ct).unwrap();
+        assert_eq!(pt, b"provider test");
     }
 }

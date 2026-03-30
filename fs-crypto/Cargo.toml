@@ -14,6 +14,7 @@ mtls    = ["dep:rcgen", "dep:time"]
 keygen  = ["dep:rand", "dep:pbkdf2", "dep:sha2", "dep:hex"]
 tokens  = ["dep:rand", "dep:hex"]
 signing = ["dep:ed25519-dalek", "dep:rand_core", "dep:hex", "dep:sha2"]
+hmac    = ["dep:hmac", "dep:sha2", "dep:hex"]
 
 [dependencies]
 fs-error = { workspace = true }
@@ -25,7 +26,11 @@ optional = true
 
 [dependencies.rcgen]
 version = "0.14"
-features = ["x509-parser"]
+features = ["x509-parser", "pem"]
+optional = true
+
+[dependencies.hmac]
+version = "0.12"
 optional = true
 
 [dependencies.time]
