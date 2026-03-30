@@ -1,3 +1,5 @@
+#![deny(clippy::all, clippy::pedantic, warnings)]
+
 use crate::validation::ValidationIssue;
 
 // ── RepairAction ──────────────────────────────────────────────────────────────
@@ -95,6 +97,7 @@ pub enum RepairOutcome {
 
 impl RepairOutcome {
     /// `true` when the config can be used as-is after this repair attempt.
+    #[must_use]
     pub fn is_usable(&self) -> bool {
         matches!(
             self,
@@ -105,6 +108,7 @@ impl RepairOutcome {
     /// Returns the applied repair actions for `AutoRepaired`, otherwise `&[]`.
     ///
     /// Each action implements [`Display`](std::fmt::Display) for human-readable output.
+    #[must_use]
     pub fn actions(&self) -> &[RepairAction] {
         match self {
             RepairOutcome::AutoRepaired(actions) => actions,
@@ -160,7 +164,7 @@ mod tests {
             field: "x".into(),
             value: "42".into(),
         };
-        assert!(a.to_string().contains("x"));
+        assert!(a.to_string().contains('x'));
         assert!(a.to_string().contains("42"));
 
         let b = RepairAction::Rename {
@@ -232,14 +236,18 @@ mod tests {
         let good = TrivialConfig { name: "ok".into() };
         assert!(good.is_valid());
 
-        let bad = TrivialConfig { name: "".into() };
+        let bad = TrivialConfig {
+            name: String::new(),
+        };
         assert!(!bad.is_valid());
         assert_eq!(bad.errors().len(), 1);
     }
 
     #[test]
     fn repairable_repair_sets_default() {
-        let mut cfg = TrivialConfig { name: "".into() };
+        let mut cfg = TrivialConfig {
+            name: String::new(),
+        };
         let outcome = cfg.repair();
         assert_eq!(cfg.name, "default");
         assert!(outcome.is_usable());
