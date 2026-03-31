@@ -1,0 +1,9 @@
+[package]
+id          = "freeSynergy.libs"
+name        = "FreeSynergy Libs"
+kind        = "library"
+version     = "0.1.0"
+description = "FreeSynergy primitive library workspace — fs-types, fs-error, fs-core, fs-crypto, fs-health"
+license     = "MIT"
+
+# No service section — compile-time only, no container, no daemon
