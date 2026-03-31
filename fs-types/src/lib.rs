@@ -23,8 +23,10 @@
 //! | [`type_system`] | `ServiceType`, `ContainerPurpose`, `TypeRegistry`, `TypeEntry` |
 //! | [`capability`] | `Capability` trait |
 //! | [`requirement`] | `Requirement`, `DeclareRequirements` trait |
+//! | [`events`] | Bus payload structs for all standard topics |
 
 pub mod capability;
+pub mod events;
 pub mod host;
 pub mod label;
 pub mod module;
@@ -40,6 +42,14 @@ pub mod type_system;
 // ── Flat re-exports ───────────────────────────────────────────────────────────
 
 pub use capability::Capability;
+pub use events::{
+    AuthTokenIssuedEvent, AuthTokenRevokedEvent, AuthUserCreatedEvent, AuthUserDeletedEvent,
+    AuthUserUpdatedEvent, PackageInstalledEvent, PackageRemovedEvent, PackageUpdatedEvent,
+    RegistryCapabilityAddedEvent, RegistryCapabilityRemovedEvent, RegistryServiceRegisteredEvent,
+    RegistryServiceStoppedEvent, SessionAppClosedEvent, SessionAppOpenedEvent,
+    SessionUserLoginEvent, SessionUserLogoutEvent, SystemHealthDegradedEvent,
+    SystemHealthRestoredEvent, SystemNodeStartedEvent, SystemNodeStoppingEvent,
+};
 pub use host::{HostMode, HostStatus};
 pub use label::StrLabel;
 pub use module::{ModuleSource, ModuleStatus};
